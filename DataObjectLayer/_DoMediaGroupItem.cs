@@ -8,22 +8,22 @@ using System.Data.SQLite;
 namespace DataObjectLayer
 {
 	
-	public class XP_PROCs : DoTableCollection<XP_PROC>
+	public class MediaGroupItems : DoTableCollection<MediaGroupItem>
 	{
 		protected override string TableName
 		{
-			get { return "XP_PROC"; }
+			get { return "MediaGroupItem"; }
 		}
 		
 		
 		
 		private String _error;
 		
-		protected override XP_PROC ReadRecord(DataRow pRow)
+		protected override MediaGroupItem ReadRecord(DataRow pRow)
 		{
-			XP_PROC xp_proc = new XP_PROC(false);
+			MediaGroupItem mediagroupitem = new MediaGroupItem(false);
 			
-			return xp_proc;
+			return mediagroupitem;
 		}
 		
 		public bool Remove()
@@ -33,7 +33,7 @@ namespace DataObjectLayer
 		}
 	}
 	
-	public class XP_PROC : DoTable
+	public class MediaGroupItem : DoTable
 	{
 		public static class Fields
 		{
@@ -42,12 +42,12 @@ namespace DataObjectLayer
 		
 		private String _error;
 		
-		public XP_PROC()
+		public MediaGroupItem()
 		{
 			InitializeBase(true);
 		}
 		
-		public XP_PROC(bool _new)
+		public MediaGroupItem(bool _new)
 		{
 			InitializeBase(_new);
 		}
@@ -55,7 +55,7 @@ namespace DataObjectLayer
 		private void InitializeBase(bool _new)
 		{
 			base._cols = new Columns();
-			base._table = "XP_PROC";
+			base._table = "MediaGroupItem";
 			base._new = _new;
 			
 			//Generate SQL strings

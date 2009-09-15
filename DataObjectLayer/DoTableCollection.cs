@@ -26,19 +26,19 @@ namespace DataObjectLayer
             return Read(string.Empty);
         }
         /// <summary>
-        /// Read using a QueryExpression
+        /// Read using a DoQuery object
         /// </summary>
-        /// <param name="pQueryExpression">Expression containing constaints on what to return</param>
+        /// <param name="pQueryExpression">Query containing constraints on what to return</param>
         /// <returns>Dataz</returns>
-        public bool Read(DoQueryExpression pQueryExpression)
+        public bool Read(DoQuery pQuery)
         {
-            return Read(pQueryExpression.GetWhere());
+            return Read(pQuery.GetSql());
         }
         /// <summary>
         /// Read using a string query
         /// </summary>
         /// <param name="query"></param>
-        /// <returns></returns>
+        /// <returns>Dataz</returns>
         public bool Read(String query)
         {
             StringBuilder sql = new StringBuilder();

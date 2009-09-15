@@ -7,6 +7,7 @@ using System.Data.SQLite;
 
 namespace DataObjectLayer
 {
+	
 	public class librarys : DoTableCollection<library>
 	{
 		protected override string TableName
@@ -196,6 +197,28 @@ namespace DataObjectLayer
 	
 	public class library : DoTable
 	{
+		public static class Fields
+		{
+			public const string FIELD_INDEX = "index";
+			public const string FIELD_TITLE = "title";
+			public const string FIELD_RELATIVEPATH = "relativepath";
+			public const string FIELD_FULLPATH = "fullpath";
+			public const string FIELD_ROOT = "root";
+			public const string FIELD_FILENAME = "filename";
+			public const string FIELD_ARTIST = "artist";
+			public const string FIELD_LENGTH = "length";
+			public const string FIELD_KBPS = "kbps";
+			public const string FIELD_MONOSTEREO = "monostereo";
+			public const string FIELD_ALBUM = "album";
+			public const string FIELD_FREQUENCY = "frequency";
+			public const string FIELD_GENRE = "genre";
+			public const string FIELD_RATING = "rating";
+			public const string FIELD_PLAYCOUNT = "playcount";
+			public const string FIELD_FILETYPE = "filetype";
+			public const string FIELD_TRACK = "track";
+			public const string FIELD_CONTAININGFOLDER = "containingfolder";
+		}
+		
 		private Int32 _index;
 		private String _title;
 		private String _relativepath;

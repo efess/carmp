@@ -317,18 +317,22 @@ namespace CarMpControls
         /// <param name="item"></param>
         public void InsertNextIntoListIndex(DragableListItem item, int pListIndex)
         {
-            if (this.m_listCollection[pListIndex] == null &&
+            if (pListIndex < 0)
+            {
+                throw new Exception("ListIndex is out of rage n- Less than zero");
+            }
+            if (this.m_listCollection.Count == pListIndex &&
                 this.m_listCollection[pListIndex - 1] != null)
             {
                 this.m_listCollection.Add(new DragableListCollection());
             }
+            else
+            {
+                throw new Exception("ListIndex is out of range - greater than next insertion");
+            }
+
             item.ClientSize = new Size(this.Width, m_listItemSize);
             item.Index = this.m_listCurrentDisplay.Count;
-
-            if (pListIndex >= m_listCollection.Count || pListIndex < 0)
-            {
-                throw new Exception("ListIndex is out of rage");
-            }
 
             this.m_listCollection[pListIndex].Add(item);
 

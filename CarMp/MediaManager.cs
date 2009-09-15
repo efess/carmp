@@ -9,29 +9,34 @@ namespace CarMp
     public static class MediaManager
     {
         public static DragableListSelectHistory MediaListHistory;
-        public static MediaListItem[] RootLevelItems = 
+        public static MediaListItem[] RootLevelItems =
             new MediaListItem[]
                 {
                     new MediaListItem(
                     "Artists",
                     MediaItemSpecialTarget.AllArtists,
-                    MediaItemType.Root),
+                    MediaItemType.Root,
+                    MediaItemType.Artist),
                     new MediaListItem(
                     "Albums",
                     MediaItemSpecialTarget.AllAlbums,
-                    MediaItemType.Root),
+                    MediaItemType.Root,
+                    MediaItemType.Album),
                     new MediaListItem(
                     "Playlists",
                     MediaItemSpecialTarget.AllPlaylists,
-                    MediaItemType.Root),
+                    MediaItemType.Root,
+                    MediaItemType.Playlist),
                     new MediaListItem(
                     "AllSongs",
                     MediaItemSpecialTarget.AllSongs,
-                    MediaItemType.Root),
+                    MediaItemType.Root,
+                    MediaItemType.Song),
                     new MediaListItem(
                     "Directory",
                     MediaItemSpecialTarget.RootDirectories,
-                    MediaItemType.Root)
+                    MediaItemType.Root,
+                    MediaItemType.Directory)
                 };
 
         public static void Initialize()
@@ -54,11 +59,11 @@ namespace CarMp
                 MediaListItem mli = null;
                 if (history.ItemSpecialTarget > 0)
                 {
-                    mli = new MediaListItem(history.DisplayString, (MediaItemSpecialTarget)history.ItemSpecialTarget, (MediaItemType)history.ItemType);
+                    mli = new MediaListItem(history.DisplayString, (MediaItemSpecialTarget)history.ItemSpecialTarget, (MediaItemType)history.ItemType, (MediaItemType)history.ItemTargetType);
                 }
                 else
                 {
-                    mli = new MediaListItem(history.DisplayString, history.ItemTarget, (MediaItemType)history.ItemType);
+                    mli = new MediaListItem(history.DisplayString, history.ItemTarget, (MediaItemType)history.ItemType, (MediaItemType)history.ItemTargetType);
                 }
                 MediaListHistory.Push(mli);
             }
@@ -75,9 +80,52 @@ namespace CarMp
             }
         }
 
-        private static List<MediaListItem> GetNewMediaList()
-        {
+        //private static List<MediaListItem> GetNewMediaList(int pListHistoryIndex)
+        //{
+        //    if (pListHistoryIndex == 0)
+        //    {
+        //        return RootLevelItems;
+        //    }
 
-        }
+
+        //}
+
+        //private static DoQuery GetQueryConstraint(MediaListItem pItem)
+        //{
+        //    DoQuery query = new DoQuery();
+        //    DoQueryConstraint constraint = new DoQueryConstraint()
+        //    {
+        //        Predicate = QueryPredicate.Equal
+        //    };
+
+        //    if (pItem.ItemSpecialTarget == MediaItemSpecialTarget.StringDefined)
+        //    {
+        //        switch (pItem.ItemType)
+        //        {
+        //            case MediaItemType.Album:
+        //                constraint.Field = "Album";
+        //                break;
+        //            case MediaItemType.Album:
+        //                constraint.Field = "Album";
+        //                break;
+        //            case MediaItemType.Directory:
+        //                constraint.Field = "Directory";
+        //                break;
+        //            case MediaItemType.Playlist:
+        //                constraint.Field = "Playlist";
+        //                break;
+        //            // This case doesn't exist - Root items have special target types
+        //            //case MediaItemType.Root:
+        //            //    constraint.Field = "Album";
+        //            //    break;
+        //            case MediaItemType.Song:
+        //                constraint.Field = "Album";
+        //                break;
+        //        }
+        //    }
+        //    else
+        //    {
+        //    }
+        //}
     }
 }

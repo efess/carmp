@@ -12,17 +12,17 @@ namespace CarMp.Forms
         {
             InitializeComponent();
 
+            //librarys ls = new librarys();
+            //DoQueryExpression dqe = new DoQueryExpression();
 
-            MediaList.InsertNextIntoCurrent(MediaManager.RootLevelItems);
-            librarys ls = new librarys();
-            DoQueryExpression dqe = new DoQueryExpression();
-
-            dqe.Add(new DoQueryConstraint("artist", "Tool", QueryPredicate.Equal));
-            ls.Read(dqe);
+            //dqe.Add(new DoQueryConstraint("artist", "Tool", QueryPredicate.Equal));
+            //ls.Read(dqe);
         }
 
         private void InitializeInitialListState()
         {
+            MediaList.InsertNextIntoCurrent(MediaManager.RootLevelItems);
+
             int listIndex = 1;
             foreach (MediaListItem item in MediaManager.MediaListHistory)
             {

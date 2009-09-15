@@ -1,6 +1,6 @@
 ﻿namespace CarMp.Forms
 {
-    partial class FormHome
+    partial class FormDebug
     {
         /// <summary>
         /// Required designer variable.
@@ -28,20 +28,36 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.txtDebug = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
-            // FormHome
+            // txtDebug
+            // 
+            this.txtDebug.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtDebug.Location = new System.Drawing.Point(0, 0);
+            this.txtDebug.Multiline = true;
+            this.txtDebug.Name = "txtDebug";
+            this.txtDebug.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtDebug.Size = new System.Drawing.Size(755, 311);
+            this.txtDebug.TabIndex = 0;
+            // 
+            // DebugWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(750, 506);
-            this.Name = "FormHome";
-            this.Text = "Form1";
+            this.ClientSize = new System.Drawing.Size(755, 311);
+            this.Controls.Add(this.txtDebug);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.Name = "DebugWindow";
+            this.Text = "Debug";
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
+
+        private System.Windows.Forms.TextBox txtDebug;
     }
 }
-

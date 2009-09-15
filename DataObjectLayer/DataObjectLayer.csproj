@@ -63,6 +63,8 @@
     <Compile Include="_DoArtist.cs" />
     <Compile Include="_Dolibrary.cs" />
     <Compile Include="_DoListHistory.cs" />
+    <Compile Include="_DoMediaGroup.cs" />
+    <Compile Include="_DoMediaGroupItem.cs" />
     <Compile Include="_DoOptions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

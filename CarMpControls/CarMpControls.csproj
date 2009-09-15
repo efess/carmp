@@ -47,23 +47,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DragableList.cs">
+    <Compile Include="DragableList\DragableList.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="DragableList.designer.cs">
+    <Compile Include="DragableList\DragableList.designer.cs">
       <DependentUpon>DragableList.cs</DependentUpon>
     </Compile>
-    <Compile Include="DragableListCollection.cs" />
-    <Compile Include="DragableListItem.cs" />
+    <Compile Include="DragableList\DragableListCollection.cs" />
+    <Compile Include="DragableList\DragableListItem.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="FadableControl.cs" />
-    <Compile Include="InteractiveList.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="InteractiveList.designer.cs">
-      <DependentUpon>InteractiveList.cs</DependentUpon>
-    </Compile>
-    <Compile Include="InteractiveListItem.cs" />
     <Compile Include="MyButton.cs">
       <SubType>Component</SubType>
     </Compile>

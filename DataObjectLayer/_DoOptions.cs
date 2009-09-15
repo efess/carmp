@@ -7,6 +7,7 @@ using System.Data.SQLite;
 
 namespace DataObjectLayer
 {
+	
 	public class Optionss : DoTableCollection<Options>
 	{
 		protected override string TableName
@@ -52,6 +53,12 @@ namespace DataObjectLayer
 	
 	public class Options : DoTable
 	{
+		public static class Fields
+		{
+			public const string FIELD_KEY = "key";
+			public const string FIELD_KEYVALUE = "keyvalue";
+		}
+		
 		private String _key;
 		private String _keyvalue;
 		

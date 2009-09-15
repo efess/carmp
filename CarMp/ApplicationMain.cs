@@ -11,13 +11,19 @@ namespace CarMp
         public static Dictionary<string, string> ApplicationOptions;
 
         public const string COMMANDLINE_DEBUG = "-DEBUG";
-        public const string COMMANDLINE_GENERATEDBCLASSES = "-GENCLASSES";
+        public const string COMMANDLINE_XML_SETTINGS_PATH = "-settings";
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
         static void Main(string[] pArgs)
         {
+            AppDomain.CurrentDomain.UnhandledException +=
+                new UnhandledExceptionEventHandler(HandleLowLevelException);
+
+            DebugHandler.De += new DebugHandler.DebugException(dr => Console.WriteLine("EXCEPTION> " + dr.Message));
+            DebugHandler.Ds += new DebugHandler.DebugString(Console.WriteLine);
+
             if (!CheckDuplicateExecution())
             {
                 return;
@@ -28,25 +34,36 @@ namespace CarMp
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             //Application.Run(new FormSplash());
-            Application.Run(new Forms.FormDigitalAudio());
+            Application.Run(new Forms.FormHome());
         }
 
         private static void InitializeApplication(string[] pCommandLineArgs)
         {
-            SQLiteCommon.Initialize(@"C:\source\CarMp\CarMp\database.db");
-            MediaManager.Initialize();
-
+            string xmlSettings = SessionSettings.SettingsXmlLocation;
             // Process any command line arguments
             for (int i = 0; i < pCommandLineArgs.Length; i++)
             {
+                bool secondParm = i != pCommandLineArgs.Length - 1
+                    && !pCommandLineArgs[i + 1].StartsWith("-");
+
                 switch (pCommandLineArgs[i].ToUpper())
                 {
                     case COMMANDLINE_DEBUG:
                         SessionSettings.Debug = true;
                         break;
+                    case COMMANDLINE_XML_SETTINGS_PATH:
+                        if (secondParm)
+                        {
+                            xmlSettings = pCommandLineArgs[i+1];
+                            i++;
+                        }
+                        break;
                 }
             }
-           
+
+            SessionSettings.LoadFromXml(xmlSettings);
+            SQLiteCommon.Initialize(SessionSettings.DatabaseLocation);
+            MediaManager.Initialize();           
         }
 
         private static bool CheckDuplicateExecution()
@@ -65,6 +82,11 @@ namespace CarMp
                 return false;
             }
             return true;
+        }
+
+        private static void HandleLowLevelException(object sender, UnhandledExceptionEventArgs e)
+        {
+            DebugHandler.HandleException((Exception)e.ExceptionObject);
         }
     }
 }

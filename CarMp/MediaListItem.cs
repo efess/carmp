@@ -8,25 +8,57 @@ using CarMpControls;
 
 namespace CarMp
 {
+    public enum MediaItemType
+    {
+        /// <summary>
+        /// Determines what type of search
+        /// </summary>
+        Root,
+        Directory,
+        Playlist,
+        Artist,
+        Album,
+        Song
+    }
+
+    /// <summary>
+    /// Defines some static Targets
+    /// </summary>
+    public enum MediaItemSpecialTarget
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        StringDefined,
+        AllArtists,
+        AllAlbums,
+        AllPlaylists,
+        AllSongs,
+        RootDirectories
+    }
+
     public class MediaListItem : DragableListItem
     {
         private string m_itemDisplayString;
         private MediaItemType m_itemType;
         private MediaItemSpecialTarget m_itemSpecialTarget;
         private string m_itemTarget;
+        private MediaItemType m_itemTargetType;
         
-        public MediaListItem(string pDisplay, string pTarget, MediaItemType pItemType)
+        public MediaListItem(string pDisplay, string pTarget, MediaItemType pItemType, MediaItemType pItemTargetType)
         {
             m_itemDisplayString = pDisplay;
             m_itemType = pItemType;
             m_itemTarget = pTarget;
+            m_itemTargetType = pItemTargetType;
         }
 
-        public MediaListItem(string pDisplay, MediaItemSpecialTarget pTarget, MediaItemType pItemType)
+        public MediaListItem(string pDisplay, MediaItemSpecialTarget pTarget, MediaItemType pItemType, MediaItemType pItemTargetType)
         {
             m_itemDisplayString = pDisplay;
             m_itemType = pItemType;
             m_itemSpecialTarget = pTarget;
+            m_itemTargetType = pItemTargetType;
         }
 
         /// <summary>

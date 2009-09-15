@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace CarMp
+namespace CarMp.Forms
 {
     public partial class FormHome : Form
     {

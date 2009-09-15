@@ -6,6 +6,91 @@ using System.Text;
 namespace DataObjectLayer
 {
     /// <summary>
+    /// Represents a query which defines what will be returned by the select
+    /// </summary>
+    public class DoQuery : DoQueryExpression
+    {
+        private const string OrderByClause = " ORDER BY ";
+        private const string GroupByClause = " GROUP BY ";
+
+        private List<string> _groupBy;
+
+        public List<string> GroupBy
+        {
+            get { return _groupBy; }
+            set { _groupBy = value; }
+        }
+        private List<string> _orderBy;
+        /// <summary>
+        /// List of fields to order 
+        /// </summary>
+        public List<string> OrderBy
+        {
+            get { return _orderBy; }
+            set { _orderBy = value; }
+        }
+
+        public string GetSql()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append(GetWhere());
+            sb.Append(GetGroupBy());
+            sb.Append(GetOrderBy());
+
+            return sb.ToString();
+        }
+
+        public string GetOrderBy()
+        {
+            if (OrderBy.Count == 0)
+                return String.Empty;
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append(OrderByClause);
+            bool first = true;
+            foreach (string orderby in _orderBy)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    sb.Append(", ");
+                }
+                sb.Append(orderby);
+            }
+
+            return sb.ToString();
+        }
+
+        public string GetGroupBy()
+        {
+            if (GroupBy.Count == 0)
+                return String.Empty;
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append(GroupByClause);
+            bool first = true;
+            foreach (string group in _groupBy)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    sb.Append(", ");
+                }
+                sb.Append(group);
+            }
+
+            return sb.ToString();
+        }
+    }
+
+    /// <summary>
     /// DoQueryConstraint represents a constraint on a field & value
     /// 
     /// Note: Programmer has to be smart when using this. It is *not* type safe,
@@ -52,7 +137,7 @@ namespace DataObjectLayer
     public class DoQueryExpression : List<DoQueryConstraint>
     {
         private const string AND = " AND ";
-        public string GetWhere()
+        protected string GetWhere()
         {
             StringBuilder sb = new StringBuilder();
             bool first = true;

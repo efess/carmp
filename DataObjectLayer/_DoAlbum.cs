@@ -7,6 +7,7 @@ using System.Data.SQLite;
 
 namespace DataObjectLayer
 {
+	
 	public class Albums : DoTableCollection<Album>
 	{
 		protected override string TableName
@@ -79,6 +80,15 @@ namespace DataObjectLayer
 	
 	public class Album : DoTable
 	{
+		public static class Fields
+		{
+			public const string FIELD_INDEX = "index";
+			public const string FIELD_ALBUMNAME = "AlbumName";
+			public const string FIELD_ALBUMARTIST = "AlbumArtist";
+			public const string FIELD_PICTUREPATH = "picturepath";
+			public const string FIELD_PICTURESMALLPATH = "picturesmallpath";
+		}
+		
 		private Int32 _index;
 		private String _AlbumName;
 		private String _AlbumArtist;

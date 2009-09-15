@@ -7,6 +7,7 @@ using System.Data.SQLite;
 
 namespace DataObjectLayer
 {
+	
 	public class paths : DoTableCollection<path>
 	{
 		protected override string TableName
@@ -52,6 +53,12 @@ namespace DataObjectLayer
 	
 	public class path : DoTable
 	{
+		public static class Fields
+		{
+			public const string FIELD_DIRECTORY = "Directory";
+			public const string FIELD_SUBDIRECTORY = "SubDirectory";
+		}
+		
 		private String _Directory;
 		private String _SubDirectory;
 		

@@ -7,6 +7,7 @@ using System.Data.SQLite;
 
 namespace DataObjectLayer
 {
+	
 	public class ListHistorys : DoTableCollection<ListHistory>
 	{
 		protected override string TableName
@@ -20,6 +21,7 @@ namespace DataObjectLayer
 		private Int32 _ItemType;
 		private Int32 _ItemSpecialTarget;
 		private String _ItemTarget;
+		private Int32 _ItemTargetType;
 		
 		private Boolean _HistoryId_set;
 		private Boolean _ListIndex_set;
@@ -27,6 +29,7 @@ namespace DataObjectLayer
 		private Boolean _ItemType_set;
 		private Boolean _ItemSpecialTarget_set;
 		private Boolean _ItemTarget_set;
+		private Boolean _ItemTargetType_set;
 		
 		private String _error;
 		
@@ -66,6 +69,12 @@ namespace DataObjectLayer
 			set { _ItemTarget = value; _ItemTarget_set = true; }
 		}
 		
+		public Int32 ItemTargetType
+		{
+			get { return _ItemTargetType; }
+			set { _ItemTargetType = value; _ItemTargetType_set = true; }
+		}
+		
 		protected override ListHistory ReadRecord(DataRow pRow)
 		{
 			ListHistory listhistory = new ListHistory(false);
@@ -75,6 +84,7 @@ namespace DataObjectLayer
 			listhistory.ItemType = Int32.Parse((pRow["ItemType"].ToString() == "" ? "0" : pRow["ItemType"].ToString()));
 			listhistory.ItemSpecialTarget = Int32.Parse((pRow["ItemSpecialTarget"].ToString() == "" ? "0" : pRow["ItemSpecialTarget"].ToString()));
 			listhistory.ItemTarget = pRow["ItemTarget"].ToString();
+			listhistory.ItemTargetType = Int32.Parse((pRow["ItemTargetType"].ToString() == "" ? "0" : pRow["ItemTargetType"].ToString()));
 			
 			return listhistory;
 		}
@@ -88,12 +98,24 @@ namespace DataObjectLayer
 	
 	public class ListHistory : DoTable
 	{
+		public static class Fields
+		{
+			public const string FIELD_HISTORYID = "HistoryId";
+			public const string FIELD_LISTINDEX = "ListIndex";
+			public const string FIELD_DISPLAYSTRING = "DisplayString";
+			public const string FIELD_ITEMTYPE = "ItemType";
+			public const string FIELD_ITEMSPECIALTARGET = "ItemSpecialTarget";
+			public const string FIELD_ITEMTARGET = "ItemTarget";
+			public const string FIELD_ITEMTARGETTYPE = "ItemTargetType";
+		}
+		
 		private Int32 _HistoryId;
 		private Int32 _ListIndex;
 		private String _DisplayString;
 		private Int32 _ItemType;
 		private Int32 _ItemSpecialTarget;
 		private String _ItemTarget;
+		private Int32 _ItemTargetType;
 		
 		private String _error;
 		
@@ -143,6 +165,12 @@ namespace DataObjectLayer
 			set { _ItemTarget = value; }
 		}
 		
+		public Int32 ItemTargetType
+		{
+			get { return ItemTargetType; }
+			set { _ItemTargetType = value; }
+		}
+		
 		private void InitializeBase(bool _new)
 		{
 			base._cols = new Columns();
@@ -152,6 +180,7 @@ namespace DataObjectLayer
 			base._cols.Add(new Column("ItemType", DataType.Int, false, false, 4, false));
 			base._cols.Add(new Column("ItemSpecialTarget", DataType.Int, false, false, 4, false));
 			base._cols.Add(new Column("ItemTarget", DataType.String, false, false, 1024, false));
+			base._cols.Add(new Column("ItemTargetType", DataType.Int, false, false, 4, false));
 			base._table = "ListHistory";
 			base._new = _new;
 			
@@ -169,6 +198,7 @@ namespace DataObjectLayer
 			db.Parameters.Add("@ItemType ", DbType.Int16, 4,"ItemType").Value = _ItemType.ToString();
 			db.Parameters.Add("@ItemSpecialTarget ", DbType.Int16, 4,"ItemSpecialTarget").Value = _ItemSpecialTarget.ToString();
 			db.Parameters.Add("@ItemTarget ", DbType.StringFixedLength, 1024,"ItemTarget").Value = _ItemTarget.ToString();
+			db.Parameters.Add("@ItemTargetType ", DbType.Int16, 4,"ItemTargetType").Value = _ItemTargetType.ToString();
 		}
 		internal override void GetDeleteParms(SQLiteCommand db)
 		{

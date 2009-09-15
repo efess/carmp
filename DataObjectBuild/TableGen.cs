@@ -18,14 +18,14 @@ namespace DataObjectBuild
         
         public TableGen()
         {
-            SQLiteCommon.Initialize(@"C:\source\CarMp\CarMp\database.db");
+            SQLiteCommon.Initialize(@"C:\source\CarMp\trunk\database.db");
         }
 
         public void Generate()
         {
             try
             {
-                _path = @"C:\source\CarMp\CarMp\DataObjectLayer\";
+                _path = @"C:\source\CarMp\trunk\DataObjectLayer\";
                 string error;
                 if (!SQLiteCommon.Initialized)
                     return;
@@ -64,6 +64,7 @@ namespace DataObjectBuild
                     c.Append(T(""));
                     c.Append(T("namespace DataObjectLayer"));
                     c.Append(T("{"));
+                    c.Append(T(""));
                     c.Append(T("public class " + tb.Name + "s : DoTableCollection<" + tb.Name + ">"));
                     c.Append(T("{"));
                     c.Append(T("protected override string TableName"));
@@ -190,6 +191,14 @@ namespace DataObjectBuild
 
                     c.Append(T("public class " + tb.Name + " : DoTable"));
                     c.Append(T("{"));
+                    c.Append(T("public static class Fields"));
+                    c.Append(T("{"));
+                    foreach (Column col in tb.Cols)
+                    {
+                        c.Append(T("public const string FIELD_" + col.Name.ToUpper() + " = \"" + col.Name + "\";"));
+                    }
+                    c.Append(T("}"));
+                    c.Append(T(""));
                     foreach (Column col in tb.Cols)
                     {
                         switch (col.Type)

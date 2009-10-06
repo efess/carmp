@@ -6,13 +6,47 @@ using System.Collections;
 
 namespace CarMpMediaInfo
 {
-    public class Id3Read : Id3v1
+    public class Id3Read
     {
-        
         public string infile;
-        public Id3v1 id3v1;
-        public Id3v2 id3v2;
+
+        public Id3v1 Id3v1 { get; private set;}
+        public Id3v2 Id3v2 { get; private set;}
+
         public Mp3Header mp3Header;
+
+        public string Album
+        {
+            get { if (!string.IsNullOrEmpty(Id3v2.Album)) return Id3v2.Album; return Id3v1.Album; }
+        }
+        public string Artist
+        {
+            get { if (!string.IsNullOrEmpty(Id3v2.Artist)) return Id3v2.Artist; return Id3v1.Artist; }
+        }
+        public string Title
+        {
+            get { if (!string.IsNullOrEmpty(Id3v2.Title)) return Id3v2.Title; return Id3v1.Title; }
+        }
+        public string Track
+        {
+            get { if (!string.IsNullOrEmpty(Id3v2.TrackNum)) return Id3v2.TrackNum; return Id3v1.Track; }
+        }
+        public int BitRate
+        {
+            get { if (!(Id3v2.BitRate == 0)) return Id3v2.BitRate; return Id3v1.BitRate; }
+        }
+        public string Genre
+        {
+            get { if (!string.IsNullOrEmpty(Id3v2.Genre)) return Id3v2.Genre; return Id3v1.Genre; }
+        }
+        public string Year
+        {
+            get { if (!string.IsNullOrEmpty(Id3v2.Year)) return Id3v2.Year; return Id3v1.Year; }
+        }
+        public byte[] AlbumPic
+        {
+            get {  return Id3v2.AlbumPic; }
+        }
 
         #region GenreConv
         public static string[] GenreConv = 
@@ -149,8 +183,8 @@ namespace CarMpMediaInfo
         public BinaryReader br;
         public Id3Read(string pFile)
         {
-            id3v1 = new Id3v1();
-            id3v2 = new Id3v2();
+            Id3v1 = new Id3v1();
+            Id3v2 = new Id3v2();
             mp3Header = new Mp3Header();
             infile = pFile;
 
@@ -162,12 +196,12 @@ namespace CarMpMediaInfo
                 //Check for ID3v2
                 if (ASCIIByteArrayToStr(br.ReadBytes(3)) == "ID3")
                 {
-                    id3v2.read(fs);
+                    Id3v2.read(fs);
                 }
 
-                id3v1.read(fs);
+                Id3v1.read(fs);
 
-                mp3Header.read(fs, id3v2.TagSize);
+                mp3Header.read(fs, Id3v2.TagSize);
 
 
                 //Get basic MP3 file info (non id3)
@@ -264,13 +298,14 @@ namespace CarMpMediaInfo
                 BinaryReader br = new BinaryReader(pfs);
 
                 header = br.ReadBytes(4);
-
+                long tempPosition = pfs.Length;
                 //If there are a ridiculous amount of zeros, just goto the middle of the stream
                 while (header[0] == 0 && header[1] == 0 && header[2] == 0 && header[3] == 0) 
                 {
                     if (counter > 100)
                     {
-                        pfs.Position = pfs.Length / 2;
+                        pfs.Position = tempPosition / 2;
+                        tempPosition = pfs.Position;
                     }
                     pfs.Position -= 3;
                     header = br.ReadBytes(4);

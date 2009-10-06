@@ -77,6 +77,8 @@ namespace CarMpControls
         private Boolean m_mouseScrollLock;
         private DateTime m_mouseDownTime;
         private int m_mouseDownTimeMsSelectTheshold = 200;
+        private int m_mouseDownTimePxSelectThreashold = 5;
+
         private Point m_mouseDownPoint;
         private Point m_mouseDownLastMove;
         private int m_mouseMoveVelocity;
@@ -131,6 +133,7 @@ namespace CarMpControls
                 {
                     m_currentListSize_px = 0;
                 }
+                
             }
         }
 
@@ -287,6 +290,28 @@ namespace CarMpControls
                 return (pPixel * (this.m_listCurrentDisplay.Count)) / (m_listItemSize * CurrentList.Count);
         }
 
+        /// <summary>
+        /// Index of this list
+        /// </summary>
+        public int CurrentListIndex
+        {
+            get
+            {
+                return m_listCollection.IndexOf(m_listCurrentDisplay);
+            }
+        }
+
+        /// <summary>
+        /// Number of lists
+        /// </summary>
+        public int ListCollectionCount
+        {
+            get
+            {
+                return m_listCollection.Count;
+            }
+        }
+
         // Public Methods
         public void InsertNextIntoCurrent(DragableListItem[] pItems)
         {
@@ -326,7 +351,7 @@ namespace CarMpControls
             {
                 this.m_listCollection.Add(new DragableListCollection());
             }
-            else
+            else if (m_listCollection.Count <= pListIndex)
             {
                 throw new Exception("ListIndex is out of range - greater than next insertion");
             }
@@ -341,17 +366,44 @@ namespace CarMpControls
                 this.m_currentListSize_px += this.m_listItemSize;
         }
 
-        public void ClearListAtIndex(int pListIndex)
+        /// <summary>
+        /// Clears all dragable list items in list at specified listindex
+        /// 
+        /// </summary>
+        /// <param name="pListIndex"></param>
+        public void ClearListAtIndex(int pListIndex, bool pRemoveFutureLists)
         {
+            D("Clearing at index " + pListIndex);
+
             if (pListIndex >= m_listCollection.Count || pListIndex < 0)
             {
                 throw new Exception("ListIndex is out of rage");
             }
 
-            this.m_listCollection[pListIndex].Clear();
+            // Call dispose on each object
+            for (int i = m_listCollection.Count - 1; i >= pListIndex; i--)
+            {
+                if (pRemoveFutureLists || i == pListIndex)
+                {
+                    DragableListCollection listCollection = m_listCollection[i];
+                    listCollection.ListLocPx = 0;
 
-            if (this.m_listCollection[pListIndex] == m_listCurrentDisplay)
-                Invalidate();
+                    for (int j = 0; j < listCollection.Count; j++)
+                    {
+                        listCollection[j].Dispose();
+                    }
+
+                    listCollection.Clear();
+
+                    if (listCollection == m_listCurrentDisplay)
+                        Invalidate();
+
+                    {
+                        if (i != pListIndex)
+                            m_listCollection.Remove(listCollection);
+                    }
+                }
+            }
         }
 
         public new Size Size
@@ -378,12 +430,15 @@ namespace CarMpControls
         {
             this.m_listCurrentDisplay.SelectedIndex = GetItemAtPx(m_currentListLoc_px + pMouseY);
 
-            // Execute Event
-            if (SelectedItemChanged != null)
+            if (this.m_listCurrentDisplay.SelectedIndex > -1)
             {
-                SelectedItemChanged(this, new SelectedItemChangedEventArgs(this.m_listCurrentDisplay.SelectedItem));
+                // Execute Event
+                if (SelectedItemChanged != null)
+                {
+                    SelectedItemChanged(this, new SelectedItemChangedEventArgs(this.m_listCurrentDisplay.SelectedItem));
+                }
+                this.Invalidate();
             }
-            this.Invalidate();
         }
 
         private void ShiftList(int pDelta)
@@ -395,29 +450,34 @@ namespace CarMpControls
             this.Invalidate();
         }
 
-        private void ChangeList(int pDistance)
+        public void ChangeList(int pNewIndex)
         {
-            int newIndex = Math.Sign(pDistance) + m_listCollectionIndex;
-            DragableListSwitchDirection direction = Math.Sign(pDistance) == -1 
-                ?  DragableListSwitchDirection.Back 
+            D("Moving list from index " + CurrentListIndex + " to " + pNewIndex);
+            DragableListSwitchDirection direction = Math.Sign(pNewIndex - CurrentListIndex) == -1
+                ? DragableListSwitchDirection.Back
                 : DragableListSwitchDirection.Forward;
 
             // Return if at the beginning or end of list
-            if (newIndex < 0
-                || newIndex >= m_listCollection.Count)
+            if (pNewIndex < 0
+                || pNewIndex >= m_listCollection.Count)
                 return;
 
             if (BeforeListChanged != null)
             {
-                BeforeListChanged(this, new ListChangeEventArgs(direction, newIndex));
+                BeforeListChanged(this, new ListChangeEventArgs(direction, pNewIndex));
             }
 
-            ExecuteChangeList(Math.Sign(pDistance), newIndex);
+            ExecuteChangeList(direction, pNewIndex);
 
-            if (BeforeListChanged != null)
+            if (AfterListChanged != null)
             {
-                AfterListChanged(this, new ListChangeEventArgs(direction, newIndex));
+                AfterListChanged(this, new ListChangeEventArgs(direction, pNewIndex));
             }
+        }
+
+        private void ChangeListHorizontalDistance(int pDistance)
+        {
+            ChangeList(Math.Sign(pDistance) + CurrentListIndex);           
         }
 
         // Overrided Events
@@ -489,7 +549,7 @@ namespace CarMpControls
             int downTimeMs = (tempDownTimeSpan.Seconds * 1000) + tempDownTimeSpan.Milliseconds;
 
             if (this.m_mouseDownTimeMsSelectTheshold > downTimeMs
-                && Math.Abs(this.m_mouseMoveVelocity) < 1)
+                && Math.Abs(m_mouseDownPoint.Y - e.Y) < m_mouseDownTimePxSelectThreashold)
             {
                 SelectItem(e.X, e.Y);
                 return;
@@ -500,7 +560,7 @@ namespace CarMpControls
             // Check list change threshold
             if (Math.Abs(horizontalMove) > m_mouseListChangeThreshold)
             {
-                ChangeList(horizontalMove);
+                ChangeListHorizontalDistance(horizontalMove);
                 return;
             }
 
@@ -553,8 +613,9 @@ namespace CarMpControls
             }
         }
 
-        private void ExecuteChangeList(int pDirectionSign, int pNewIndex)
+        private void ExecuteChangeList(DragableListSwitchDirection pDirection, int pNewIndex)
         {
+            int directionSign = pDirection == DragableListSwitchDirection.Back ? -1 : 1;
             m_ignoreMouseEvents = true;
 
             NextList = m_listCollection[pNewIndex];
@@ -564,11 +625,11 @@ namespace CarMpControls
             {
                 if (Math.Abs(m_listHShift_px) < this.Width - 200)
                 {
-                    m_listHShift_px += pDirectionSign * -30;
+                    m_listHShift_px += directionSign * -30;
                 }
                 else
                 {
-                    m_listHShift_px += pDirectionSign * (int)(-30 / j);
+                    m_listHShift_px += directionSign * (int)(-30 / j);
                     j+= .5;
                 }
                 Invalidate();
@@ -576,7 +637,7 @@ namespace CarMpControls
                 Thread.Sleep(10);
             }
 
-            m_listCollectionIndex += pDirectionSign;
+            m_listCollectionIndex += directionSign;
             CurrentList = m_listNextDisplay;
             m_listHShift_px = 0;
 

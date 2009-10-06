@@ -11,7 +11,7 @@ namespace CarMp
     public enum MediaItemType
     {
         /// <summary>
-        /// Determines what type of search
+        /// Determines what type of item this is
         /// </summary>
         Root,
         Directory,
@@ -21,88 +21,58 @@ namespace CarMp
         Song
     }
 
-    /// <summary>
-    /// Defines some static Targets
-    /// </summary>
-    public enum MediaItemSpecialTarget
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        StringDefined,
-        AllArtists,
-        AllAlbums,
-        AllPlaylists,
-        AllSongs,
-        RootDirectories
-    }
-
     public class MediaListItem : DragableListItem
     {
-        private string m_itemDisplayString;
-        private MediaItemType m_itemType;
-        private MediaItemSpecialTarget m_itemSpecialTarget;
-        private string m_itemTarget;
-        private MediaItemType m_itemTargetType;
-        
-        public MediaListItem(string pDisplay, string pTarget, MediaItemType pItemType, MediaItemType pItemTargetType)
-        {
-            m_itemDisplayString = pDisplay;
-            m_itemType = pItemType;
-            m_itemTarget = pTarget;
-            m_itemTargetType = pItemTargetType;
-        }
-
-        public MediaListItem(string pDisplay, MediaItemSpecialTarget pTarget, MediaItemType pItemType, MediaItemType pItemTargetType)
-        {
-            m_itemDisplayString = pDisplay;
-            m_itemType = pItemType;
-            m_itemSpecialTarget = pTarget;
-            m_itemTargetType = pItemTargetType;
-        }
+        /// <summary>
+        /// String shown to the user
+        /// </summary>
+        public string DisplayString;
 
         /// <summary>
-        /// Type of item tyis is
+        /// Id representing next item id when clicked.
         /// </summary>
-        public MediaItemType ItemType
-        {
-            get { return m_itemType; }
-            set { m_itemType = value; }
-        }
+        public int TargetId { get; set; }
 
         /// <summary>
-        /// If this StringDefined, ItemTarget is used
-        /// Otherwise, this is used to refer to a static target
+        /// Type representing what type of item this item is
         /// </summary>
-        public MediaItemSpecialTarget ItemSpecialTarget
-        {
-            get { return m_itemSpecialTarget; }
-            set { m_itemSpecialTarget = value; }
-        }
+        public MediaItemType ItemType;
 
         /// <summary>
-        /// string representing this item
+        /// Creates a list item from a Group Item object
         /// </summary>
-        public string ItemTarget
+        /// <param name="pGroupItem"></param>
+        public MediaListItem(MediaGroupItem pGroupItem)
         {
-            get { return m_itemTarget; }
-            set { m_itemTarget = value; }
+            this.DisplayString = pGroupItem.ItemName;
+            this.ItemType = (MediaItemType)pGroupItem.ItemType;
+
+            if (ItemType == MediaItemType.Song)
+            {
+                if (pGroupItem.LibraryId == 0)
+                    throw new Exception("Library Id must not be 0");
+                TargetId = pGroupItem.LibraryId;
+            }
+            else
+            {
+                if(pGroupItem.NextGroupId == 0)
+                    throw new Exception("Next Group must not be 0");
+                TargetId = pGroupItem.NextGroupId;
+            }
         }
 
-        /// <summary>
-        /// human readable representation
-        /// </summary>
-        public string ItemDisplayString
+        public MediaListItem(string pDisplayString, MediaItemType pItemType, int pItemTargetId)
         {
-            get { return m_itemDisplayString; }
-            set { m_itemDisplayString = value; }
+            DisplayString = pDisplayString;
+            ItemType = pItemType;
+            TargetId = pItemTargetId;
         }
 
         public override void DrawOnCanvas(System.Drawing.Graphics pCanvas)
         {
             //pCanvas.FillRectangle(Color.Gray,new Rectangle(0,0
             pCanvas.DrawString(
-                m_itemDisplayString,
+                DisplayString,
                 new Font("Arial", 15F), 
                 new LinearGradientBrush(new Point(0,0), new Point(0, ClientSize.Height), Color.White, Color.Gray), 
                 new PointF(1,1)

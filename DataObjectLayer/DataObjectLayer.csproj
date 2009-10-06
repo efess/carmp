@@ -61,6 +61,8 @@
     <Compile Include="SQLiteCommon.cs" />
     <Compile Include="_DoAlbum.cs" />
     <Compile Include="_DoArtist.cs" />
+    <Compile Include="_DoDigitalMediaLibrary.cs" />
+    <Compile Include="_DoDigitalMediaSource.cs" />
     <Compile Include="_Dolibrary.cs" />
     <Compile Include="_DoListHistory.cs" />
     <Compile Include="_DoMediaGroup.cs" />

@@ -13,6 +13,7 @@ namespace CarMpControls
     {
         // Private properties
         private List<DragableListItem> m_list = new List<DragableListItem>();
+        
         private int m_bufferLow;
         private int m_bufferHigh;
         private int m_bufferSize;

@@ -32,13 +32,22 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FluentNHibernate, Version=1.0.0.0, Culture=neutral, PublicKeyToken=8aa435e3cb308880, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libraries\FluentNHibernate.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="Microsoft.VisualStudio.TeamSystem.Data.UnitTesting, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="NHibernate, Version=2.1.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libraries\NHibernate.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Management" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -52,9 +61,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DatabaseSetup.cs" />
+    <Compile Include="DataObjects\DigitalMediaLibrary.cs" />
+    <Compile Include="DataObjects\ListHistory.cs" />
+    <Compile Include="DataObjects\Mappings\DigitalMediaLibraryMapping.cs" />
+    <Compile Include="DataObjects\Mappings\ListHistoryMapping.cs" />
+    <Compile Include="DataObjects\Mappings\MediaGroupMapping.cs" />
+    <Compile Include="DataObjects\MediaGroup.cs" />
+    <Compile Include="DataObjects\MediaGroupItem.cs" />
+    <Compile Include="DataObjects\Mappings\MediaGroupItemMap.cs" />
     <Compile Include="DebugHandler.cs" />
+    <Compile Include="Delegates.cs" />
     <Compile Include="DragableListHistory.cs" />
+    <Compile Include="FormHost.cs" />
+    <Compile Include="Forms\CarMpForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\FormDebug.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -79,12 +100,19 @@
     <Compile Include="Forms\FormNavigation.Designer.cs">
       <DependentUpon>FormNavigation.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\FormOptions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormOptions.Designer.cs">
+      <DependentUpon>FormOptions.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\FormSplash.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\FormSplash.Designer.cs">
       <DependentUpon>FormSplash.cs</DependentUpon>
     </Compile>
+    <Compile Include="MediaGroupCreater.cs" />
     <Compile Include="MediaListItem.cs" />
     <Compile Include="ApplicationMain.cs" />
     <Compile Include="MediaManager.cs" />
@@ -102,6 +130,10 @@
       <DependentUpon>FormHome.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FormOptions.resx">
+      <DependentUpon>FormOptions.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -111,7 +143,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -122,12 +153,17 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="SessionSettings.cs" />
+    <Compile Include="SystemInformation.cs" />
     <Compile Include="Win32Helpers.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CarMpControls\CarMpControls.csproj">
       <Project>{DDE21C75-2CFB-4C6E-8589-2DCE8A045BD7}</Project>
       <Name>CarMpControls</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CarMpMediaInfo\CarMpMediaInfo.csproj">
+      <Project>{328BCACA-4652-49CF-96A9-B64DC3EA23AB}</Project>
+      <Name>CarMpMediaInfo</Name>
     </ProjectReference>
     <ProjectReference Include="..\DataObjectLayer\DataObjectLayer.csproj">
       <Project>{98A265D8-5A45-4B18-8188-9A094B744D5E}</Project>

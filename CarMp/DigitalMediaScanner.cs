@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CarMpMediaInfo;
 
 namespace CarMp
 {
@@ -8,20 +9,9 @@ namespace CarMp
     using System.Threading;
     using System.Collections;
 
-    /// <summary>
-    /// Fake. To make it compile.
-    /// </summary>
-    public struct MEDIAINFO
-    {
-
-    }
-
-    public delegate void MediaUpdate(List<MEDIAINFO> MInfo);
-    public delegate bool FileCheck(String FileName, Int32 FileSize);
-    public delegate void FinishCallBack();
-
     public class DigitalMediaScanner
     {
+        public event ProgressDelegate ScanProgressChanged; 
         private List<String> _SupportedFormats = new List<String>();
         private Boolean _PreSearchDirectory = false;
         private Boolean _Cancel = false;
@@ -31,8 +21,9 @@ namespace CarMp
         public String Path { get; set; }
         public MediaUpdate MediaOut { get; set; }
         public FileCheck FileChecker { get; set; }
-        public FinishCallBack Finish { get; set; }
         public Boolean FullScan { get; set; }
+
+        public event FinishHandler FinishScaning;
 
         public List<String> SupportedFormats
         {
@@ -46,8 +37,20 @@ namespace CarMp
 
         private void Run()
         {
+            if (MediaOut == null)
+                throw new Exception("Nothing listening on Media Output delegate");
+
+            Stopwatch scanTimer = new Stopwatch();
+            int _addedCount = 0;
+            int _totalAddedCount = 0;
+            int _currentPercent = 0;
+            int _totalFiles = 0;
+            
+            int _count = 0;
+
             try
             {
+                scanTimer.Start();
                 String[] dr = Environment.GetLogicalDrives();
 
                 DriveInfo drinfo = new DriveInfo(dr[1]);
@@ -56,62 +59,84 @@ namespace CarMp
 
                 // do it.
 
-                int _countAdded = 0;
-                int _totalcount = 0;
-                int _count = 0;
-                List<MEDIAINFO> _mList = new List<MEDIAINFO>();
-
+                List<MediaItem> _mList = new List<MediaItem>();
+                List<FileInfo> _fileList = new List<FileInfo>();
                 foreach (String _directory in GetDirectories(Path))
                 {
+                    if (_Cancel)
+                        return;
                     foreach (String _file in Directory.GetFiles(_directory))
                     {
                         if (_Cancel)
                             return;
 
                         FileInfo fFile = new FileInfo(_file);
-
-                        if (FileChecker != null && !FullScan)
-                            if (FileChecker(fFile.FullName, (int)fFile.Length))
-                            {
-                                _totalcount++;
-                                Debug.WriteLine("Total: " + _totalcount);
-                                continue;
-                            }
-
                         if (FormatSupported(fFile.Extension.ToUpper()))
                         {
-                            //_mList.Add(GetInfo(fFile));
-
-                            _count++;
-                            _totalcount++;
-                            _countAdded++;
-
-                            Debug.WriteLine("Total files: " + _totalcount);
-                            Debug.WriteLine("Total Added: " + _countAdded);
-
-                            if (_count >= MediaUpdateSize)
-                            {
-                                if (MediaOut == null)
-                                    return;
-
-                                MediaOut(_mList);
-
-                                // Reset
-                                _count = 0;
-                                _mList.Clear();
-                            }
+                            _fileList.Add(fFile);
                         }
                     }
+                }
+
+                _totalFiles = _fileList.Count;
+
+                foreach (FileInfo file in _fileList)
+                {
+                    if (_Cancel)
+                        return;
+
+
+                    if ((int)(((double)_totalAddedCount / (double)_totalFiles) * 100) > _currentPercent)
+                    {
+                        _currentPercent = (int)(((double)_totalAddedCount / (double)_totalFiles) * 100);
+                    }
+
+                    OnProgressChange(_currentPercent, "Adding file " + file.Name);
+
+                    if (FileChecker != null && !FullScan)
+                        if (FileChecker(file.FullName, (int)file.Length))
+                        {
+                            _totalAddedCount++;
+                            Debug.WriteLine("Total: " + _totalAddedCount);
+                            continue;
+                        }
+
+                    if (FormatSupported(file.Extension.ToUpper()))
+                    {
+                        _mList.Add(GetInfo(file));
+
+                        _count++;
+                        _totalAddedCount++;
+                        _addedCount++;
+
+                        Debug.WriteLine("Total files: " + _totalAddedCount);
+                        Debug.WriteLine("Total Added: " + _addedCount);
+
+                        if (_count >= MediaUpdateSize)
+                        {
+                            OnProgressChange(_currentPercent, "Saving to database...");
+
+                            MediaOut(_mList);
+
+                            // Reset
+                            _count = 0;
+                            _mList.Clear();
+                        }
+                    }
+                    
                 }
                 
                 // If any are left over
                 if (MediaOut != null && _mList.Count > 0)
                     MediaOut(_mList);
+
             }
             finally
             {
-                if(Finish != null)
-                    Finish();
+                scanTimer.Stop();
+
+                if (FinishScaning != null)
+                    FinishScaning(this, new FinishEventArgs(scanTimer.Elapsed, _totalAddedCount));
             }
         }
 
@@ -132,74 +157,41 @@ namespace CarMp
             _ScanThread.Abort();
         }
 
-        // This is autovue specific, need to make our own.
-        //private MEDIAINFO GetInfo(FileInfo pFile)
-        //{ 
-        //    MEDIAINFO _MEDIAI = new MEDIAINFO();
+        
+        private MediaItem GetInfo(FileInfo pFile)
+        {
+            Id3Read reader = new Id3Read(pFile.FullName);
+            MediaItem item = new MediaItem();
+            if (string.IsNullOrEmpty(reader.Title) && string.IsNullOrEmpty(reader.Artist))
+            {
+                FilenameInfo fileParser = new FilenameInfo();
+                fileParser.Parse(pFile.Name);
 
-        //    _MEDIAI.Location = pFile.FullName;
-        //    _MEDIAI.FileSize = (UInt64)pFile.Length;
+                item.Track = fileParser.Track;
+                item.Artist = fileParser.Artist;
+                item.Title = fileParser.Title;
+            }
+            else
+            {
+                item.Album = reader.Album;
+                item.Artist = reader.Artist;
+                item.Title = reader.Title;
+            }
+            item.FileName = pFile.Name;
+            item.Path = pFile.FullName;
+            item.Track = reader.Track;
+            item.Genre = reader.Genre;
+            item.Kbps = reader.BitRate;
 
-        //    switch (pFile.Extension.Replace(".","").ToUpper())
-        //    {
-        //        case "MP3":
+            // Clean up item records
+            if (string.IsNullOrEmpty(item.Album)) item.Album = "NoAlbum";
+            if (string.IsNullOrEmpty(item.Artist)) item.Artist = "NoArtist";
+            if (string.IsNullOrEmpty(item.Title)) item.Title = "Untitled";
 
-        //            // Look for Tags
-        //            Hashtable newHash = MediaTag.GetMP3TagInfo(pFile.FullName);
-                   
-        //            // If none, try parsing filename
-        //            if(newHash.Count == 0)
-        //                newHash = MediaTag.GetInfoFromMusicFilename(pFile.FullName);
-                    
-        //            foreach (DictionaryEntry frame in newHash)
-        //            {
-        //                switch ((String)frame.Key)
-        //                {
-        //                    case "TPE1":
-        //                        _MEDIAI.Artist = frame.Value.ToString();
-        //                        _MEDIAI.AlbumArtist = frame.Value.ToString();
-        //                        break;
-        //                    case "TIT2":
-        //                        _MEDIAI.Title = frame.Value.ToString();
-        //                        break;
-        //                    //case "TYeR":
-        //                    //    _MEDIAI.y = frame.Value as String;
-        //                    //    break;
-        //                    case "TCON":
-        //                        _MEDIAI.Genre = frame.Value.ToString();
-        //                        break;
-        //                    case "TRCK":
-        //                        _MEDIAI.TrackNo = frame.Value.ToString();
-        //                        break;
-        //                    case "TALB":
-        //                        _MEDIAI.Album = frame.Value.ToString();
-        //                        break;
-        //                    case "Album":
-        //                        _MEDIAI.Album = frame.Value.ToString();
-        //                        break;
-        //                    case "Artist":
-        //                        _MEDIAI.Artist = frame.Value.ToString();
-        //                        _MEDIAI.AlbumArtist = frame.Value.ToString();
-        //                        break;
-        //                    case "Genre":
-        //                        _MEDIAI.Genre = frame.Value.ToString();
-        //                        break;
-        //                    case "Track":
-        //                        _MEDIAI.TrackNo = frame.Value.ToString();
-        //                        break;
-        //                    case "Title":
-        //                        _MEDIAI.Title = frame.Value.ToString();
-        //                        break;
-        //                }
-        //            }
-                    
-
-        //            return _MEDIAI;
-        //        case "OGG":
-        //            break;
-        //    }
-        //    return _MEDIAI;
-        //}
+            //item.Album = reader.A
+            return item;
+            //reader.read();
+        }//
 
         private ArrayList GetDirectories(String pPath)
         {
@@ -243,6 +235,36 @@ namespace CarMp
 
             return _SupportedFormats.Exists(delegate(String str) { return str == pFormat; });
         }
+
+        private void OnProgressChange(int pPercent, string pStatus)
+        {
+            if (ScanProgressChanged != null)
+            {
+                ScanProgressChanged(this, new ProgressEventArgs(pPercent, pStatus));
+            }
+        }
     }
-    
+
+    public class ProgressEventArgs : EventArgs
+    {
+        public ProgressEventArgs(int pPercent, string pStatus)
+        {
+            Percent = pPercent;
+            Status = pStatus;
+        }
+        public int Percent { get; private set; }
+        public string Status { get; private set;}
+    }
+
+    public class FinishEventArgs : EventArgs
+    {
+        public FinishEventArgs(TimeSpan pTotalTime, int pTotalCount)
+        {
+            TotalCount = pTotalCount;
+            TotalTime = pTotalTime;
+        }
+
+        public int TotalCount { get; private set; }
+        public TimeSpan TotalTime { get; private set; }
+    }
 }

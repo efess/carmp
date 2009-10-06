@@ -15,5 +15,20 @@ namespace CarMp.Forms
         {
             InitializeComponent();
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void graphicalButton1_Click(object sender, EventArgs e)
+        {
+            ApplicationMain.AppFormHost.OpenForm(FormHost.DIGITAL_AUDIO, true);
+        }
+
+        private void graphicalButton2_Click(object sender, EventArgs e)
+        {
+            ApplicationMain.AppFormHost.OpenForm(FormHost.OPTIONS, true);
+        }
     }
 }

@@ -25,7 +25,7 @@ namespace CarMp
             IntPtr lpInBuf, Int32 nInBufSize, byte[] lpOutBuf,
             Int32 nOutBufSize, ref Int32 lpBytesReturned);
 
-        private static string GetDeviceID()
+        public static string GetDeviceID()
         {
             // Initialize the output buffer to the size of a 
             // Win32 DEVICE_ID structure.

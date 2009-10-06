@@ -47,6 +47,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CarButton\GraphicalButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="CarButton\GraphicalButton.Designer.cs">
+      <DependentUpon>GraphicalButton.cs</DependentUpon>
+    </Compile>
     <Compile Include="DragableList\DragableList.cs">
       <SubType>Component</SubType>
     </Compile>

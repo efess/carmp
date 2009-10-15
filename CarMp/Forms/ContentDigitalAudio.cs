@@ -5,9 +5,9 @@ using System;
 
 namespace CarMp.Forms
 {
-    public partial class FormDigitalAudio : Form
+    public partial class ContentDigitalAudio : ContentBase
     {
-        public FormDigitalAudio()
+        public ContentDigitalAudio()
         {
             InitializeComponent();
 
@@ -42,7 +42,7 @@ namespace CarMp.Forms
 
         private void graphicalButton1_Click(object sender, System.EventArgs e)
         {
-            ApplicationMain.AppFormHost.OpenForm(FormHost.HOME, true);
+            ApplicationMain.AppFormHost.OpenContent(FormHost.HOME, true);
         }
 
         private void MediaList_SelectedItemChanged(object sender, SelectedItemChangedEventArgs e)
@@ -55,7 +55,7 @@ namespace CarMp.Forms
             if(selectedItem.ItemType == MediaItemType.Song)
             {
                 MediaManager.StartPlayback(selectedItem.TargetId);
-            }
+            }   
             else
             {
                 int listIndex = MediaList.CurrentListIndex;
@@ -77,6 +77,16 @@ namespace CarMp.Forms
         private void MediaList_AfterListChanged(object sender, ListChangeEventArgs e)
         {
             //mediaListHistoryCurrentIndex += e.SwitchDirection == DragableListSwitchDirection.Back ? -1 : 0;
+        }
+
+        private void graphicalButton3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void graphicalButton2_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

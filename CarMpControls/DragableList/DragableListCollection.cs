@@ -13,9 +13,16 @@ namespace CarMpControls
     {
         // Private properties
         private List<DragableListItem> m_list = new List<DragableListItem>();
-        
+        private const int BUFFER_SIZE = 100;
+
+        /// <summary>
+        /// Center of buffer
+        /// </summary>
+        private int currentBufferCenter = 0;
+
         private int m_bufferLow;
         private int m_bufferHigh;
+        
         private int m_bufferSize;
 
         // Position of list in view
@@ -31,7 +38,22 @@ namespace CarMpControls
             {
                 m_listLocPx = value;
             }
+        }
 
+        public DragableListCollection()
+        {
+            m_bufferSize = BUFFER_SIZE;
+        }
+
+        internal bool BufferNeedsUpdate(int pNewLoc)
+        {
+            if (currentBufferCenter == 0)
+                return true;
+            if(pNewLoc > currentBufferCenter + (m_bufferSize / 4)
+                || pNewLoc < currentBufferCenter - (m_bufferSize / 4))
+                return true;
+
+            return false;
         }
 
         // Accessors
@@ -100,10 +122,14 @@ namespace CarMpControls
         {
             set
             {
-                this.m_bufferLow = value - (m_bufferSize / 2);
-                this.m_bufferHigh = value + (m_bufferSize / 2);
-                
-                this.UpdateBuffer();
+                if(BufferNeedsUpdate(value))
+                {
+                    this.m_bufferLow = value - (m_bufferSize / 2);
+                    this.m_bufferHigh = value + (m_bufferSize / 2);
+                    
+                    this.UpdateBuffer();
+                    currentBufferCenter = value;
+                }
             }
         }
 

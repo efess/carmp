@@ -6,12 +6,13 @@ using System.Collections.Generic;
 using NHibernate;
 using FluentNHibernate.Cfg.Db;
 using FluentNHibernate.Cfg;
+using System.Threading;
 
 namespace CarMp
 {
     public class ApplicationMain
     {
-        public static FormHost AppFormHost;
+        public static Forms.FormHost AppFormHost;
         public static ISession DbSession;
 
         public const string COMMANDLINE_DEBUG = "-DEBUG";
@@ -22,29 +23,42 @@ namespace CarMp
         [STAThread]
         static void Main(string[] pArgs)
         {
+
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
             AppDomain.CurrentDomain.UnhandledException +=
                 new UnhandledExceptionEventHandler(HandleLowLevelException);
+            AppDomain.CurrentDomain.ProcessExit += new EventHandler(ProcessExit);
 
             DebugHandler.De += new DebugHandler.DebugException(dr => Console.WriteLine("EXCEPTION> " + dr.Message));
             DebugHandler.Ds += new DebugHandler.DebugString(Console.WriteLine);
 
-            if (!CheckDuplicateExecution())
+            if (CheckDuplicateProcess(Process.GetCurrentProcess().ProcessName))
             {
+                MessageBox.Show("Only one copy of CarMp can run at a time!");
                 return;
             }
 
             InitializeApplication(pArgs);
 
+            AppFormHost = new Forms.FormHost();
+            AppFormHost.OpenContent(Forms.FormHost.HOME, false);
+            AppFormHost.StartPosition = FormStartPosition.Manual;
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-
-            AppFormHost = new FormHost();
-            Application.Run(AppFormHost.OpenForm(FormHost.HOME, false));
+            Application.Run(AppFormHost);
         }
 
         private static void InitializeApplication(string[] pCommandLineArgs)
         {
+            Forms.FormSplash formSplash = new CarMp.Forms.FormSplash();
+            formSplash.StartPosition = FormStartPosition.CenterScreen;
+
+            Thread splashThread = new Thread(new ThreadStart(formSplash.ShowSplash));
+            splashThread.Start();
+
+            formSplash.IncreaseProgress(0, "Parsing command line args...");
+
             string xmlSettings = SessionSettings.SettingsXmlLocation;
             // Process any command line arguments
             for (int i = 0; i < pCommandLineArgs.Length; i++)
@@ -67,10 +81,25 @@ namespace CarMp
                 }
             }
 
+            System.Threading.Thread.Sleep(200);
+            formSplash.IncreaseProgress(10, "Loading settings XML...");
+
             SessionSettings.LoadFromXml(xmlSettings);
+
+            System.Threading.Thread.Sleep(200);
+            formSplash.IncreaseProgress(30, "Initializing Database...");
             DbSession = CreateDbSession(SessionSettings.DatabaseLocation);
-            SQLiteCommon.Initialize(SessionSettings.DatabaseLocation);
-            MediaManager.Initialize();           
+
+            formSplash.IncreaseProgress(80, "Initializing Media Manager...");
+            System.Threading.Thread.Sleep(200);
+            MediaManager.Initialize();
+
+            formSplash.IncreaseProgress(90, "Initializing Winamp Controller...");
+            System.Threading.Thread.Sleep(200);
+
+            WinampController.Initialize();
+            formSplash.IncreaseProgress(100, "Done");
+            formSplash.CloseSplash();
         }
 
         private static ISession CreateDbSession(string pDatabaseLocation)
@@ -87,27 +116,30 @@ namespace CarMp
             return sessionFactory.OpenSession();
         }
 
-        private static bool CheckDuplicateExecution()
+        public static bool CheckDuplicateProcess(string pProcessName)
         {
-            string proc = Process.GetCurrentProcess().ProcessName;
-
             // get the list of all processes by that name
 
-            Process[] processes = Process.GetProcessesByName("carmp");
+            Process[] processes = Process.GetProcessesByName(pProcessName);
 
             // if there is more than one process...
 
             if (processes.Length > 1)
             {
-                MessageBox.Show("Only one copy of CarMp can run at a time!");
-                return false;
+                return true;
             }
-            return true;
+            return false;
         }
 
         private static void HandleLowLevelException(object sender, UnhandledExceptionEventArgs e)
         {
             DebugHandler.HandleException((Exception)e.ExceptionObject);
+        }
+
+        private static void ProcessExit(object sender, EventArgs e)
+        {
+            MediaManager.Close();
+            DbSession.Close();
         }
     }
 }

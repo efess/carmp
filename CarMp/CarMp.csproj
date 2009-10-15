@@ -36,8 +36,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\FluentNHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-    <Reference Include="Microsoft.VisualStudio.TeamSystem.Data.UnitTesting, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="NHibernate, Version=2.1.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\NHibernate.dll</HintPath>
@@ -49,9 +47,6 @@
     </Reference>
     <Reference Include="System.Management" />
     <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
@@ -72,9 +67,11 @@
     <Compile Include="DebugHandler.cs" />
     <Compile Include="Delegates.cs" />
     <Compile Include="DragableListHistory.cs" />
-    <Compile Include="FormHost.cs" />
     <Compile Include="Forms\CarMpForm.cs">
-      <SubType>Form</SubType>
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\ContentBase.cs">
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Forms\FormDebug.cs">
       <SubType>Form</SubType>
@@ -82,29 +79,35 @@
     <Compile Include="Forms\FormDebug.designer.cs">
       <DependentUpon>FormDebug.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\FormDigitalAudio.cs">
+    <Compile Include="Forms\ContentDigitalAudio.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\ContentDigitalAudio.Designer.cs">
+      <DependentUpon>ContentDigitalAudio.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ContentHome.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\ContentHome.Designer.cs">
+      <DependentUpon>ContentHome.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ContentNavigation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\FormHost.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\FormDigitalAudio.Designer.cs">
-      <DependentUpon>FormDigitalAudio.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\FormHome.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\FormHome.Designer.cs">
-      <DependentUpon>FormHome.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\FormNavigation.cs">
-      <SubType>Form</SubType>
+    <Compile Include="Forms\FormHost.Designer.cs">
+      <DependentUpon>FormHost.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\FormNavigation.Designer.cs">
-      <DependentUpon>FormNavigation.cs</DependentUpon>
+      <DependentUpon>ContentNavigation.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\FormOptions.cs">
-      <SubType>Form</SubType>
+    <Compile Include="Forms\ContentOptions.cs">
+      <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Forms\FormOptions.Designer.cs">
-      <DependentUpon>FormOptions.cs</DependentUpon>
+    <Compile Include="Forms\ContentOptions.Designer.cs">
+      <DependentUpon>ContentOptions.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\FormSplash.cs">
       <SubType>Form</SubType>
@@ -122,16 +125,24 @@
       <DependentUpon>FormDebug.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\FormDigitalAudio.resx">
-      <DependentUpon>FormDigitalAudio.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\ContentDigitalAudio.resx">
+      <DependentUpon>ContentDigitalAudio.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\FormHome.resx">
-      <DependentUpon>FormHome.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\ContentHome.resx">
+      <DependentUpon>ContentHome.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\FormOptions.resx">
-      <DependentUpon>FormOptions.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\ContentOptions.resx">
+      <DependentUpon>ContentOptions.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FormHost.resx">
+      <DependentUpon>FormHost.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FormSplash.resx">
+      <DependentUpon>FormSplash.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -142,6 +153,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -155,6 +167,7 @@
     <Compile Include="SessionSettings.cs" />
     <Compile Include="SystemInformation.cs" />
     <Compile Include="Win32Helpers.cs" />
+    <Compile Include="WinampController.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CarMpControls\CarMpControls.csproj">
@@ -169,6 +182,12 @@
       <Project>{98A265D8-5A45-4B18-8188-9A094B744D5E}</Project>
       <Name>DataObjectLayer</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\logo.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\logo.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

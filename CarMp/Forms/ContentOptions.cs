@@ -10,11 +10,11 @@ using System.Diagnostics;
 
 namespace CarMp.Forms
 {
-    public partial class FormOptions : Form
+    public partial class ContentOptions : ContentBase
     {
         DigitalMediaScanner gScanner;
 
-        public FormOptions()
+        public ContentOptions()
         {
             InitializeComponent();
             DisableStatus();
@@ -23,7 +23,7 @@ namespace CarMp.Forms
 
         private void graphicalButton1_Click(object sender, EventArgs e)
         {
-            ApplicationMain.AppFormHost.OpenForm(FormHost.HOME, true);
+            ApplicationMain.AppFormHost.OpenContent(FormHost.HOME, true);
         }
 
         private void graphicalButton2_Click(object sender, EventArgs e)

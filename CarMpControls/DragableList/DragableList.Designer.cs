@@ -28,7 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
+            this.SuspendLayout();
+            // 
+            // DragableList
+            // 
+            this.SizeChanged += new System.EventHandler(this.OnSizeChanged);
+            this.ResumeLayout(false);
+
         }
 
         #endregion

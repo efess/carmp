@@ -9,9 +9,9 @@ using System.Windows.Forms;
 
 namespace CarMp.Forms
 {
-    public partial class FormNavigation : Form
+    public partial class ContentNavigation : ContentBase
     {
-        public FormNavigation()
+        public ContentNavigation()
         {
             InitializeComponent();
         }

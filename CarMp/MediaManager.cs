@@ -19,6 +19,11 @@ namespace CarMp
             GetListHistory();
         }
 
+        public static void Close()
+        {
+            WinampController.StopPlayback();
+        }
+
         private static void GetListHistory()
         {
             IList<ListHistory> lHistories = ApplicationMain.DbSession.CreateCriteria(typeof(ListHistory)).List<ListHistory>();
@@ -110,7 +115,12 @@ namespace CarMp
 
         public static void StartPlayback(int pLibraryId)
         {
-            // Play song.
+            DigitalMediaLibrary item =GetDigitalMedia(pLibraryId);
+            
+            if (item == null)
+                return;
+
+            WinampController.Playfile(item.Path);
         }
 
         public static List<MediaListItem> GetNewMediaList(int pGroupId)
@@ -129,6 +139,19 @@ namespace CarMp
             }
 
             return listOfItems;
+        }
+
+        private static DigitalMediaLibrary GetDigitalMedia(int pLibraryId)
+        {
+            IList<DigitalMediaLibrary> digitalMedia = ApplicationMain.DbSession.CreateCriteria(typeof(DigitalMediaLibrary)).Add(Expression.Eq("LibraryId", pLibraryId)).List<DigitalMediaLibrary>();
+            if (digitalMedia.Count > 0)
+            {
+                return digitalMedia[0] as DigitalMediaLibrary;
+            }
+            else
+            {
+                return null;
+            }
         }
         
         //private static List<MediaListItem> GetNewMediaList(int pListHistoryIndex)

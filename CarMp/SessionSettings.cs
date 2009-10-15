@@ -39,6 +39,9 @@ namespace CarMp
         /// </summary>
         public static Size ScreenResolution = new Size(640, 480);
 
+        public static Color DefaultFontColor = Color.FromArgb(198,198,198);
+        public static Color DefaultFontSpecialColor = Color.FromArgb(205, 117, 2);
+
         public static void LoadFromXml(string pXmlFile)
         {
             XmlDocument doc = new XmlDocument();

@@ -1,6 +1,6 @@
 ﻿namespace CarMp.Forms
 {
-    partial class FormHome
+    partial class ContentDigitalAudio
     {
         /// <summary>
         /// Required designer variable.
@@ -28,52 +28,50 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.graphicalButton2 = new CarMpControls.CarButton.GraphicalButton();
             this.graphicalButton1 = new CarMpControls.CarButton.GraphicalButton();
+            this.MediaList = new CarMpControls.DragableList();
             this.SuspendLayout();
-            // 
-            // graphicalButton2
-            // 
-            this.graphicalButton2.ButtonDownImage = null;
-            this.graphicalButton2.ButtonString = "Options";
-            this.graphicalButton2.ButtonUpImage = null;
-            this.graphicalButton2.Location = new System.Drawing.Point(142, 446);
-            this.graphicalButton2.Name = "graphicalButton2";
-            this.graphicalButton2.Size = new System.Drawing.Size(75, 38);
-            this.graphicalButton2.TabIndex = 1;
-            this.graphicalButton2.Text = "graphicalButton2";
-            this.graphicalButton2.Click += new System.EventHandler(this.graphicalButton2_Click);
             // 
             // graphicalButton1
             // 
             this.graphicalButton1.ButtonDownImage = null;
-            this.graphicalButton1.ButtonString = "Media";
+            this.graphicalButton1.ButtonString = "Home";
             this.graphicalButton1.ButtonUpImage = null;
-            this.graphicalButton1.Location = new System.Drawing.Point(23, 446);
+            this.graphicalButton1.Location = new System.Drawing.Point(12, 3);
             this.graphicalButton1.Name = "graphicalButton1";
-            this.graphicalButton1.Size = new System.Drawing.Size(86, 38);
-            this.graphicalButton1.TabIndex = 0;
+            this.graphicalButton1.Size = new System.Drawing.Size(80, 33);
+            this.graphicalButton1.TabIndex = 1;
             this.graphicalButton1.Text = "graphicalButton1";
             this.graphicalButton1.Click += new System.EventHandler(this.graphicalButton1_Click);
             // 
-            // FormHome
+            // MediaList
+            // 
+            this.MediaList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.MediaList.Location = new System.Drawing.Point(12, 38);
+            this.MediaList.Name = "MediaList";
+            this.MediaList.Size = new System.Drawing.Size(772, 430);
+            this.MediaList.TabIndex = 0;
+            this.MediaList.Text = "dragableList1";
+            this.MediaList.SelectedItemChanged += new CarMpControls.DragableList.SelectedItemChangedEventHandler(this.MediaList_SelectedItemChanged);
+            this.MediaList.AfterListChanged += new CarMpControls.DragableList.ListChangedEventHandler(this.MediaList_AfterListChanged);
+            // 
+            // ContentDigitalAudio
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(750, 506);
-            this.Controls.Add(this.graphicalButton2);
             this.Controls.Add(this.graphicalButton1);
-            this.Name = "FormHome";
-            this.Text = "Form1";
+            this.Controls.Add(this.MediaList);
+            this.Name = "ContentDigitalAudio";
+            this.Size = new System.Drawing.Size(796, 578);
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
+        private CarMpControls.DragableList MediaList;
         private CarMpControls.CarButton.GraphicalButton graphicalButton1;
-        private CarMpControls.CarButton.GraphicalButton graphicalButton2;
-
     }
 }
-

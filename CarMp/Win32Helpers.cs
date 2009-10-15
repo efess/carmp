@@ -7,8 +7,32 @@ using System.ComponentModel;
 
 namespace CarMp
 {
-    public class Win32Helpers
+    public static class Win32Helpers
     {
+        [StructLayout(LayoutKind.Sequential)]
+        public struct COPYDATASTRUCT
+        {
+            public IntPtr dwData;
+            public int cbData;
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string lpData;
+        }
+
+        [DllImport("user32.dll", EntryPoint = "SendMessageA", CharSet = CharSet.Auto)]
+        public static extern int SendMessageA(IntPtr hwnd, int wMsg, int wParam,
+            [In()] ref COPYDATASTRUCT lParam);
+
+        [DllImport("User32.dll", EntryPoint = "SendMessage")]
+        public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern int SendMessage(
+        IntPtr hwnd,
+        int wMsg,
+        int wParam,
+        uint lParam
+        );
+
         private static Int32 METHOD_BUFFERED = 0;
         private static Int32 FILE_ANY_ACCESS = 0;
         private static Int32 FILE_DEVICE_HAL = 0x00000101;

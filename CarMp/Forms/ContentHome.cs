@@ -9,9 +9,9 @@ using System.Windows.Forms;
 
 namespace CarMp.Forms
 {
-    public partial class FormHome : Form
+    public partial class ContentHome : ContentBase
     {
-        public FormHome()
+        public ContentHome()
         {
             InitializeComponent();
         }
@@ -23,12 +23,12 @@ namespace CarMp.Forms
 
         private void graphicalButton1_Click(object sender, EventArgs e)
         {
-            ApplicationMain.AppFormHost.OpenForm(FormHost.DIGITAL_AUDIO, true);
+            ApplicationMain.AppFormHost.OpenContent(FormHost.DIGITAL_AUDIO, true);
         }
 
         private void graphicalButton2_Click(object sender, EventArgs e)
         {
-            ApplicationMain.AppFormHost.OpenForm(FormHost.OPTIONS, true);
+            ApplicationMain.AppFormHost.OpenContent(FormHost.OPTIONS, true);
         }
     }
 }

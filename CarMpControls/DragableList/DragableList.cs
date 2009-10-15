@@ -91,12 +91,11 @@ namespace CarMpControls
 
         private ListChangeDelegate m_listChangeDelegate;
 
-
         // ScrollBar vars
         private int m_scrollBarLoc_px;
         private int m_scrollBarWidth_px;
         private int m_scroolBarEnabled;
-        
+
         // Constructors
         public DragableList()
         {
@@ -109,7 +108,7 @@ namespace CarMpControls
 
             this.m_mouseDown = false;
             this.m_ignoreMouseEvents = false;
-            this.m_listCurrentDisplay.BufferSize = 100;
+            
             m_listCollection.Add(m_listCurrentDisplay);
         }
 
@@ -125,9 +124,9 @@ namespace CarMpControls
             {
                 m_listCurrentDisplay = value;
                 m_currentListLoc_px = value.ListLocPx;
-                if (m_listCurrentDisplay.Count > m_listDisplayCount)
+                if (m_listCurrentDisplay.Count >= m_listDisplayCount)
                 {
-                    m_currentListSize_px = (m_listCurrentDisplay.Count - m_listDisplayCount) * m_listItemSize;
+                    m_currentListSize_px = (m_listCurrentDisplay.Count * m_listItemSize) - this.Height;
                 }
                 else
                 {
@@ -148,9 +147,9 @@ namespace CarMpControls
             {
                 m_listNextDisplay = value;
                 m_nextListLoc_px = value.ListLocPx;
-                if (m_listNextDisplay.Count > m_listDisplayCount)
+                if (m_listNextDisplay.Count >= m_listDisplayCount)
                 {
-                    m_nextListSize_px = (m_listNextDisplay.Count - m_listDisplayCount) * m_listItemSize;
+                    m_nextListSize_px = (m_listNextDisplay.Count * m_listItemSize) - this.Height; 
                 }
                 else
                 {
@@ -188,7 +187,17 @@ namespace CarMpControls
         {
             set
             {
-                if (value >= 0 && value <= this.m_currentListSize_px)
+                if (value < 0)
+                {
+                    m_currentListLoc_px = 0;
+                    CurrentList.ListLocPx = 0;
+                }
+                else if(value > this.m_currentListSize_px)
+                {
+                    m_currentListLoc_px = m_currentListSize_px;
+                    CurrentList.ListLocPx = m_currentListSize_px;
+                }
+                else
                 {
                     m_currentListLoc_px = value;
                     CurrentList.ListLocPx = value;
@@ -232,7 +241,7 @@ namespace CarMpControls
                 if (this.m_listCurrentDisplay.Count < m_listDisplayCount)
                     return 0;
                 else
-                    return (m_currentListLoc_px * (this.m_listCurrentDisplay.Count - CurrentListViewableItemCount)) / m_currentListSize_px;
+                    return m_currentListLoc_px / m_listItemSize;//(m_currentListLoc_px * (this.m_listCurrentDisplay.Count - CurrentListViewableItemCount)) / m_currentListSize_px;
             }
         }
 
@@ -406,19 +415,6 @@ namespace CarMpControls
             }
         }
 
-        public new Size Size
-        {
-            set
-            {
-                this.m_listDisplayCount = value.Height / m_listItemSize + Math.Sign(value.Height % m_listItemSize);
-                base.Size = value;
-            }
-            get
-            {
-                return base.Size;
-            }
-        }
-
         // Private Methods
 
         private void D(string Message)
@@ -435,7 +431,7 @@ namespace CarMpControls
                 // Execute Event
                 if (SelectedItemChanged != null)
                 {
-                    SelectedItemChanged(this, new SelectedItemChangedEventArgs(this.m_listCurrentDisplay.SelectedItem));
+                    SelectedItemChanged.BeginInvoke(this, new SelectedItemChangedEventArgs(this.m_listCurrentDisplay.SelectedItem), null, null);
                 }
                 this.Invalidate();
             }
@@ -452,7 +448,6 @@ namespace CarMpControls
 
         public void ChangeList(int pNewIndex)
         {
-            D("Moving list from index " + CurrentListIndex + " to " + pNewIndex);
             DragableListSwitchDirection direction = Math.Sign(pNewIndex - CurrentListIndex) == -1
                 ? DragableListSwitchDirection.Back
                 : DragableListSwitchDirection.Forward;
@@ -490,12 +485,14 @@ namespace CarMpControls
                 {
                     if (i < m_listCurrentDisplay.Count)
                     {
-                        pe.Graphics.DrawImage(this.m_listCurrentDisplay[this.CurrentListItemViewIndexZero + i].GetCanvas(), new Point(m_listHShift_px, (m_listItemSize * i) - CurrentListLocVertOffset_px));
+                        pe.Graphics.DrawImage(this.m_listCurrentDisplay[this.CurrentListItemViewIndexZero + i].GetCanvas(), 
+                            new Point(m_listHShift_px, (m_listItemSize * i) - CurrentListLocVertOffset_px));
                     }
 
                     if (m_listHShift_px != 0 && i < m_listNextDisplay.Count)
                     {
-                        pe.Graphics.DrawImage(this.m_listNextDisplay[this.NextListItemViewIndexZero + i].GetCanvas(), new Point(m_listHShift_px - (this.Width * Math.Sign(m_listHShift_px)), (m_listItemSize * i) - NextListLocVertOffset_px));
+                        pe.Graphics.DrawImage(this.m_listNextDisplay[this.NextListItemViewIndexZero + i].GetCanvas(), 
+                            new Point(m_listHShift_px - (this.Width * Math.Sign(m_listHShift_px)), (m_listItemSize * i) - NextListLocVertOffset_px));
                     }
                 }
             }
@@ -625,16 +622,16 @@ namespace CarMpControls
             {
                 if (Math.Abs(m_listHShift_px) < this.Width - 200)
                 {
-                    m_listHShift_px += directionSign * -30;
+                    m_listHShift_px += directionSign * -50;
                 }
                 else
                 {
-                    m_listHShift_px += directionSign * (int)(-30 / j);
+                    m_listHShift_px += directionSign * (int)(-50 / j);
                     j+= .5;
                 }
                 Invalidate();
                 Application.DoEvents();
-                Thread.Sleep(10);
+                Thread.Sleep(5);
             }
 
             m_listCollectionIndex += directionSign;
@@ -644,6 +641,11 @@ namespace CarMpControls
             Invalidate();
 
             m_ignoreMouseEvents = false;
+        }
+
+        private void OnSizeChanged(object sender, EventArgs e)
+        {
+            this.m_listDisplayCount = this.Size.Height / m_listItemSize + 1;
         }
     }
 

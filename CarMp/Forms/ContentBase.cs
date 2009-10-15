@@ -6,8 +6,7 @@ using System.Windows.Forms;
 
 namespace CarMp.Forms
 {
-    public abstract class CarMpForm : UserControl
+    public class ContentBase : UserControl
     {
-
     }
 }

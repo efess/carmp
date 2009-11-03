@@ -8,6 +8,14 @@ using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Threading;
+// Don't compile wiht these namespaces if we're not using them.
+#if USE_DIRECT2D
+
+using SlimDX;
+using SlimDX.Direct2D;
+using SlimDX.Windows;
+
+#endif
 
 namespace CarMpControls
 {
@@ -96,19 +104,38 @@ namespace CarMpControls
         private int m_scrollBarWidth_px;
         private int m_scroolBarEnabled;
 
+#if USE_DIRECT2D
+        private WindowRenderTarget renderTarget;
+#endif
         // Constructors
         public DragableList()
         {
             InitializeComponent();
 
+#if USE_DIRECT2D
+            this.SetStyle(
+                ControlStyles.AllPaintingInWmPaint |
+                ControlStyles.UserPaint, true);
+
+            renderTarget = new WindowRenderTarget(new Factory(), new WindowRenderTargetProperties()
+            {
+                Handle = this.Handle,
+                PixelSize = this.ClientSize
+                
+            });
+
+            this.ClientSizeChanged += (o, e) => { renderTarget.Resize(this.ClientSize); };
+#else
             this.SetStyle(
                 ControlStyles.UserPaint |
                 ControlStyles.AllPaintingInWmPaint |
                 ControlStyles.DoubleBuffer, true);
+#endif
+            
 
             this.m_mouseDown = false;
             this.m_ignoreMouseEvents = false;
-            
+
             m_listCollection.Add(m_listCurrentDisplay);
         }
 
@@ -375,6 +402,21 @@ namespace CarMpControls
                 this.m_currentListSize_px += this.m_listItemSize;
         }
 
+        public void ClearAndFillNextList(DragableListItem[] pList)
+        {
+            int listIndex = CurrentListIndex;
+            int newListIndex = listIndex + 1;
+
+            if (newListIndex < ListCollectionCount)
+            {
+                ClearListAtIndex(newListIndex, true);
+            }
+            for (int i = 0; i < pList.Length; i++)
+            {
+                InsertNextIntoListIndex(pList[i], newListIndex);
+            }
+        }
+
         /// <summary>
         /// Clears all dragable list items in list at specified listindex
         /// 
@@ -446,6 +488,28 @@ namespace CarMpControls
             this.Invalidate();
         }
 
+        /// <summary>
+        /// Moves list forward as long as there is a list available
+        /// </summary>
+        public void ChangeListForward()
+        {
+            if (CurrentListIndex < m_listCollection.Count)
+            {
+                ChangeList(CurrentListIndex + 1);
+            }
+        }
+
+        /// <summary>
+        /// Moves list back as long as there is a list available
+        /// </summary>
+        public void ChangeListBack()
+        {
+            if (CurrentListIndex > 0)
+            {
+                ChangeList(CurrentListIndex - 1);
+            }
+        }
+
         public void ChangeList(int pNewIndex)
         {
             DragableListSwitchDirection direction = Math.Sign(pNewIndex - CurrentListIndex) == -1
@@ -470,6 +534,13 @@ namespace CarMpControls
             }
         }
 
+        /// <summary>
+        /// Moves in the provided direction as long as there is a list available
+        /// </summary>
+        private void ChangeList(DragableListSwitchDirection pDirection)
+        {
+        }
+
         private void ChangeListHorizontalDistance(int pDistance)
         {
             ChangeList(Math.Sign(pDistance) + CurrentListIndex);           
@@ -479,6 +550,41 @@ namespace CarMpControls
 
         protected override void OnPaint(PaintEventArgs pe)
         {
+#if USE_DIRECT2D
+            if (!renderTarget.IsOccluded)
+            {
+                renderTarget.BeginDraw();
+                renderTarget.Transform = Matrix3x2.Identity;
+                renderTarget.Clear(Color.Black);
+
+                for (int i = 0; i < this.m_listDisplayCount; i++)
+                {
+                    if (i < m_listCurrentDisplay.Count)
+                    {
+                        RectangleF currentRect = new RectangleF(
+                            m_listHShift_px, (
+                            m_listItemSize * i) - CurrentListLocVertOffset_px,
+                            this.Width,
+                            m_listItemSize);
+                        this.m_listCurrentDisplay[this.CurrentListItemViewIndexZero + i].DrawItem(renderTarget, currentRect);
+                    }
+
+                    if (m_listHShift_px != 0 && i < m_listNextDisplay.Count)
+                    {
+
+                        RectangleF nextRect = new RectangleF(
+                            m_listHShift_px - (this.Width * Math.Sign(m_listHShift_px)), (
+                            (m_listItemSize * i) - NextListLocVertOffset_px),
+                            this.Width,
+                            m_listItemSize);
+                        this.m_listNextDisplay[this.NextListItemViewIndexZero + i].DrawItem(renderTarget, nextRect);
+                    }
+                }
+
+                renderTarget.EndDraw();
+            }
+            base.OnPaint(pe);
+#else
             try
             {
                 for (int i = 0; i < this.m_listDisplayCount; i++)
@@ -502,6 +608,11 @@ namespace CarMpControls
             }
 
             base.OnPaint(pe);
+#endif
+        }
+        protected override void OnPaintBackground(PaintEventArgs pevent)
+        {
+            
         }
 
         protected override void OnMouseMove(MouseEventArgs e)

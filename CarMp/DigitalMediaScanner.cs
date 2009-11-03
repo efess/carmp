@@ -51,9 +51,7 @@ namespace CarMp
             try
             {
                 scanTimer.Start();
-                String[] dr = Environment.GetLogicalDrives();
 
-                DriveInfo drinfo = new DriveInfo(dr[1]);
                 if (MediaOut == null)
                     return;
 
@@ -61,21 +59,14 @@ namespace CarMp
 
                 List<MediaItem> _mList = new List<MediaItem>();
                 List<FileInfo> _fileList = new List<FileInfo>();
-                foreach (String _directory in GetDirectories(Path))
+
+                // Load files
+                foreach (String _directory in FileSystem.GetAllDirectories(Path))
                 {
                     if (_Cancel)
                         return;
-                    foreach (String _file in Directory.GetFiles(_directory))
-                    {
-                        if (_Cancel)
-                            return;
 
-                        FileInfo fFile = new FileInfo(_file);
-                        if (FormatSupported(fFile.Extension.ToUpper()))
-                        {
-                            _fileList.Add(fFile);
-                        }
-                    }
+                    FileSystem.AppendFiles(_directory, _SupportedFormats, _fileList);
                 }
 
                 _totalFiles = _fileList.Count;
@@ -193,41 +184,6 @@ namespace CarMp
             //reader.read();
         }//
 
-        private ArrayList GetDirectories(String pPath)
-        {
-            // Could use recursive, but we want a local variable
-
-            ArrayList _dirList = new ArrayList();
-
-            Stack<String> _dirStack = new Stack<String>();
-            _dirStack.Push(pPath);
-
-            while (_dirStack.Count > 0)
-            {
-                String _dir = _dirStack.Pop();
-
-                if (_PreSearchDirectory)
-                {
-                    // experimental, check to make sure this directory contains a file to scan
-                    foreach (String _file in Directory.GetFiles(_dir))
-                    {
-                        if (FormatSupported(new FileInfo(_file).Extension))
-                        {
-                            _dirList.Add(_dir);
-                            break;
-                        }
-                    }
-                }
-                else
-                    _dirList.Add(_dir);
-
-                foreach (String _subDir in Directory.GetDirectories(_dir))
-                {
-                    _dirStack.Push(_subDir);
-                }
-            }
-            return _dirList;
-        }
 
         private Boolean FormatSupported(String pFormat)
         {

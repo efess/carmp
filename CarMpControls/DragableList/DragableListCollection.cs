@@ -11,6 +11,7 @@ namespace CarMpControls
     /// </summary>
     public class DragableListCollection
     {
+
         // Private properties
         private List<DragableListItem> m_list = new List<DragableListItem>();
         private const int BUFFER_SIZE = 100;
@@ -47,12 +48,13 @@ namespace CarMpControls
 
         internal bool BufferNeedsUpdate(int pNewLoc)
         {
+#if !USE_DIRECT2D
             if (currentBufferCenter == 0)
                 return true;
             if(pNewLoc > currentBufferCenter + (m_bufferSize / 4)
                 || pNewLoc < currentBufferCenter - (m_bufferSize / 4))
                 return true;
-
+#endif
             return false;
         }
 

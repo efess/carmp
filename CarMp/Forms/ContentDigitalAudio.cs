@@ -23,10 +23,9 @@ namespace CarMp.Forms
 
         private void InitializeInitialListState()
         {
-            foreach (MediaListItem item in MediaManager.GetRootLevelItems())
-            {
-            }
-            MediaList.InsertNextIntoCurrent(MediaManager.GetRootLevelItems());
+            // Initial list- Current is first list, add two Root items:
+            MediaList.InsertNextIntoCurrent(new RootItem("Media Library", RootItemType.DigitalMediaLibrary));
+            MediaList.InsertNextIntoCurrent(new RootItem("File System", RootItemType.FileSystem));
 
             int listIndex = 1;
             foreach (MediaListItem item in MediaManager.MediaListHistory)
@@ -47,31 +46,64 @@ namespace CarMp.Forms
 
         private void MediaList_SelectedItemChanged(object sender, SelectedItemChangedEventArgs e)
         {
-            MediaListItem selectedItem = e.SelectedItem as MediaListItem;
+            DragableListTextItem selectedItem = e.SelectedItem as DragableListTextItem;
             
             if(selectedItem == null)
-                throw new Exception("Selected item is null");
+                throw new Exception("Selected item is null or wrong type");
 
-            if(selectedItem.ItemType == MediaItemType.Song)
+            if (selectedItem is RootItem)
             {
-                MediaManager.StartPlayback(selectedItem.TargetId);
-            }   
+                RootItem rootItem = selectedItem as RootItem;
+
+                switch(rootItem.ItemType)
+                {
+                    case RootItemType.DigitalMediaLibrary:
+                        MediaList.ClearAndFillNextList(MediaManager.GetMLRootLevelItems().ToArray());
+                        MediaList.ChangeListForward();
+                        break;
+                    case RootItemType.FileSystem:
+                        MediaList.ClearAndFillNextList(MediaManager.GetFSRootLevelItems().ToArray());
+                        MediaList.ChangeListForward();
+                        break;
+                }
+            }
+            else if (selectedItem is MediaListItem)
+            {
+                MediaListItem mediaItem = selectedItem as MediaListItem;
+
+                if (mediaItem.ItemType == MediaItemType.Song)
+                {
+                    MediaManager.StartPlayback(mediaItem.TargetId);
+                }
+                else
+                {
+                    MediaList.ClearAndFillNextList(MediaManager.GetNewMediaList(mediaItem.TargetId).ToArray());
+                    MediaList.ChangeListForward();
+                }
+            }
+            else if (selectedItem is FileSystemItem)
+            {
+                FileSystemItem fsItem = selectedItem as FileSystemItem;
+
+                switch (fsItem.ItemType)
+                {
+                    case FileSystemItemType.HardDrive:
+                    case FileSystemItemType.MemoryCard:
+                    case FileSystemItemType.Directory:
+                        MediaList.ClearAndFillNextList(MediaManager.GetNewFSMediaList(fsItem.FullPath).ToArray());
+                        MediaList.ChangeListForward();
+                        break;
+                    case FileSystemItemType.AudioFile:
+                        MediaManager.StartPlayback(fsItem.FullPath);
+                        break;
+
+                }
+            }
             else
             {
-                int listIndex = MediaList.CurrentListIndex;
-                int newListIndex = listIndex + 1;
-
-                if (newListIndex < MediaList.ListCollectionCount)
-                {
-                    MediaList.ClearListAtIndex(newListIndex, true);
-                }
-                foreach(MediaListItem item in MediaManager.GetNewMediaList(selectedItem.TargetId))
-                {
-                    MediaList.InsertNextIntoListIndex(item, newListIndex);
-                }
-
-                MediaList.ChangeList(newListIndex);
+                throw new Exception("Unknown media item type");
             }
+
         }
 
         private void MediaList_AfterListChanged(object sender, ListChangeEventArgs e)

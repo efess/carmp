@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;USE_DIRECT2D</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="SlimDX, Version=2.0.8.42, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libraries\x64\SlimDX.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -61,6 +65,13 @@
     </Compile>
     <Compile Include="DragableList\DragableListCollection.cs" />
     <Compile Include="DragableList\DragableListItem.cs" />
+    <Compile Include="DragableList\DragableListTextItem.cs" />
+    <Compile Include="SlidingPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="SlidingPanel.Designer.cs">
+      <DependentUpon>SlidingPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Enums.cs" />
     <Compile Include="FadableControl.cs" />
     <Compile Include="MyButton.cs">

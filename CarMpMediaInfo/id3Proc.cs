@@ -304,11 +304,13 @@ namespace CarMpMediaInfo
                 {
                     if (counter > 100)
                     {
-                        pfs.Position = tempPosition / 2;
-                        tempPosition = pfs.Position;
+                        pfs.Position += tempPosition / 2;
+                        tempPosition = tempPosition / 2;
                     }
                     pfs.Position -= 3;
                     header = br.ReadBytes(4);
+                    if (header.Length < 4)
+                        return;
                     counter = counter + 1;
                 }
                 
@@ -428,7 +430,6 @@ namespace CarMpMediaInfo
 
 
                 durationSecs = (br.BaseStream.Length * 8) / (1000 * Bitrate);
-
             }
         }
     }
@@ -455,7 +456,10 @@ namespace CarMpMediaInfo
         public void read(FileStream fs)
         {
             try                
-            {   //Check for ID3v1 tag...
+            {
+                if (fs.Length < 128)
+                    return;
+                //Check for ID3v1 tag...
                 byte[] temp = new byte[30];
                 fs.Position = fs.Length - 128;
                 BinaryReader br = new BinaryReader(fs);
@@ -582,14 +586,17 @@ namespace CarMpMediaInfo
                                 Publisher = frame.FrameData;
                                 break;
                             case "TCON":
-                                try
+                                int tryParser = 0;
+                                string frameData = frame.FrameData.Replace("(", "").Replace(")", "");
+                                if (int.TryParse(frameData, out tryParser) && tryParser < Id3Read.GenreConv.Length && tryParser > -1)
                                 {
-                                    Genre = Id3Read.GenreConv[Convert.ToInt32(frame.FrameData.Replace("(","").Replace(")",""))];
+                                    Genre = Id3Read.GenreConv[tryParser];
                                 }
-                                catch(Exception)
+                                else
                                 {
-                                    Genre = frame.FrameData;
+                                    Genre = frameData;
                                 }
+
                                 break;
                             case "TYER":
                                 Year = frame.FrameData;

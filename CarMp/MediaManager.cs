@@ -6,6 +6,7 @@ using DataObjectLayer;
 using CarMpMediaInfo;
 using System.Collections;
 using NHibernate.Criterion;
+using System.IO;
 
 namespace CarMp
 {
@@ -51,13 +52,23 @@ namespace CarMp
             }
         }
 
-        public static MediaListItem[] GetRootLevelItems()
+        public static List<FileSystemItem> GetFSRootLevelItems()
+        {
+            List<FileSystemItem> fileSystemItems = new List<FileSystemItem>();
+            foreach (DriveInfo drives in FileSystem.GetDrives())
+            {
+                fileSystemItems.Add(new FileSystemItem(drives.Name , FileSystemItemType.HardDrive, drives.RootDirectory.FullName));
+            }
+            return fileSystemItems;
+        }
+
+        public static List<MediaListItem> GetMLRootLevelItems()
         {
             IList<MediaGroup> groups = ApplicationMain.DbSession.CreateCriteria(typeof(MediaGroup)).Add(Expression.Eq("GroupType", (int)MediaGroupType.Root)).List<MediaGroup>();
-            MediaListItem[] items = new MediaListItem[groups.Count];
+            List<MediaListItem> items = new List<MediaListItem>();
             for(int i = 0; i < groups.Count; i++)
             {
-                items[i] = new MediaListItem(groups[i].GroupName, MediaItemType.Root, groups[i].GroupId);
+                items.Add(new MediaListItem(groups[i].GroupName, MediaItemType.Root, groups[i].GroupId));
             }
             return items;
         }
@@ -113,6 +124,10 @@ namespace CarMp
             }
         }
 
+        /// <summary>
+        /// Plays a file from the media library
+        /// </summary>
+        /// <param name="pLibraryId"></param>
         public static void StartPlayback(int pLibraryId)
         {
             DigitalMediaLibrary item =GetDigitalMedia(pLibraryId);
@@ -121,6 +136,15 @@ namespace CarMp
                 return;
 
             WinampController.Playfile(item.Path);
+        }
+
+        /// <summary>
+        /// Plays a file from the media library
+        /// </summary>
+        /// <param name="pLibraryId"></param>
+        public static void StartPlayback(string pFullPath)
+        {
+            WinampController.Playfile(pFullPath);
         }
 
         public static List<MediaListItem> GetNewMediaList(int pGroupId)
@@ -152,6 +176,23 @@ namespace CarMp
             {
                 return null;
             }
+        }
+
+        public static List<FileSystemItem> GetNewFSMediaList(string pPath)
+        {
+            List<FileSystemItem> fileSystemItems = new List<FileSystemItem>();
+
+            List<string> directories = FileSystem.GetDirectories(pPath);
+            fileSystemItems.AddRange(
+                directories.ConvertAll<FileSystemItem>(new Converter<string, FileSystemItem>((str) => (new FileSystemItem(FileSystem.TopDirectory(str), FileSystemItemType.Directory, str))))
+                );
+
+            List<FileInfo> files = FileSystem.GetFiles(pPath, new List<string>() { "MP3" });
+            fileSystemItems.AddRange(
+                files.ConvertAll<FileSystemItem>(new Converter<FileInfo, FileSystemItem>((fileInfo) => (new FileSystemItem(fileInfo.Name, FileSystemItemType.AudioFile, fileInfo.FullName))))
+                );
+
+            return fileSystemItems;
         }
         
         //private static List<MediaListItem> GetNewMediaList(int pListHistoryIndex)

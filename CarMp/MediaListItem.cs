@@ -13,21 +13,15 @@ namespace CarMp
         /// <summary>
         /// Determines what type of item this is
         /// </summary>
-        Root,
-        Directory,
-        Playlist,
-        Artist,
-        Album,
-        Song
+        Root = 0,
+        Playlist = 2,
+        Artist = 3,
+        Album = 4,
+        Song = 5
     }
 
-    public class MediaListItem : DragableListItem
+    public class MediaListItem : DragableListTextItem
     {
-        /// <summary>
-        /// String shown to the user
-        /// </summary>
-        public string DisplayString;
-
         /// <summary>
         /// Id representing next item id when clicked.
         /// </summary>
@@ -40,7 +34,7 @@ namespace CarMp
 
         /// <summary>
         /// Creates a list item from a Group Item object
-        /// </summary>
+         /// </summary>
         /// <param name="pGroupItem"></param>
         public MediaListItem(MediaGroupItem pGroupItem)
         {
@@ -66,18 +60,6 @@ namespace CarMp
             DisplayString = pDisplayString;
             ItemType = pItemType;
             TargetId = pItemTargetId;
-        }
-
-        public override void DrawOnCanvas(System.Drawing.Graphics pCanvas)
-        {
-            //pCanvas.FillRectangle(Color.Gray,new Rectangle(0,0
-            pCanvas.DrawString(
-                DisplayString,
-                new Font("Arial", 15F), 
-                new LinearGradientBrush(new Point(0,0), new Point(0, ClientSize.Height), Color.White, Color.Gray), 
-                new PointF(1,1)
-                );
-            pCanvas.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
         }
     }
 }

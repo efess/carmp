@@ -67,6 +67,8 @@
     <Compile Include="DebugHandler.cs" />
     <Compile Include="Delegates.cs" />
     <Compile Include="DragableListHistory.cs" />
+    <Compile Include="FileSystem.cs" />
+    <Compile Include="FileSystemItem.cs" />
     <Compile Include="Forms\CarMpForm.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -164,6 +166,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="RootItem.cs" />
     <Compile Include="SessionSettings.cs" />
     <Compile Include="SystemInformation.cs" />
     <Compile Include="Win32Helpers.cs" />

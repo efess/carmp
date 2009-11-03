@@ -7,18 +7,29 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
+// Don't compile wiht these namespaces if we're not using them.
+#if USE_DIRECT2D
+
+using SlimDX;
+using SlimDX.Direct2D;
+using SlimDX.Windows;
+
+#endif
+
 namespace CarMpControls
 {
     public abstract class DragableListItem : IDisposable
     {
         private const int SELECTION_BORDER_PADDING = 1;
 
+        private SlimDX.Direct2D.LinearGradientBrush SelectionGradient;
+
         // Private members
         private int m_index;
         private String m_txtLabelString;
         private Font m_txtLabelFont;
         private Boolean m_selected;
-        private Bitmap m_canvas;
+        private System.Drawing.Bitmap m_canvas;
         private bool m_buffered;
         private Size m_size;
 
@@ -55,13 +66,16 @@ namespace CarMpControls
             get {return m_buffered;}
             set
             {
+
                 if (value == m_buffered)
                     return;
-
+                
+#if !USE_DIRECT2D
                 if (value)
                     this.GenerateCanvas();
                 else
                     this.ClearCanvas();
+#endif
             }
         }
 
@@ -80,17 +94,20 @@ namespace CarMpControls
                     return;
 
                 m_selected = value; 
+#if !USE_DIRECT2D
                 GenerateCanvas();
+#endif
             }
         }
 
         // Methods
 
-        internal Bitmap GetCanvas()
+        internal System.Drawing.Bitmap GetCanvas()
         {
+#if !USE_DIRECT2D
             if (!m_buffered)
                 GenerateCanvas();
-
+#endif
             return m_canvas;
         }
 
@@ -103,7 +120,7 @@ namespace CarMpControls
             }
             m_buffered = false;
         }
-
+        
         internal virtual void DrawSelection(Graphics pCanvas)
         {
             Pen SelectionPen = new Pen(Color.FromArgb(255, Color.Blue));
@@ -111,11 +128,46 @@ namespace CarMpControls
             SelectionPen.Dispose();
         }
 
+#if USE_DIRECT2D
         /// <summary>
         /// Override this
         /// </summary>
         /// <param name="pCanvas"></param>
-        public virtual void DrawOnCanvas(Graphics pCanvas)
+        internal virtual void DrawItem(WindowRenderTarget pRenderer, RectangleF pRectangle) 
+        {
+            if (m_selected)
+            {
+                if (SelectionGradient == null)
+                    SelectionGradient = new SlimDX.Direct2D.LinearGradientBrush(pRenderer,
+                        new GradientStopCollection(pRenderer, new GradientStop[] {
+                        new GradientStop
+                            {
+                                Color = Color.Gray,
+                                Position = 0
+                            }
+                            ,
+                        new GradientStop
+                            {
+                                Color = Color.Blue,
+                                Position = 1
+                            }
+                        }),
+                            new LinearGradientBrushProperties()
+                            {
+                                StartPoint = new PointF(pRectangle.Top, 0),
+                                EndPoint = new PointF(0, pRectangle.Bottom)
+                            }
+                        );
+
+                pRenderer.DrawRectangle(SelectionGradient, pRectangle, 2F);
+            }
+        }
+#else
+        /// <summary>
+        /// Override this
+        /// </summary>
+        /// <param name="pCanvas"></param>
+        public virtual void DrawItem(Graphics pCanvas)
         {
         }
 
@@ -127,14 +179,16 @@ namespace CarMpControls
             if(m_selected)
                 DrawSelection(g);
             
-            DrawOnCanvas(g);
+            DrawItem(g);
 
             g.Dispose();
             m_buffered = true;
         }
+#endif
+
 
         #region IDisposable Members
-        
+
         /// <summary>
         /// If you override this, you should still call base.Dispose() to make sure base objects are disposed as well.
         /// </summary>

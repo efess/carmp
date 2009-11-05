@@ -22,7 +22,9 @@ namespace CarMp
             List<DriveInfo> driveInfos = new List<DriveInfo>();
             foreach (string drive in dr)
             {
-                driveInfos.Add(new DriveInfo(drive));
+                DriveInfo dInfo = new DriveInfo(drive);
+                if(dInfo.IsReady)
+                    driveInfos.Add(dInfo);
             }
 
             return driveInfos;

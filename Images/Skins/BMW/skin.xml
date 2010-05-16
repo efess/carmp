@@ -1,0 +1,32 @@
+<Skin>
+	<Name>BMW Skin</Name>
+	<Home>
+		<BackgroundImg>
+		</BackgroundImg>
+		<Buttons>
+			<Music>
+				<Layout>4,5,1,3</Layout>
+				<FaceUpImg>Music64.gif</FaceUpImg>
+				<FaceDownImg>Music64.gif</FaceDownImg>
+			</Music>
+      <Navigation>
+        <Layout>4,5,1,3</Layout>
+        <FaceUpImg>World64.gif</FaceUpImg>
+        <FaceDownImg>World64.gif</FaceDownImg>
+      </Navigation>
+      <Options>
+        <Layout>4,5,1,3</Layout>
+        <FaceUpImg>Gear64.gif</FaceUpImg>
+        <FaceDownImg>Gear64.gif</FaceDownImg>
+      </Options>
+		</Buttons>
+	</Home>
+	<Music>
+		<DigitalAudio>
+		</DigitalAudio>
+	</Music>
+	<Options>
+	</Options>
+	<Navigation>
+	</Navigation>
+</Skin>

@@ -48,6 +48,7 @@ namespace CarMp.Forms
             {
                 // Create one.
                 _currentContent = CreateContent(pContentName);
+                _loadedContent.Add(pContentName, _currentContent);
             }
 
             pnlContent.Controls.Add(_currentContent);
@@ -80,7 +81,6 @@ namespace CarMp.Forms
                     throw new Exception("Attempt to create an invalid form: " + pContentName);
             }
 
-            _loadedContent.Add(pContentName, newContent);
             return newContent;
         }
 

@@ -24,8 +24,8 @@ namespace CarMpControls
         public delegate void ListChangedEventHandler(object sender, ListChangeEventArgs e);
         public delegate void SelectedItemChangedEventHandler(object sender, SelectedItemChangedEventArgs e);
 
-        public delegate void ListChangeDelegate(int SwitchDirectionSign, int NewIndex);
-        public delegate void VelocityStart(int InitialVelocity);
+        private delegate void ListChangeDelegate(int SwitchDirectionSign, int NewIndex);
+        private delegate void VelocityStart(int InitialVelocity);
 
         public event ListChangedEventHandler BeforeListChanged;
         public event ListChangedEventHandler AfterListChanged;
@@ -35,7 +35,7 @@ namespace CarMpControls
         
         // Height of each list item
         private int m_listItemSize = 25;
-        private int m_listVShift_px;
+
         // Horizontal shift during list changes
         private int m_listHShift_px;
 
@@ -48,8 +48,6 @@ namespace CarMpControls
         /// </summary>
         private int m_nextListSize_px;
 
-        private int m_listTopIndex;
-        private int m_listSelected;
         /// <summary>
         /// Number of items that can be visible
         /// </summary>
@@ -82,7 +80,6 @@ namespace CarMpControls
         private Boolean m_mouseDown;
         private Boolean m_mouseListLock;
 
-        private Boolean m_mouseScrollLock;
         private DateTime m_mouseDownTime;
         private int m_mouseDownTimeMsSelectTheshold = 200;
         private int m_mouseDownTimePxSelectThreashold = 5;
@@ -96,13 +93,6 @@ namespace CarMpControls
         // Velocity Delegate
         private VelocityStart m_velocityDelegate;
         private bool m_velocityStop;
-
-        private ListChangeDelegate m_listChangeDelegate;
-
-        // ScrollBar vars
-        private int m_scrollBarLoc_px;
-        private int m_scrollBarWidth_px;
-        private int m_scroolBarEnabled;
 
 #if USE_DIRECT2D
         private WindowRenderTarget renderTarget;

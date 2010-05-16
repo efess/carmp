@@ -12,6 +12,7 @@ using System.Drawing.Drawing2D;
 using SlimDX;
 using SlimDX.Direct2D;
 using SlimDX.Windows;
+
 #endif
 
 namespace CarMpControls
@@ -41,9 +42,6 @@ namespace CarMpControls
                     SlimDX.DirectWrite.FontStretch.Normal,
                     20F,
                     "en-us") { TextAlignment = SlimDX.DirectWrite.TextAlignment.Leading };
-
-            
-
 #endif
         }
 

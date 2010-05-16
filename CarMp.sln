@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarMp", "CarMp\CarMp.csproj", "{A0A6D51B-7760-4D91-9CCA-8CD491AFD56A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarMpControls", "CarMpControls\CarMpControls.csproj", "{DDE21C75-2CFB-4C6E-8589-2DCE8A045BD7}"

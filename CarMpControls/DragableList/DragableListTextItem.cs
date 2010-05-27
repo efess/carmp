@@ -51,7 +51,7 @@ namespace CarMpControls
         public string DisplayString { get; set; }
 #if USE_DIRECT2D
 
-        internal override void DrawItem(WindowRenderTarget pRenderer, RectangleF pRectangle)
+        internal override void DrawItem(RenderTarget pRenderer, RectangleF pRectangle)
         {
             if(StringLayout == null)
             {

@@ -19,7 +19,7 @@ using SlimDX.Windows;
 
 namespace CarMpControls
 {
-    public partial class DragableList : Control
+    public class DragableList : ViewControlBase, IViewControl
     {
         public delegate void ListChangedEventHandler(object sender, ListChangeEventArgs e);
         public delegate void SelectedItemChangedEventHandler(object sender, SelectedItemChangedEventArgs e);
@@ -100,29 +100,6 @@ namespace CarMpControls
         // Constructors
         public DragableList()
         {
-            InitializeComponent();
-
-#if USE_DIRECT2D
-            this.SetStyle(
-                ControlStyles.AllPaintingInWmPaint |
-                ControlStyles.UserPaint, true);
-
-            renderTarget = new WindowRenderTarget(new Factory(), new WindowRenderTargetProperties()
-            {
-                Handle = this.Handle,
-                PixelSize = this.ClientSize
-                
-            });
-
-            this.ClientSizeChanged += (o, e) => { renderTarget.Resize(this.ClientSize); };
-#else
-            this.SetStyle(
-                ControlStyles.UserPaint |
-                ControlStyles.AllPaintingInWmPaint |
-                ControlStyles.DoubleBuffer, true);
-#endif
-            
-
             this.m_mouseDown = false;
             this.m_ignoreMouseEvents = false;
 
@@ -143,7 +120,7 @@ namespace CarMpControls
                 m_currentListLoc_px = value.ListLocPx;
                 if (m_listCurrentDisplay.Count >= m_listDisplayCount)
                 {
-                    m_currentListSize_px = (m_listCurrentDisplay.Count * m_listItemSize) - this.Height;
+                    m_currentListSize_px = (m_listCurrentDisplay.Count * m_listItemSize) - Convert.ToInt32(this.Height);
                 }
                 else
                 {
@@ -166,7 +143,7 @@ namespace CarMpControls
                 m_nextListLoc_px = value.ListLocPx;
                 if (m_listNextDisplay.Count >= m_listDisplayCount)
                 {
-                    m_nextListSize_px = (m_listNextDisplay.Count * m_listItemSize) - this.Height; 
+                    m_nextListSize_px = (m_listNextDisplay.Count * m_listItemSize) - Convert.ToInt32(this.Height); 
                 }
                 else
                 {
@@ -353,7 +330,7 @@ namespace CarMpControls
         /// <param name="item"></param>
         public void InsertNextIntoCurrent(DragableListItem item)
         {
-            item.ClientSize = new Size(this.Width, m_listItemSize);
+            item.ClientSize = new Size(Convert.ToInt32(this.Width), m_listItemSize);
 
             item.Index = this.m_listCurrentDisplay.Count;
 
@@ -382,7 +359,7 @@ namespace CarMpControls
                 throw new Exception("ListIndex is out of range - greater than next insertion");
             }
 
-            item.ClientSize = new Size(this.Width, m_listItemSize);
+            item.ClientSize = new Size(Convert.ToInt32(this.Width), m_listItemSize);
             item.Index = this.m_listCurrentDisplay.Count;
 
             this.m_listCollection[pListIndex].Add(item);
@@ -538,74 +515,34 @@ namespace CarMpControls
 
         // Overrided Events
 
-        protected override void OnPaint(PaintEventArgs pe)
+        public void Render(RenderTarget pRenderTarget, RectangleF pRenderBounds)
         {
-#if USE_DIRECT2D
-            if (!renderTarget.IsOccluded)
+            for (int i = 0; i < this.m_listDisplayCount; i++)
             {
-                renderTarget.BeginDraw();
-                renderTarget.Transform = Matrix3x2.Identity;
-                renderTarget.Clear(Color.Black);
-
-                for (int i = 0; i < this.m_listDisplayCount; i++)
+                if (i < m_listCurrentDisplay.Count)
                 {
-                    if (i < m_listCurrentDisplay.Count)
-                    {
-                        RectangleF currentRect = new RectangleF(
-                            m_listHShift_px, (
-                            m_listItemSize * i) - CurrentListLocVertOffset_px,
-                            this.Width,
-                            m_listItemSize);
-                        this.m_listCurrentDisplay[this.CurrentListItemViewIndexZero + i].DrawItem(renderTarget, currentRect);
-                    }
-
-                    if (m_listHShift_px != 0 && i < m_listNextDisplay.Count)
-                    {
-
-                        RectangleF nextRect = new RectangleF(
-                            m_listHShift_px - (this.Width * Math.Sign(m_listHShift_px)), (
-                            (m_listItemSize * i) - NextListLocVertOffset_px),
-                            this.Width,
-                            m_listItemSize);
-                        this.m_listNextDisplay[this.NextListItemViewIndexZero + i].DrawItem(renderTarget, nextRect);
-                    }
+                    RectangleF currentRect = new RectangleF(
+                        m_listHShift_px, (
+                        m_listItemSize * i) - CurrentListLocVertOffset_px,
+                        this.Width,
+                        m_listItemSize);
+                    this.m_listCurrentDisplay[this.CurrentListItemViewIndexZero + i].DrawItem(pRenderTarget, currentRect);
                 }
 
-                renderTarget.EndDraw();
-            }
-            base.OnPaint(pe);
-#else
-            try
-            {
-                for (int i = 0; i < this.m_listDisplayCount; i++)
+                if (m_listHShift_px != 0 && i < m_listNextDisplay.Count)
                 {
-                    if (i < m_listCurrentDisplay.Count)
-                    {
-                        pe.Graphics.DrawImage(this.m_listCurrentDisplay[this.CurrentListItemViewIndexZero + i].GetCanvas(), 
-                            new Point(m_listHShift_px, (m_listItemSize * i) - CurrentListLocVertOffset_px));
-                    }
 
-                    if (m_listHShift_px != 0 && i < m_listNextDisplay.Count)
-                    {
-                        pe.Graphics.DrawImage(this.m_listNextDisplay[this.NextListItemViewIndexZero + i].GetCanvas(), 
-                            new Point(m_listHShift_px - (this.Width * Math.Sign(m_listHShift_px)), (m_listItemSize * i) - NextListLocVertOffset_px));
-                    }
+                    RectangleF nextRect = new RectangleF(
+                        m_listHShift_px - (this.Width * Math.Sign(m_listHShift_px)), (
+                        (m_listItemSize * i) - NextListLocVertOffset_px),
+                        this.Width,
+                        m_listItemSize);
+                    this.m_listNextDisplay[this.NextListItemViewIndexZero + i].DrawItem(pRenderTarget, nextRect);
                 }
             }
-            catch 
-            {
- 
-            }
-
-            base.OnPaint(pe);
-#endif
-        }
-        protected override void OnPaintBackground(PaintEventArgs pevent)
-        {
-            
         }
 
-        protected override void OnMouseMove(MouseEventArgs e)
+        public override void OnMouseMove(MouseEventArgs e)
         {
             if (!this.m_mouseDown || m_ignoreMouseEvents)
                 return;
@@ -632,11 +569,9 @@ namespace CarMpControls
             {
                 m_mouseListLock = true;
             }
-
- 	        base.OnMouseMove(e);
         }
 
-        protected override void OnMouseUp(MouseEventArgs e)
+        public override void OnMouseUp(MouseEventArgs e)
         {
             if (m_ignoreMouseEvents)
                 return;
@@ -671,7 +606,7 @@ namespace CarMpControls
             base.OnMouseUp(e);
         }
 
-        protected override void OnMouseDown(MouseEventArgs e)
+        public override void OnMouseDown(MouseEventArgs e)
         {
             if (m_ignoreMouseEvents)
                 return;
@@ -746,7 +681,7 @@ namespace CarMpControls
 
         private void OnSizeChanged(object sender, EventArgs e)
         {
-            this.m_listDisplayCount = this.Size.Height / m_listItemSize + 1;
+            this.m_listDisplayCount = Convert.ToInt32(this.Size.Height) / m_listItemSize + 1;
         }
     }
 

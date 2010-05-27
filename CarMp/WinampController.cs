@@ -8,46 +8,24 @@ using System.Timers;
 
 namespace CarMp
 {
-    public class WinampController
+    public class WinampController : IAudioController
     {
-        private static event WinampStateUpdate _winampStateUpdate;
-        public static event WinampStateUpdate WinampStateUpdate
-        {
-            add
-            {
-                if (_winampStateUpdate == null)
-                {
-                    throw new Exception("Event already hooked up, must remove first");
-                }
-                _winampStateUpdate += value;
-                WinampEventTimer.Start();
-            }
-            remove
-            {
-                WinampEventTimer.Stop();
-                _winampStateUpdate += value;
-            }
-        }     
-     
         private const string WINAMP_PROCESS = "winamp";
 
-        private static Timer WinampEventTimer;
-        private static bool DebugIgnoreCommands;
-        private static string WinampPath;
-        private static Process WinampApp;
-        private static int WinampUpdateInterval;
+        private bool DebugIgnoreCommands;
+        private string WinampPath;
+        private Process WinampApp;
+        private int WinampUpdateInterval;
 
-        public static bool Initialized
+        public bool Initialized
         {
             get { return WinampApp != null; }
         }
 
-        public static void Initialize()
+        public WinampController()
         {
             WinampUpdateInterval = 1000;
 
-            WinampEventTimer = new Timer(WinampUpdateInterval);
-            WinampEventTimer.Elapsed += new ElapsedEventHandler(WinampEventTimer_Elapsed);
             Process[] processes = Process.GetProcessesByName(WINAMP_PROCESS);
 
             // if there is more than one process...
@@ -82,22 +60,15 @@ namespace CarMp
             }
         }
 
-        static void WinampEventTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            if (_winampStateUpdate != null)
-            {
-                long songLength = GetSongLength();
-                _winampStateUpdate.BeginInvoke(sender, new WinampStateUpdateArgs(songLength), null, null);
-            }
-        }
-
-        public static void SetDefaultSettings()
+        
+        
+        public void SetDefaultSettings()
         {
             SendUserMessageToWinamp(WA_IPC.IPC_SET_REPEAT, 0);
             SendUserMessageToWinamp(WA_IPC.IPC_SET_SHUFFLE, 0);
         }
 
-        public static void Playfile(string s)
+        public void PlayFile(string s)
         {
             if (DebugIgnoreCommands) { return; }
 
@@ -120,7 +91,7 @@ namespace CarMp
             //}
         }
 
-        public static void AddSongToPlayList(string pFileName)
+        public void AddSongToPlayList(string pFileName)
         {
             Win32Helpers.COPYDATASTRUCT fileStruct = new Win32Helpers.COPYDATASTRUCT();
             fileStruct.dwData = (IntPtr)WA_IPC.IPC_ENQUEUEFILE;
@@ -130,12 +101,12 @@ namespace CarMp
             SendCopyDataToWinamp(fileStruct, 0);
         }
 
-        public static void StartPlayback()
+        public void StartPlayback()
         {
             SendUserMessageToWinamp(WA_IPC.IPC_STARTPLAY, 4);
         }
 
-        public static void StopPlayback()
+        public void StopPlayback()
         {
             SendUserMessageToWinamp(WA_IPC.IPC_SPAWNBUTTONPOPUP, 5);
             //if (DebugIgnoreCommands) { return; }
@@ -149,24 +120,30 @@ namespace CarMp
             //SendMessageA(hwnd, WM_WA_IPC, 0, 102);
 
         }
-        public static void SetCurrentPos(int pos)
+
+        public void PausePlayback()
+        {
+            SendUserMessageToWinamp(WA_IPC.IPC_SPAWNBUTTONPOPUP, 3);
+        }
+
+        public void SetCurrentPos(int pos)
         {
             if (DebugIgnoreCommands) { return; }
             SendUserMessageToWinamp(WA_IPC.IPC_JUMPTOTIME, pos);
         }
-        public static int GetCurrentPos()
+        public int GetCurrentPos()
         {
             if (DebugIgnoreCommands) { return 10000/2; }
 
             return SendUserMessageToWinamp(WA_IPC.IPC_GETOUTPUTTIME, 0);
         }
-        public static int GetSongLength()
+        public int GetSongLength()
         {
             if (DebugIgnoreCommands) { return 10000; }
-            return SendUserMessageToWinamp(WA_IPC.IPC_GETOUTPUTTIME, 1);
+            return SendUserMessageToWinamp(WA_IPC.IPC_GETOUTPUTTIME, 1) * 1000;
         }
 
-        private static int SendUserMessageToWinamp(WA_IPC pMessageType, int pParameter)
+        private int SendUserMessageToWinamp(WA_IPC pMessageType, int pParameter)
         {
             //return 0;
             if (!Initialized)
@@ -179,7 +156,7 @@ namespace CarMp
             return returnInt;
         }
 
-        private static int SendCopyDataToWinamp(Win32Helpers.COPYDATASTRUCT pData, int pParameter)
+        private int SendCopyDataToWinamp(Win32Helpers.COPYDATASTRUCT pData, int pParameter)
         {
             //return 0;
             if (!Initialized)
@@ -1412,15 +1389,4 @@ namespace CarMp
         }
 #endregion
     }
-
-    public class WinampStateUpdateArgs : EventArgs
-    {
-        public long SongPosition { get; private set; }
-
-        public WinampStateUpdateArgs(long pSongPosition)
-        {
-            SongPosition = pSongPosition;
-        }
-    }
-   
 }

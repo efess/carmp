@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace CarMpControls
+namespace CarMp.Forms
 {
-    public partial class SlidingPanel : UserControl
+    public partial class Formd2d1Host : Form
     {
-        public SlidingPanel()
+        public Formd2d1Host()
         {
             InitializeComponent();
         }

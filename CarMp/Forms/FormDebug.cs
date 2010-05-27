@@ -33,7 +33,6 @@ namespace CarMp.Forms
             m_debugBuffer.Add(DateTime.Now.ToString() + "\tEXCEPTION DBG> " + e.Message + " StackTrace: " + e.StackTrace);
             this.RefreshText();
         }
-
         
         private void RefreshText()
         {

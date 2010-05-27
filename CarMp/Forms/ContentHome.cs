@@ -23,12 +23,12 @@ namespace CarMp.Forms
 
         private void graphicalButton1_Click(object sender, EventArgs e)
         {
-            ApplicationMain.AppFormHost.OpenContent(FormHost.DIGITAL_AUDIO, true);
+            ApplicationMain.AppFormHost.ShowView(FormHost.DIGITAL_AUDIO, true);
         }
 
         private void graphicalButton2_Click(object sender, EventArgs e)
         {
-            ApplicationMain.AppFormHost.OpenContent(FormHost.OPTIONS, true);
+            ApplicationMain.AppFormHost.ShowView(FormHost.OPTIONS, true);
         }
     }
 }

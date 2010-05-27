@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using CarMpControls;
+using CarMp.ViewControls;
 
 namespace CarMp
 {

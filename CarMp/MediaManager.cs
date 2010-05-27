@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using DataObjectLayer;
 using CarMpMediaInfo;
 using System.Collections;
 using NHibernate.Criterion;
@@ -13,21 +12,50 @@ namespace CarMp
     public static class MediaManager
     {
         public static DragableListSelectHistory MediaListHistory;
+        private static Dictionary<int, NHibernate.ISession> _DataSessions;
+        private static IAudioController _audioController;
+        public static MediaState CurrentState { get; private set; }
 
-        public static void Initialize()
+        // This may be dangerous... Throughout the lifetime of the application 
+        // datasessions will be created for each threadid, and never closed.
+        // Will have to see what happens...
+
+        // This started out as bad design, and this is mostly a bandaid.
+
+        private static NHibernate.ISession DataSession
         {
+            get
+            {
+                NHibernate.ISession dataSession;
+                int threadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
+                if (!_DataSessions.ContainsKey(threadId))
+                {
+                    dataSession = Database.GetSession();
+                    _DataSessions.Add(threadId, dataSession);
+                }
+                else
+                    dataSession = _DataSessions[threadId];
+
+                return dataSession;
+            }
+        }
+
+        public static void Initialize(IAudioController pAudioController)
+        {
+            _audioController = pAudioController;
+            _DataSessions = new Dictionary<int, NHibernate.ISession>();
             MediaListHistory = new DragableListSelectHistory();
             GetListHistory();
         }
 
         public static void Close()
         {
-            WinampController.StopPlayback();
+            _audioController.StopPlayback();
         }
 
         private static void GetListHistory()
         {
-            IList<ListHistory> lHistories = ApplicationMain.DbSession.CreateCriteria(typeof(ListHistory)).List<ListHistory>();
+            IList<ListHistory> lHistories = DataSession.CreateCriteria(typeof(ListHistory)).List<ListHistory>();
 
             //lHistories.Sort(new Comparison<ListHistory>(delegate(ListHistory lh, ListHistory lh2)
             //    {
@@ -43,8 +71,6 @@ namespace CarMp
 
         private static void SaveListHistory()
         {
-            ListHistorys lHistories = new ListHistorys();
-            lHistories.Delete();
 
             for (int i = 0; i < MediaListHistory.Count; i++)
             {
@@ -64,7 +90,7 @@ namespace CarMp
 
         public static List<MediaListItem> GetMLRootLevelItems()
         {
-            IList<MediaGroup> groups = ApplicationMain.DbSession.CreateCriteria(typeof(MediaGroup)).Add(Expression.Eq("GroupType", (int)MediaGroupType.Root)).List<MediaGroup>();
+            IList<MediaGroup> groups = DataSession.CreateCriteria(typeof(MediaGroup)).Add(Expression.Eq("GroupType", (int)MediaGroupType.Root)).List<MediaGroup>();
             List<MediaListItem> items = new List<MediaListItem>();
             for(int i = 0; i < groups.Count; i++)
             {
@@ -75,14 +101,13 @@ namespace CarMp
 
         public static void ClearMediaLibrary()
         {
-            ApplicationMain.DbSession.CreateSQLQuery("DELETE FROM DigitalMediaLibrary").ExecuteUpdate();
+            DataSession.CreateSQLQuery("DELETE FROM DigitalMediaLibrary").ExecuteUpdate();
         }
 
         public static void SaveMediaToLibrary(List<MediaItem> pMediaItems)
         {
-            NHibernate.ISession dbSession = ApplicationMain.DbSession;
+            NHibernate.ISession dbSession = DataSession;
 
-            DigitalMediaLibrarys dmls = new DigitalMediaLibrarys();
             // MediaGroupCreater mediaGroupCreater = new MediaGroupCreater();
 
             // retreive all stores and display them
@@ -105,7 +130,7 @@ namespace CarMp
 
                     try
                     {
-                        ApplicationMain.DbSession.Save(dml);
+                        DataSession.Save(dml);
                     }
                     catch
                     {
@@ -114,7 +139,7 @@ namespace CarMp
                 }
                 try
                 {
-                    ApplicationMain.DbSession.Transaction.Commit();
+                    DataSession.Transaction.Commit();
                 }
                 catch (Exception ex) { DebugHandler.HandleException(ex); }
                 
@@ -122,6 +147,30 @@ namespace CarMp
                 //    DebugHandler.DebugPrint("Cannot save Media list: " + dmls.ErrorString);
                 //}
             }
+        }
+
+        /// <summary>
+        /// Stop a song
+        /// </summary>
+        public static void StopPlayback()
+        {
+            _audioController.StopPlayback();
+        }
+
+        /// <summary>
+        /// Starts Playing a stopped or paused song
+        /// </summary>
+        public static void StartPlayback()
+        {
+            _audioController.StartPlayback();
+        }
+
+        /// <summary>
+        /// Pauses playback of a song
+        /// </summary>
+        public static void PausePlayback()
+        {
+            _audioController.PausePlayback();
         }
 
         /// <summary>
@@ -135,7 +184,7 @@ namespace CarMp
             if (item == null)
                 return;
 
-            WinampController.Playfile(item.Path);
+            StartPlayback(item.Path);
         }
 
         /// <summary>
@@ -144,14 +193,29 @@ namespace CarMp
         /// <param name="pLibraryId"></param>
         public static void StartPlayback(string pFullPath)
         {
-            WinampController.Playfile(pFullPath);
+            CurrentState = MediaState.Playing;
+            _audioController.PlayFile(pFullPath);
         }
 
+        public static int GetCurrentPosition()
+        {
+            return _audioController.GetCurrentPos();
+        }
+
+        public static int GetSongLength()
+        {
+            return _audioController.GetSongLength();
+        }
+
+        public static void SetCurrentPos(int pos)
+        {
+            _audioController.SetCurrentPos(pos);
+        }
         public static List<MediaListItem> GetNewMediaList(int pGroupId)
         {
             
             List<MediaListItem> listOfItems = new List<MediaListItem>();
-            IList<MediaGroup> mediaGroup = ApplicationMain.DbSession.CreateCriteria(typeof(MediaGroup)).Add(Expression.Eq("GroupId", pGroupId)).List<MediaGroup>();
+            IList<MediaGroup> mediaGroup = DataSession.CreateCriteria(typeof(MediaGroup)).Add(Expression.Eq("GroupId", pGroupId)).List<MediaGroup>();
             if (mediaGroup.Count == 0)
                 return listOfItems;
             else
@@ -167,7 +231,7 @@ namespace CarMp
 
         private static DigitalMediaLibrary GetDigitalMedia(int pLibraryId)
         {
-            IList<DigitalMediaLibrary> digitalMedia = ApplicationMain.DbSession.CreateCriteria(typeof(DigitalMediaLibrary)).Add(Expression.Eq("LibraryId", pLibraryId)).List<DigitalMediaLibrary>();
+            IList<DigitalMediaLibrary> digitalMedia = DataSession.CreateCriteria(typeof(DigitalMediaLibrary)).Add(Expression.Eq("LibraryId", pLibraryId)).List<DigitalMediaLibrary>();
             if (digitalMedia.Count > 0)
             {
                 return digitalMedia[0] as DigitalMediaLibrary;

@@ -9,6 +9,8 @@ namespace CarMp
 {
     public static class SessionSettings
     {
+        private const string XML_SKIN_PATH_NODE = "skinpath";
+
         private const string XML_DATABASE_PATH_NODE = "databasepath";
         private const string XML_ROOT_NODE = "settings";
 
@@ -41,6 +43,9 @@ namespace CarMp
 
         public static Color DefaultFontColor = Color.FromArgb(198,198,198);
         public static Color DefaultFontSpecialColor = Color.FromArgb(205, 117, 2);
+
+        public static string SkinPath = "";
+        public static SkinSettings CurrentSkin = null;
 
         public static void LoadFromXml(string pXmlFile)
         {
@@ -76,11 +81,33 @@ namespace CarMp
                         case XML_SCREEN_SIZE_NODE:
                             ScreenResolution = new Size(Convert.ToInt32(node.Attributes[XML_XCOORD_ATTR].Value), Convert.ToInt32(node.Attributes[XML_YCOORD_ATTR].Value));
                             break;
+                        case XML_SKIN_PATH_NODE:
+                            string filePath = node.InnerText;
+                            System.IO.FileAttributes attr = System.IO.File.GetAttributes(filePath);
+
+                            // If this is a directory, append the filename
+                            if ((attr & System.IO.FileAttributes.Directory) != System.IO.FileAttributes.Directory)
+                            {
+                                filePath = System.IO.Path.GetDirectoryName(filePath);
+                            }
+
+                            SkinPath = filePath;
+                                
+                            // Load Skin now
+                            try
+                            {
+                                CurrentSkin = new SkinSettings(SkinPath);
+                            }
+                            catch (Exception ex)
+                            {
+                                DebugHandler.DebugPrint("Could not load skin from " + SkinPath + Environment.NewLine + "Exception Info: " + ex.ToString());
+                            }
+                            break;
                     }
                 }
                 catch
                 {
-                    DebugHandler.DebugPrint("Invalid node: " + node.Name);
+                    DebugHandler.DebugPrint("Invalid node: " + node.Name + " in settings.xml");
                 }
             }
         }

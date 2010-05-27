@@ -19,29 +19,31 @@ namespace CarMp
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
+            ISession dataSession = Database.GetSession();
+
             OnProgressChanged(0, "Deleting records");
-            ApplicationMain.DbSession.CreateSQLQuery("DELETE FROM MediaGroup").ExecuteUpdate();
+            dataSession.CreateSQLQuery("DELETE FROM MediaGroup").ExecuteUpdate();
             OnProgressChanged(1, "Deleting records");
-            ApplicationMain.DbSession.CreateSQLQuery("DELETE FROM MediaGroupItem").ExecuteUpdate();
+            dataSession.CreateSQLQuery("DELETE FROM MediaGroupItem").ExecuteUpdate();
             
             OnProgressChanged(2, "Creating root group");
-            ApplicationMain.DbSession.CreateSQLQuery(
+            dataSession.CreateSQLQuery(
                 @"insert into mediagroup (groupname, description, grouppath, GroupType)"
                 + @" values ('AllArtists','','\ALLARTISTS\', 0)").ExecuteUpdate();
             
             OnProgressChanged(3, "Creating root group");
-            ApplicationMain.DbSession.CreateSQLQuery(
+            dataSession.CreateSQLQuery(
                 @"insert into mediagroup (groupname, description, grouppath, GroupType)"
                 + @" values ('AllAlbums','','\ALLALBUMS\', 0)").ExecuteUpdate();
             
             OnProgressChanged(4, "Creating root group");
-            ApplicationMain.DbSession.CreateSQLQuery(
+            dataSession.CreateSQLQuery(
                 @"insert into mediagroup (groupname, description, grouppath, GroupType)"
                 + @" values ('AllSongs','','\ALLSONGS\', 0)").ExecuteUpdate();
             
             OnProgressChanged(8, "Creating Artist groups");
             //Create artist groups
-            ApplicationMain.DbSession.CreateSQLQuery(
+            dataSession.CreateSQLQuery(
                 @"insert into mediagroup (groupname, description, grouppath, GroupType) "
                 + @"select artist, '', '\ALLARTISTS\' || UPPER(artist) || '\', 1 "
                 + @"from digitalmedialibrary "
@@ -49,7 +51,7 @@ namespace CarMp
 
             OnProgressChanged(8, "Creating \\Album groups");
             // Create Album groups
-            ApplicationMain.DbSession.CreateSQLQuery(
+            dataSession.CreateSQLQuery(
                 @"insert into mediagroup (groupname, description, grouppath, GroupType) "
                 + @"select album, '', '\ALLALBUMS\' || UPPER(album) || '\',1 "
                 + @"from digitalmedialibrary "
@@ -57,7 +59,7 @@ namespace CarMp
             
             OnProgressChanged(8, "Creating Artist\\Album groups");
             // Create Artist\Album groups
-            ApplicationMain.DbSession.CreateSQLQuery(
+            dataSession.CreateSQLQuery(
                 @"insert into mediagroup (groupname, description, grouppath, GroupType) "
                 + @"select album, '', '\ALLARTISTS\' || UPPER(artist) || '\' || UPPER(album) || '\',1 "
                 + @"from digitalmedialibrary "
@@ -65,7 +67,7 @@ namespace CarMp
             
             OnProgressChanged(15, "Creating group items");
             //-- Artist\Album to songs
-            ApplicationMain.DbSession.CreateSQLQuery(
+            dataSession.CreateSQLQuery(
                 @"insert into mediagroupitem(GroupId, ItemType, ItemName, LibraryId) "
                 + @"select mg.groupid, 5, dl.title, dl.LibraryId "
                 + @"from digitalmedialibrary as dl "
@@ -74,7 +76,7 @@ namespace CarMp
 
             OnProgressChanged(15, "Creating group items");
             //-- Album to songs
-            ApplicationMain.DbSession.CreateSQLQuery(
+            dataSession.CreateSQLQuery(
                 @"insert into mediagroupitem(GroupId, ItemType, ItemName, LibraryId) "
                 + @"select mg.groupid, 5, dl.title, dl.LibraryId "
                 + @"from digitalmedialibrary as dl "
@@ -84,7 +86,7 @@ namespace CarMp
             OnProgressChanged(32, "Creating group items");
             
             //-- Artist to Albums
-            ApplicationMain.DbSession.CreateSQLQuery(
+            dataSession.CreateSQLQuery(
                 @"insert into mediagroupitem(GroupId, ItemType, ItemName, NextGroupId) "
                 + @"select mg.groupid,4, dl.album, mg2.groupid "
                 + @"from mediagroup as mg "
@@ -95,7 +97,7 @@ namespace CarMp
             
             OnProgressChanged(49, "Creating group items");
             //-- AllArtists to Artist
-            ApplicationMain.DbSession.CreateSQLQuery(
+            dataSession.CreateSQLQuery(
                 @"insert into mediagroupitem(GroupId, ItemType, ItemName, NextGroupId) "
                 + @"select mg1.groupid,3,dl.artist, mg2.groupid as nextgroup "
                 + @"from digitalmedialibrary as dl "
@@ -105,7 +107,7 @@ namespace CarMp
 
             OnProgressChanged(49, "Creating group items");
             //-- AllAlbums to Album
-            ApplicationMain.DbSession.CreateSQLQuery(
+            dataSession.CreateSQLQuery(
                 @"insert into mediagroupitem(GroupId, ItemType, ItemName, NextGroupId) "
                 + @"select mg1.groupid,3,dl.album, mg2.groupid as nextgroup "
                 + @"from digitalmedialibrary as dl "
@@ -115,13 +117,14 @@ namespace CarMp
             
             OnProgressChanged(83, "Creating group items");
             //-- AllSongs to songs
-            ApplicationMain.DbSession.CreateSQLQuery(
+            dataSession.CreateSQLQuery(
                 @"insert into mediagroupitem(GroupId, ItemType, ItemName, LibraryId) "
                 + @"select mg.groupid, 5, dl.title, dl.LibraryId "
                 + @"from digitalmedialibrary as dl "
                 + @"join mediagroup as mg "
                 + @"on (mg.groupPath = '\ALLSONGS\')").ExecuteUpdate();
 
+            dataSession.Close();
             OnProgressChanged(100, "Finished");
 
             sw.Stop();
@@ -147,148 +150,148 @@ namespace CarMp
     /// Depricated - for reference ONLY.
     /// Use MediaGroupCreater which is faster - executes SQL statements to generate records.
     /// </summary>
-    public class OldMediaGroupCreater
-    {
-        private const string ALL_ARTISTS_GROUP = "AllArtists";
-        private const string ALL_ALBUMS_GROUP = "AllAlbums";
-        private const string ALL_SONGS_GROUP = "AllSongs";
+    //public class OldMediaGroupCreater
+    //{
+    //    private const string ALL_ARTISTS_GROUP = "AllArtists";
+    //    private const string ALL_ALBUMS_GROUP = "AllAlbums";
+    //    private const string ALL_SONGS_GROUP = "AllSongs";
 
-        private const string PATH_SEPARATOR = "\\";
+    //    private const string PATH_SEPARATOR = "\\";
 
-        private Hashtable mediaGroupCache;
+    //    private Hashtable mediaGroupCache;
         
-        public OldMediaGroupCreater()
-        {
-            mediaGroupCache = new Hashtable();
-        }
+    //    public OldMediaGroupCreater()
+    //    {
+    //        mediaGroupCache = new Hashtable();
+    //    }
 
-        public void AddMediaItem(DigitalMediaLibrary pItem)
-        {
+    //    public void AddMediaItem(DigitalMediaLibrary pItem)
+    //    {
             
-            MediaGroup allSongsGroup =  AddUpdateCreateGroup(CreateSongItem(pItem), ALL_SONGS_GROUP, FormatPath(ALL_SONGS_GROUP), false);
+    //        MediaGroup allSongsGroup =  AddUpdateCreateGroup(CreateSongItem(pItem), ALL_SONGS_GROUP, FormatPath(ALL_SONGS_GROUP), false);
 
-            MediaGroup albumGroup = AddUpdateCreateGroup(CreateSongItem(pItem), pItem.Album, FormatPath(pItem.Artist, pItem.Album), false);
+    //        MediaGroup albumGroup = AddUpdateCreateGroup(CreateSongItem(pItem), pItem.Album, FormatPath(pItem.Artist, pItem.Album), false);
 
-            ApplicationMain.DbSession.Save(albumGroup);
-            MediaGroup artistGroup = AddUpdateCreateGroup(CreateAlbumItem(pItem, albumGroup.GroupId), pItem.Artist, FormatPath(pItem.Artist), true);
+    //        ApplicationMain.DbSession.Save(albumGroup);
+    //        MediaGroup artistGroup = AddUpdateCreateGroup(CreateAlbumItem(pItem, albumGroup.GroupId), pItem.Artist, FormatPath(pItem.Artist), true);
 
-            ApplicationMain.DbSession.Save(artistGroup);
-            MediaGroup allArtistGroup = AddUpdateCreateGroup(CreateArtistItem(pItem, artistGroup.GroupId), ALL_ARTISTS_GROUP, FormatPath(ALL_ARTISTS_GROUP), true);
+    //        ApplicationMain.DbSession.Save(artistGroup);
+    //        MediaGroup allArtistGroup = AddUpdateCreateGroup(CreateArtistItem(pItem, artistGroup.GroupId), ALL_ARTISTS_GROUP, FormatPath(ALL_ARTISTS_GROUP), true);
             
-            MediaGroup allAlbumsGroup = AddUpdateCreateGroup(CreateAlbumItem(pItem, albumGroup.GroupId), ALL_ALBUMS_GROUP, FormatPath(ALL_ALBUMS_GROUP), true);
+    //        MediaGroup allAlbumsGroup = AddUpdateCreateGroup(CreateAlbumItem(pItem, albumGroup.GroupId), ALL_ALBUMS_GROUP, FormatPath(ALL_ALBUMS_GROUP), true);
 
-            ApplicationMain.DbSession.Save(allSongsGroup);
-            ApplicationMain.DbSession.Save(allArtistGroup);
-            ApplicationMain.DbSession.Save(allAlbumsGroup);
+    //        ApplicationMain.DbSession.Save(allSongsGroup);
+    //        ApplicationMain.DbSession.Save(allArtistGroup);
+    //        ApplicationMain.DbSession.Save(allAlbumsGroup);
 
-        }
+    //    }
 
-        private MediaGroupItem CreateArtistItem(DigitalMediaLibrary pItem, int pNextGroupId)
-        {
-            MediaGroupItem item = new MediaGroupItem();
-            item.ItemType = (int)MediaItemType.Artist;
-            item.ItemName = pItem.Artist;
-            item.NextGroupId = pNextGroupId;
+    //    private MediaGroupItem CreateArtistItem(DigitalMediaLibrary pItem, int pNextGroupId)
+    //    {
+    //        MediaGroupItem item = new MediaGroupItem();
+    //        item.ItemType = (int)MediaItemType.Artist;
+    //        item.ItemName = pItem.Artist;
+    //        item.NextGroupId = pNextGroupId;
 
-            return item;
-        }
+    //        return item;
+    //    }
 
-        private MediaGroupItem CreateAlbumItem(DigitalMediaLibrary pItem, int pNextGroupId)
-        {
-            MediaGroupItem item = new MediaGroupItem();
-            item.ItemType = (int)MediaItemType.Album;
-            item.ItemName = pItem.Album;
-            item.NextGroupId = pNextGroupId;
+    //    private MediaGroupItem CreateAlbumItem(DigitalMediaLibrary pItem, int pNextGroupId)
+    //    {
+    //        MediaGroupItem item = new MediaGroupItem();
+    //        item.ItemType = (int)MediaItemType.Album;
+    //        item.ItemName = pItem.Album;
+    //        item.NextGroupId = pNextGroupId;
 
-            return item;
-        }
+    //        return item;
+    //    }
 
-        private MediaGroupItem CreateSongItem(DigitalMediaLibrary pItem)
-        {
-            //foreach (MediaGroupItem eItem in pGroup.GroupItem)
-            //{
-            //    if (eItem.ItemName == pItem.Title)
-            //    {
-            //        throw new Exception("Duplicate Song found: " + pItem.Title);
-            //    }
-            //}
+    //    private MediaGroupItem CreateSongItem(DigitalMediaLibrary pItem)
+    //    {
+    //        //foreach (MediaGroupItem eItem in pGroup.GroupItem)
+    //        //{
+    //        //    if (eItem.ItemName == pItem.Title)
+    //        //    {
+    //        //        throw new Exception("Duplicate Song found: " + pItem.Title);
+    //        //    }
+    //        //}
 
-            MediaGroupItem item = new MediaGroupItem();
-            item.ItemType = (int)MediaItemType.Song;
-            item.ItemName = pItem.Title;
-            item.LibraryId = pItem.LibraryId;
+    //        MediaGroupItem item = new MediaGroupItem();
+    //        item.ItemType = (int)MediaItemType.Song;
+    //        item.ItemName = pItem.Title;
+    //        item.LibraryId = pItem.LibraryId;
 
-            return item;
-        }
+    //        return item;
+    //    }
 
-        public MediaGroup GetGroupFromDb(string pPath, string pName)
-        {
-            IList<MediaGroup> mediaGroup = ApplicationMain.DbSession.CreateCriteria(typeof(MediaGroup)).Add(Expression.Eq("GroupPath", pPath)).List<MediaGroup>();
+    //    public MediaGroup GetGroupFromDb(string pPath, string pName)
+    //    {
+    //        IList<MediaGroup> mediaGroup = ApplicationMain.DbSession.CreateCriteria(typeof(MediaGroup)).Add(Expression.Eq("GroupPath", pPath)).List<MediaGroup>();
 
-            if (mediaGroup.Count <= 0)
-            {
-                MediaGroup newGroup = new MediaGroup();
-                newGroup.GroupName = pName;
-                newGroup.GroupPath = pPath;
+    //        if (mediaGroup.Count <= 0)
+    //        {
+    //            MediaGroup newGroup = new MediaGroup();
+    //            newGroup.GroupName = pName;
+    //            newGroup.GroupPath = pPath;
 
-                return newGroup;
-            }
-            else if (mediaGroup.Count > 1)
-            {
-                throw new Exception("Duplicate MediaGroup found, GroupPath needs to be unique");
-            }
-            else
-            {
-                return mediaGroup[0];
-            }
-        }
+    //            return newGroup;
+    //        }
+    //        else if (mediaGroup.Count > 1)
+    //        {
+    //            throw new Exception("Duplicate MediaGroup found, GroupPath needs to be unique");
+    //        }
+    //        else
+    //        {
+    //            return mediaGroup[0];
+    //        }
+    //    }
 
-        private MediaGroup AddUpdateCreateGroup(MediaGroupItem pItem, string pName, string pPath, bool pItemNameIsUnique)
-        {
-            MediaGroup mediaGroup = null;
-            if (mediaGroupCache.ContainsKey(pPath))
-                mediaGroup = mediaGroupCache[pPath] as MediaGroup;
-            else
-            {
-                mediaGroup = GetGroupFromDb(pPath, pName);
-                mediaGroupCache.Add(pPath, mediaGroup);
-            }
+    //    private MediaGroup AddUpdateCreateGroup(MediaGroupItem pItem, string pName, string pPath, bool pItemNameIsUnique)
+    //    {
+    //        MediaGroup mediaGroup = null;
+    //        if (mediaGroupCache.ContainsKey(pPath))
+    //            mediaGroup = mediaGroupCache[pPath] as MediaGroup;
+    //        else
+    //        {
+    //            mediaGroup = GetGroupFromDb(pPath, pName);
+    //            mediaGroupCache.Add(pPath, mediaGroup);
+    //        }
 
-            bool found = false;
+    //        bool found = false;
 
-            if (pItemNameIsUnique)
-            {
-                foreach (MediaGroupItem eItem in mediaGroup.GroupItem)
-                {
-                    if (eItem.ItemName == pItem.ItemName)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-            }
+    //        if (pItemNameIsUnique)
+    //        {
+    //            foreach (MediaGroupItem eItem in mediaGroup.GroupItem)
+    //            {
+    //                if (eItem.ItemName == pItem.ItemName)
+    //                {
+    //                    found = true;
+    //                    break;
+    //                }
+    //            }
+    //        }
 
-            if (!found)
-            {
-                pItem.Group = mediaGroup;
-                mediaGroup.AddGroupItem(pItem);
-            }
+    //        if (!found)
+    //        {
+    //            pItem.Group = mediaGroup;
+    //            mediaGroup.AddGroupItem(pItem);
+    //        }
 
-            return mediaGroup;
-        }
+    //        return mediaGroup;
+    //    }
 
-        public string FormatPath(params string[] pPathElements)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(PATH_SEPARATOR);
+    //    public string FormatPath(params string[] pPathElements)
+    //    {
+    //        StringBuilder sb = new StringBuilder();
+    //        sb.Append(PATH_SEPARATOR);
 
-            foreach (string str in pPathElements)
-            {
-                sb.Append(str).Append(PATH_SEPARATOR);
-            }
+    //        foreach (string str in pPathElements)
+    //        {
+    //            sb.Append(str).Append(PATH_SEPARATOR);
+    //        }
 
-            return sb.ToString();
-        }
-    }
+    //        return sb.ToString();
+    //    }
+    //}
    
 }

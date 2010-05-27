@@ -133,7 +133,7 @@ namespace CarMpControls
         /// Override this
         /// </summary>
         /// <param name="pCanvas"></param>
-        internal virtual void DrawItem(WindowRenderTarget pRenderer, RectangleF pRectangle) 
+        internal virtual void DrawItem(RenderTarget pRenderer, RectangleF pRectangle) 
         {
             if (m_selected)
             {

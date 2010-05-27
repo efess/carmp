@@ -73,39 +73,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CarButton\GraphicalButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="CarButton\GraphicalButton.Designer.cs">
-      <DependentUpon>GraphicalButton.cs</DependentUpon>
-    </Compile>
-    <Compile Include="DragableList\DragableList.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="DragableList\DragableList.designer.cs">
-      <DependentUpon>DragableList.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Button\GraphicalButton.cs" />
+    <Compile Include="DragableList\DragableList.cs" />
     <Compile Include="DragableList\DragableListCollection.cs" />
     <Compile Include="DragableList\DragableListItem.cs" />
     <Compile Include="DragableList\DragableListTextItem.cs" />
-    <Compile Include="SlidingPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="SlidingPanel.Designer.cs">
-      <DependentUpon>SlidingPanel.cs</DependentUpon>
-    </Compile>
+    <Compile Include="IView.cs" />
+    <Compile Include="IViewControl.cs" />
     <Compile Include="Enums.cs" />
-    <Compile Include="FadableControl.cs" />
-    <Compile Include="MyButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="DragableList\DragableList.resx">
-      <DependentUpon>DragableList.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
+    <Compile Include="ViewBase.cs" />
+    <Compile Include="ViewControlBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

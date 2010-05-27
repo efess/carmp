@@ -9,6 +9,7 @@ namespace CarMp
     public delegate bool FileCheck(String FileName, Int32 FileSize);
     public delegate void FinishHandler(object sender, FinishEventArgs pFinishEventArgs);
     public delegate void ProgressDelegate(object sender, ProgressEventArgs pEventArgs);
-    public delegate void WinampStateUpdate(object sender, WinampStateUpdateArgs pWinampStateEventArgs);
+
+    public delegate void D2DInvalidateHandler(object sender, EventArgs e);
     
 }

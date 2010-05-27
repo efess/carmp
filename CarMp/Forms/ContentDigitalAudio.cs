@@ -41,7 +41,7 @@ namespace CarMp.Forms
 
         private void graphicalButton1_Click(object sender, System.EventArgs e)
         {
-            ApplicationMain.AppFormHost.OpenContent(FormHost.HOME, true);
+            ApplicationMain.AppFormHost.ShowView(FormHost.HOME, true);
         }
 
         private void MediaList_SelectedItemChanged(object sender, SelectedItemChangedEventArgs e)

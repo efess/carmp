@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows.Forms;
-using DataObjectLayer;
 using System.Collections.Generic;
 using NHibernate;
 using FluentNHibernate.Cfg.Db;
@@ -12,11 +11,13 @@ namespace CarMp
 {
     public class ApplicationMain
     {
+        private const int TIMER_GRANULARITY = 10;
         public static Forms.FormHost AppFormHost;
-        public static ISession DbSession;
 
         public const string COMMANDLINE_DEBUG = "-DEBUG";
         public const string COMMANDLINE_XML_SETTINGS_PATH = "-settings";
+        private readonly System.Timers.Timer _appTimer = new System.Timers.Timer(TIMER_GRANULARITY);
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -43,7 +44,7 @@ namespace CarMp
             InitializeApplication(pArgs);
 
             AppFormHost = new Forms.FormHost();
-            AppFormHost.OpenContent(Forms.FormHost.HOME, false);
+            AppFormHost.ShowView(CarMp.Views.D2DViewFactory.HOME);
             AppFormHost.StartPosition = FormStartPosition.Manual;
 
             Application.Run(AppFormHost);
@@ -81,23 +82,19 @@ namespace CarMp
                 }
             }
 
-            System.Threading.Thread.Sleep(200);
+            System.Threading.Thread.Sleep(100);
             formSplash.IncreaseProgress(10, "Loading settings XML...");
 
             SessionSettings.LoadFromXml(xmlSettings);
 
-            System.Threading.Thread.Sleep(200);
+            System.Threading.Thread.Sleep(100);
             formSplash.IncreaseProgress(30, "Initializing Database...");
-            DbSession = CreateDbSession(SessionSettings.DatabaseLocation);
+            Database.InitializeDatabase(SessionSettings.DatabaseLocation);
 
             formSplash.IncreaseProgress(80, "Initializing Media Manager...");
-            System.Threading.Thread.Sleep(200);
-            MediaManager.Initialize();
+            System.Threading.Thread.Sleep(100);
+            MediaManager.Initialize(new WinampController());
 
-            formSplash.IncreaseProgress(90, "Initializing Winamp Controller...");
-            System.Threading.Thread.Sleep(200);
-
-            WinampController.Initialize();
             formSplash.IncreaseProgress(100, "Done");
             formSplash.CloseSplash();
         }
@@ -139,7 +136,6 @@ namespace CarMp
         private static void ProcessExit(object sender, EventArgs e)
         {
             MediaManager.Close();
-            DbSession.Close();
         }
     }
 }

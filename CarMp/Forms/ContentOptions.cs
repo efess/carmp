@@ -23,7 +23,7 @@ namespace CarMp.Forms
 
         private void graphicalButton1_Click(object sender, EventArgs e)
         {
-            ApplicationMain.AppFormHost.OpenContent(FormHost.HOME, true);
+            ApplicationMain.AppFormHost.ShowView(CarMp.Views.ViewFactory.HOME, true);
         }
 
         private void graphicalButton2_Click(object sender, EventArgs e)

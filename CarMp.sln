@@ -3,12 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarMp", "CarMp\CarMp.csproj", "{A0A6D51B-7760-4D91-9CCA-8CD491AFD56A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarMpControls", "CarMpControls\CarMpControls.csproj", "{DDE21C75-2CFB-4C6E-8589-2DCE8A045BD7}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataObjectLayer", "DataObjectLayer\DataObjectLayer.csproj", "{98A265D8-5A45-4B18-8188-9A094B744D5E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataObjectBuild", "DataObjectBuild\DataObjectBuild.csproj", "{BD7D4EA3-C362-43AB-96A3-97BAFDE078F5}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarMpMediaInfo", "CarMpMediaInfo\CarMpMediaInfo.csproj", "{328BCACA-4652-49CF-96A9-B64DC3EA23AB}"
 EndProject
 Global
@@ -21,18 +15,6 @@ Global
 		{A0A6D51B-7760-4D91-9CCA-8CD491AFD56A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0A6D51B-7760-4D91-9CCA-8CD491AFD56A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A0A6D51B-7760-4D91-9CCA-8CD491AFD56A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DDE21C75-2CFB-4C6E-8589-2DCE8A045BD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DDE21C75-2CFB-4C6E-8589-2DCE8A045BD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DDE21C75-2CFB-4C6E-8589-2DCE8A045BD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DDE21C75-2CFB-4C6E-8589-2DCE8A045BD7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{98A265D8-5A45-4B18-8188-9A094B744D5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{98A265D8-5A45-4B18-8188-9A094B744D5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{98A265D8-5A45-4B18-8188-9A094B744D5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{98A265D8-5A45-4B18-8188-9A094B744D5E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BD7D4EA3-C362-43AB-96A3-97BAFDE078F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BD7D4EA3-C362-43AB-96A3-97BAFDE078F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BD7D4EA3-C362-43AB-96A3-97BAFDE078F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BD7D4EA3-C362-43AB-96A3-97BAFDE078F5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{328BCACA-4652-49CF-96A9-B64DC3EA23AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{328BCACA-4652-49CF-96A9-B64DC3EA23AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{328BCACA-4652-49CF-96A9-B64DC3EA23AB}.Release|Any CPU.ActiveCfg = Release|Any CPU

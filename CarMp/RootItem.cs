@@ -12,7 +12,7 @@ namespace CarMp
         FileSystem
     }
 
-    public class RootItem : DragableListTextItem
+    public class RootItem : MediaListItem
     {
         /// <summary>
         /// Type representing what type of item this item is
@@ -20,9 +20,17 @@ namespace CarMp
         public RootItemType ItemType;
 
         public RootItem(string pDisplayString, RootItemType pItemType)
+            : base(pDisplayString, MediaListItemType.Group)
         {
-            DisplayString = pDisplayString;
             ItemType = pItemType;
+        }
+
+        /// <summary>
+        /// Representing a unique ID to define this object
+        /// </summary>
+        public override object Key
+        {
+            get { return (object)ItemType; }
         }
     }
 }

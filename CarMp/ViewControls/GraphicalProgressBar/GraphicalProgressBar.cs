@@ -22,7 +22,7 @@ namespace CarMp.ViewControls
 
         private static SolidColorBrush GrayBrush = null;
 
-        private Direct2D.BitmapData _scrollBarHandleImageData = null;
+        private Direct2D.BitmapData _scrollBarHandleImageData;
         
         private SlimDX.Direct2D.Bitmap ScrollBarHandle = null;
 
@@ -56,7 +56,7 @@ namespace CarMp.ViewControls
                 GrayBrush= new SolidColorBrush(pRenderTarget.Renderer, Color.Gray);
 
             if (ScrollBarHandle == null
-                && _scrollBarHandleImageData != null)
+                && _scrollBarHandleImageData.Data != null)
             {
                 ScrollBarHandle = Direct2D.GetBitmap(_scrollBarHandleImageData, pRenderTarget.Renderer);
             }

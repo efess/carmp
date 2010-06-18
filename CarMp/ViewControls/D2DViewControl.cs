@@ -10,6 +10,9 @@ namespace CarMp.ViewControls
 {
     public abstract class D2DViewControl
     {
+        public event EventHandler RenderStart;
+        public event EventHandler RenderStop;
+
         protected D2DViewControl _mouseDownControl;
         protected List<D2DViewControl> _viewControls;
 
@@ -17,6 +20,12 @@ namespace CarMp.ViewControls
         public void StartRender()
         {
             _renderOk = true;
+            OnRenderStart();
+        }
+        public void StopRenderer()
+        {
+            _renderOk = false;
+            OnRenderStop();
         }
 
         public D2DViewControl GetViewControlContainingPoint(PointF pPoint)
@@ -36,7 +45,7 @@ namespace CarMp.ViewControls
             return null;
         }
 
-        private RectangleF _bounds;
+        protected RectangleF _bounds;
         public RectangleF Bounds
         {
             get { return _bounds; }
@@ -54,12 +63,16 @@ namespace CarMp.ViewControls
             _viewControls = new List<D2DViewControl>();
         }
 
+        protected virtual void PreRender() { }
+
         public void Render(Direct2D.RenderTargetWrapper pRenderTarget)
         {
             if (_renderOk)
             {
+                PreRender();
+
                 pRenderTarget.CurrentBounds = GetScreenBounds();
-                
+
                 pRenderTarget.Renderer.PushAxisAlignedClip(pRenderTarget.CurrentBounds, SlimDX.Direct2D.AntialiasMode.Aliased);
 
                 OnRender(pRenderTarget);
@@ -94,6 +107,23 @@ namespace CarMp.ViewControls
             return pPointToAdd;
         }
 
+        internal PointF GetControlPointFromScreen(PointF pPointToSubtract)
+        {
+            if (Parent != null)
+            {
+                return Parent.GetControlPointFromScreen(new PointF(pPointToSubtract.X - Parent.Bounds.X, pPointToSubtract.Y - Parent.Bounds.Y));
+            }
+            return pPointToSubtract;
+        }
+
+        internal PointF GetControlPointFromScreen()
+        {
+            if (Parent == null)
+                return Bounds.Location;
+
+            return GetControlPointFromScreen(Bounds.Location);
+        }
+
         protected abstract void OnRender(Direct2D.RenderTargetWrapper pRenderTarget);
         
         public SizeF Size { get { return _bounds.Size; } }
@@ -107,6 +137,12 @@ namespace CarMp.ViewControls
         {
             pViewControl.Parent = this;
             _viewControls.Add(pViewControl);
+        }
+
+        private MouseEventArgs TransformMouseEventArgs(MouseEventArgs e)
+        {
+            PointF newPoint = GetControlPointFromScreen(e.Location);
+            return new MouseEventArgs(e.Button, e.Clicks, Convert.ToInt32(newPoint.X), Convert.ToInt32(newPoint.Y), e.Delta);
         }
 
         protected virtual void OnMouseDown(System.Windows.Forms.MouseEventArgs e)
@@ -138,15 +174,7 @@ namespace CarMp.ViewControls
             //}
         }
 
-        protected virtual void OnMouseUp(System.Windows.Forms.MouseEventArgs e)
-        {
-            //if (_mouseDownControl != null)
-            //{
-            //    _mouseDownControl.OnMouseUp(e);
-            //    _mouseDownControl = null;
-            //}
-
-        }
+        protected virtual void OnMouseUp(System.Windows.Forms.MouseEventArgs e) { }
 
         internal void MouseMove(MouseEventArgs e)
         {
@@ -161,12 +189,17 @@ namespace CarMp.ViewControls
             OnMouseUp(TransformMouseEventArgs(e));
         }
 
-        public virtual void OnSizeChanged(object sender, EventArgs e) { }
-
-        private MouseEventArgs TransformMouseEventArgs(MouseEventArgs e)
+        protected virtual void OnRenderStart()
         {
-            PointF newPoint = GetScreenPoint(e.Location);
-            return new MouseEventArgs(e.Button, e.Clicks, Convert.ToInt32(newPoint.X), Convert.ToInt32(newPoint.Y), e.Delta);
+            if (RenderStart != null)
+                RenderStart(this, new EventArgs());
         }
+        protected virtual void OnRenderStop()
+        {
+            if (RenderStop != null)
+                RenderStop(this, new EventArgs());
+        }
+
+        public virtual void OnSizeChanged(object sender, EventArgs e) { }
     }
 }

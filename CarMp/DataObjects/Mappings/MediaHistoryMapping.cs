@@ -6,15 +6,16 @@ using FluentNHibernate.Mapping;
 
 namespace CarMp
 {
-    public class ListHistoryMapping : ClassMap<ListHistory>
+    public class MediaHistoryMapping : ClassMap<MediaHistory>
     {
-        public ListHistoryMapping()
+        public MediaHistoryMapping()
         {
-            Id(x => x.HistoryId);
             Map(x => x.Index, "ListIndex");
             Map(x => x.DisplayString);
-            Map(x => x.ItemType);
-            Map(x => x.TargetId);
+            Map(x => x.MediaType);
+            Map(x => x.Key);
+            Map(x => x.ItemSpecificType);
+            Map(x => x.ObjectType);
         }
     }
 }

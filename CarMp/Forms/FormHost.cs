@@ -18,6 +18,10 @@ namespace CarMp.Forms
     {
         private ManualResetEvent _viewChanging;
 
+        private DateTime _fpsCalcDate;
+        private long _fpsCalcFramesTotal;
+        private long _fpsCalcFramesCurrent;
+
         private D2DViewControl _mouseDownViewControl;
 
         private List<D2DViewControl> _overlayViewControls;
@@ -37,6 +41,9 @@ namespace CarMp.Forms
                 OpenDebugForm();
             }
 
+            _fpsCalcFramesTotal = 0;
+            _fpsCalcDate = DateTime.Now;
+
             this.SetStyle(
                 ControlStyles.AllPaintingInWmPaint |
                 ControlStyles.UserPaint, true);
@@ -45,7 +52,6 @@ namespace CarMp.Forms
             {
                 Handle = this.Handle,
                 PixelSize = this.ClientSize
-
             }));
 
             this.ClientSizeChanged += (o, e) => { _renderTarget.Resize(this.ClientSize); };
@@ -68,28 +74,43 @@ namespace CarMp.Forms
 
         private void InitializeOverlayControls()
         {
-            MediaQuickBar bar = null;
-            XmlNode mediaQuickBar = SessionSettings.CurrentSkin.GetOverlayNodeSkin("MediaQuickBar");
-            if (mediaQuickBar != null)
+            MediaControlBar controlBar = null;
+            MediaInfoBar infoBar = null;
+            XmlNode infoBarNode = SessionSettings.CurrentSkin.GetOverlayNodeSkin("MediaInfoBar");
+            XmlNode controlBarNode = SessionSettings.CurrentSkin.GetOverlayNodeSkin("MediaControlBar");
+
+            if (controlBarNode != null)
             {
-                bar = new MediaQuickBar();
-                bar.ApplySkin(mediaQuickBar, SessionSettings.SkinPath);
-                _overlayViewControls.Add(bar);
-                bar.StartRender();
+                controlBar = new MediaControlBar();
+                controlBar.ApplySkin(controlBarNode, SessionSettings.SkinPath);
+                _overlayViewControls.Add(controlBar);
+                controlBar.StartRender();
+            }
+
+            if (infoBarNode != null)
+            {
+                infoBar = new MediaInfoBar();
+                infoBar.ApplySkin(infoBarNode, SessionSettings.SkinPath);
+                _overlayViewControls.Add(infoBar);
+                infoBar.StartRender();
             }
 
             GraphicalButton toggleAnimation = new GraphicalButton();
-            toggleAnimation.Bounds = new RectangleF(400, 30, 64, 64);
+            toggleAnimation.Bounds = new RectangleF(450, 30, 64, 64);
             toggleAnimation.SetButtonUpBitmapData(@"C:\source\CarMp\trunk\Images\Skins\BMW\Box.bmp");
             int i = 0;
+
             toggleAnimation.Click += (sender, e) =>
                 {
-                    bar.SetAnimation(i);
-                    bar.StartAnimation();
+                    controlBar.SetAnimation(i);
+                    controlBar.StartAnimation();
+                    infoBar.SetAnimation(i);
+                    infoBar.StartAnimation();
                     if(i > 0)
                         i = -1 ;
                     else i = 1;
                 };
+
             toggleAnimation.StartRender();
             _overlayViewControls.Add(toggleAnimation);
         }
@@ -131,6 +152,21 @@ namespace CarMp.Forms
             return _currentView;
         }
 
+        public void ApplySkin()
+        {
+            foreach (KeyValuePair<string, D2DView> kv in _loadedViews)
+            {
+                D2DView view = kv.Value;
+                if (view is ISkinable)
+                {
+                    System.Xml.XmlNode viewSkinNode = SessionSettings.CurrentSkin.GetViewNodeSkin(view.Name);
+
+                    if (viewSkinNode != null)
+                        (view as ISkinable).ApplySkin(viewSkinNode, SessionSettings.SkinPath);
+                }
+            }
+        }
+
         private void OpenDebugForm()
         {
             _debugForm = new FormDebug();
@@ -163,6 +199,14 @@ namespace CarMp.Forms
 
                 if(_currentView != null)
                     DrawDirect2D();
+                
+                _fpsCalcFramesTotal++;
+                if ( DateTime.Now.AddSeconds(-1) > _fpsCalcDate)
+                {
+                    System.Diagnostics.Debug.WriteLine("CurrentFPS: " + (_fpsCalcFramesTotal - _fpsCalcFramesCurrent).ToString());
+                    _fpsCalcFramesCurrent = _fpsCalcFramesTotal;
+                    _fpsCalcDate = DateTime.Now;
+                }
 
                 System.Threading.Thread.Sleep(10);
             }
@@ -186,6 +230,8 @@ namespace CarMp.Forms
                  }
 
                  _renderTarget.EndDraw();
+
+                 this.Invalidate();
              }
         }
 
@@ -214,47 +260,71 @@ namespace CarMp.Forms
             }   
         }
 
-        protected override void  OnMouseMove(MouseEventArgs e)
+        protected override void OnMouseMove(MouseEventArgs e)
         {
+            EventQueue eventQueue = new EventQueue();
+
             if (_mouseDownViewControl != null)
-                _mouseDownViewControl.MouseMove(e);
+                eventQueue.AddToQueue(new EventQueueEntry(new EventQueueDelegate<MouseEventArgs>(_mouseDownViewControl.MouseMove), e));
 
             for (int i = _overlayViewControls.Count - 1;
                 i >= 0;
                 i--)
             {
+                if (_mouseDownViewControl != null &&
+                    _overlayViewControls[i] == _mouseDownViewControl)
+                    continue;
+
                 if (_overlayViewControls[i].Bounds.Contains(e.Location))
                 {
-                    _overlayViewControls[i].MouseMove(e);
+                    eventQueue.AddToQueue(new EventQueueEntry(new EventQueueDelegate<MouseEventArgs>(_overlayViewControls[i].MouseMove), e));
                     return;
                 }
             }
             if (_currentView is D2DView)
             {
-                _currentView.GetViewControlContainingPoint(e.Location).MouseMove(e);
-            }   
+                D2DViewControl control = _currentView.GetViewControlContainingPoint(e.Location);
+                if (control != null && _mouseDownViewControl != control)
+                    eventQueue.AddToQueue(new EventQueueEntry(new EventQueueDelegate<MouseEventArgs>(control.MouseMove), e));
+            }
+
+            eventQueue.ProcessQueue();
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
-            if (_mouseDownViewControl != null)
-                _mouseDownViewControl.MouseUp(e);
-            _mouseDownViewControl = null;
+            EventQueue queue = new EventQueue();
 
+            if (_mouseDownViewControl != null)
+                queue.AddToQueue(new EventQueueEntry(new EventQueueDelegate<MouseEventArgs>(_mouseDownViewControl.MouseUp), e));
+            
             for (int i = _overlayViewControls.Count - 1;
                 i >= 0;
                 i--)
             {
+
                 if (_overlayViewControls[i].Bounds.Contains(e.Location))
                 {
-                    _overlayViewControls[i].MouseUp(e);
-                    return;
+                    if (_mouseDownViewControl != null
+                        && _overlayViewControls[i] == _mouseDownViewControl)
+                    {
+                        continue;
+                    }
+
+                    int j = i;
+                    queue.AddToQueue(new EventQueueEntry(new EventQueueDelegate<MouseEventArgs>(_overlayViewControls[j].MouseUp), e));
+                    break;
                 }
             }
             if (_currentView is D2DView)
             {
-                (_currentView as D2DView).GetViewControlContainingPoint(e.Location).MouseUp(e);
+                D2DViewControl control = _currentView.GetViewControlContainingPoint(e.Location);
+                if (control != null && _mouseDownViewControl != control)
+                    queue.AddToQueue(new EventQueueEntry(new EventQueueDelegate<MouseEventArgs>(control.MouseUp), e));
             }
+            _mouseDownViewControl = null;
+
+            queue.ProcessQueue();
         }
 
         protected override void OnSizeChanged(EventArgs e)

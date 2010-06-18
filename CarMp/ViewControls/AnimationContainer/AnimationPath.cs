@@ -28,6 +28,11 @@ namespace CarMp.ViewControls
             PointCollection.Add(pAnimationPoint);
         }
 
+        public int AnimationPointCount
+        {
+            get { return PointCollection.Count; }
+        }
+
         public PointF GetCurrentPoint()
         {
             if(CurrentState == AnimationState.Started)
@@ -78,6 +83,7 @@ namespace CarMp.ViewControls
 
         public void AnimationStart()
         {
+            _lastTicks = DateTime.Now.Ticks;
             CurrentState = AnimationState.Started;
         }
 
@@ -88,7 +94,8 @@ namespace CarMp.ViewControls
             {
                 throw new Exception("Animation cannot animate when not fully initialized");
             }
-
+            //_lastTicks = DateTime.Now.AddMilliseconds(-10).Ticks;
+            //_lastPoint = _currentStartPoint.Location;
             long currentTicks = DateTime.Now.Ticks;
             _lastPoint = CalculateCurrentPoint(currentTicks);
             _lastTicks = currentTicks;
@@ -96,15 +103,6 @@ namespace CarMp.ViewControls
 
         private PointF CalculateCurrentPoint(long pTicks)
         {
-            // are we there yet?
-            if (System.Math.Sqrt(
-                System.Math.Pow(_currentEndPoint.Location.X - _lastPoint.X, 2) +
-                System.Math.Pow(_currentEndPoint.Location.Y - _lastPoint.Y, 2)
-                ) < 2)
-            {
-                CurrentState = AnimationState.Stopped;
-                return _lastPoint;
-            }
 
             //// GEOMETRY AND SHIT
             long diffMs = (pTicks - _lastTicks) / 10000; // 10000 ticks in a ms
@@ -114,22 +112,29 @@ namespace CarMp.ViewControls
                 Math.Pow(_currentEndPoint.Location.Y - _currentStartPoint.Location.Y, 2)
                 );
 
-            float slope = 1;
-            if (_currentStartPoint.Location.X != _currentEndPoint.Location.X)
-            {
-                slope = (_currentEndPoint.Location.Y - _currentStartPoint.Location.Y) /
-                 (_currentEndPoint.Location.X - _currentStartPoint.Location.X);
-            }
-
-            float angle = (float)Math.Atan(slope);
+            float angleStartToEnd = LinearMath.AngleOfTwoPoints(_currentStartPoint.Location, _currentEndPoint.Location);
+            
 
             float velocity = totalDistance / _currentEndPoint.MoveTime; // pixels per ms (ppm)
             float additionalDistance = velocity * diffMs;
 
             System.Drawing.PointF point = new System.Drawing.PointF(
-                _lastPoint.X + additionalDistance * (float)Math.Cos(angle),
-                _lastPoint.Y + additionalDistance * (float)Math.Sin(angle));
-            
+                _lastPoint.X + additionalDistance * (float)Math.Cos(angleStartToEnd),
+                _lastPoint.Y + additionalDistance * (float)Math.Sin(angleStartToEnd));
+
+            float curAngle = LinearMath.AngleOfTwoPoints(point, _currentEndPoint.Location);
+
+            //DebugHandler.DebugPrint("New AnimationPoint: " + _lastPoint.X.ToString() + ", " + _lastPoint.Y.ToString()
+            //    + " AdditionalDistance: " + additionalDistance.ToString() + " angle: " + curAngle.ToString());
+
+            // are we there yet?
+            if(angleStartToEnd != curAngle)
+            {
+                CurrentState = AnimationState.Stopped;
+
+                return _currentEndPoint.Location;
+            }
+
             return point;
         }
 

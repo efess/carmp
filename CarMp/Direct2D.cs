@@ -24,10 +24,15 @@ namespace CarMp
 
         public static SlimDX.Direct2D.Bitmap GetBitmap(BitmapData pBitmapData, RenderTarget pRenderTarget)
         {
-            return new SlimDX.Direct2D.Bitmap(pRenderTarget, new System.Drawing.Size(pBitmapData.Width, pBitmapData.Height), new SlimDX.DataStream(pBitmapData.Data, true, false), pBitmapData.Stride, pBitmapData.BitmapProperties);
+            return new SlimDX.Direct2D.Bitmap(
+                pRenderTarget,
+                new System.Drawing.Size(pBitmapData.Width, pBitmapData.Height),
+                new SlimDX.DataStream(pBitmapData.Data, true, false),
+                pBitmapData.Stride,
+                pBitmapData.BitmapProperties);
         }
 
-        public class BitmapData
+        public struct BitmapData
         {
             public int Width { get; private set; }
             public int Height { get; private set; }
@@ -35,7 +40,7 @@ namespace CarMp
             public BitmapProperties BitmapProperties { get; private set; }
             public byte[] Data { get; private set; }
 
-            public BitmapData(string pBmpFilePath)
+            public BitmapData(string pBmpFilePath) : this()
             {
                 using (System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(pBmpFilePath))
                 {
@@ -48,7 +53,9 @@ namespace CarMp
 
                     BitmapProperties = new BitmapProperties
                     {
-                        PixelFormat =  new PixelFormat(SlimDX.DXGI.Format.B8G8R8A8_UNorm, SlimDX.Direct2D.AlphaMode.Premultiplied)
+                        PixelFormat =  new PixelFormat(
+                            SlimDX.DXGI.Format.B8G8R8A8_UNorm, 
+                            SlimDX.Direct2D.AlphaMode.Premultiplied)
                     };
 
                     Width = bitmap.Width;
@@ -70,6 +77,10 @@ namespace CarMp
             }
         }
 
+        /// <summary>
+        /// Allows child ViewControls to paint at coordinates relative to their
+        /// parent
+        /// </summary>
         public class RenderTargetWrapper
         {
             public delegate void WindowResizeHandler(Size Size);
@@ -101,6 +112,14 @@ namespace CarMp
             public void DrawRectangle(SlimDX.Direct2D.Brush pBrush, Rectangle pRectangle, float pStrokeWidth)
             {
                 Renderer.DrawRectangle(pBrush, TransformRectangle(pRectangle), pStrokeWidth);
+            }
+            public void FillRectangle(SlimDX.Direct2D.Brush pBrush, RectangleF pRectangle)
+            {
+                Renderer.FillRectangle(pBrush, TransformRectangle(pRectangle));
+            }
+            public void FillRectangle(SlimDX.Direct2D.Brush pBrush, Rectangle pRectangle)
+            {
+                Renderer.FillRectangle(pBrush, TransformRectangle(pRectangle));
             }
 
             public void DrawBitmap(SlimDX.Direct2D.Bitmap pBitmap, Rectangle pRectangle)

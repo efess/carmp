@@ -7,12 +7,13 @@ using NHibernate.Criterion;
 
 namespace CarMp
 {
-    public class ListHistory
+    public class MediaHistory
     {
-        public virtual int HistoryId {get;set;}
         public virtual int Index { get; set; }
         public virtual string DisplayString { get; set; }
-        public virtual MediaItemType ItemType { get; set; }
-        public virtual int TargetId { get; set; }
+        public virtual MediaListItemType MediaType { get; set; }
+        public virtual string Key { get; set; }
+        public virtual int ItemSpecificType { get; set; }
+        public virtual string ObjectType { get; set; }
     }
 }

@@ -8,58 +8,20 @@ using CarMp.ViewControls;
 
 namespace CarMp
 {
-    public enum MediaItemType
+    public enum MediaListItemType
     {
-        /// <summary>
-        /// Determines what type of item this is
-        /// </summary>
-        Root = 0,
-        Playlist = 2,
-        Artist = 3,
-        Album = 4,
-        Song = 5
+        Group,
+        Song
     }
 
-    public class MediaListItem : DragableListTextItem
+    public abstract class MediaListItem : DragableListTextItem
     {
-        /// <summary>
-        /// Id representing next item id when clicked.
-        /// </summary>
-        public int TargetId { get; set; }
-
-        /// <summary>
-        /// Type representing what type of item this item is
-        /// </summary>
-        public MediaItemType ItemType;
-
-        /// <summary>
-        /// Creates a list item from a Group Item object
-         /// </summary>
-        /// <param name="pGroupItem"></param>
-        public MediaListItem(MediaGroupItem pGroupItem)
+        public abstract object Key { get; }
+        internal MediaListItemType MediaType { get; private set; }
+        protected MediaListItem(string pDisplayString, MediaListItemType pListItemType)
         {
-            this.DisplayString = pGroupItem.ItemName;
-            this.ItemType = (MediaItemType)pGroupItem.ItemType;
-
-            if (ItemType == MediaItemType.Song)
-            {
-                if (pGroupItem.LibraryId == 0)
-                    throw new Exception("Library Id must not be 0");
-                TargetId = pGroupItem.LibraryId;
-            }
-            else
-            {
-                if(pGroupItem.NextGroupId == 0)
-                    throw new Exception("Next Group must not be 0");
-                TargetId = pGroupItem.NextGroupId;
-            }
-        }
-
-        public MediaListItem(string pDisplayString, MediaItemType pItemType, int pItemTargetId)
-        {
+            MediaType = pListItemType;
             DisplayString = pDisplayString;
-            ItemType = pItemType;
-            TargetId = pItemTargetId;
         }
     }
 }

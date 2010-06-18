@@ -3,45 +3,64 @@
   <Views>
 	  <Home>
 		  <BackgroundImg>BMWBackground.bmp</BackgroundImg>
-		  <Buttons>
-        <DigitalAudio>
-				  <Bounds>4,5,100,80</Bounds>
-				  <FaceUpImg>Music64.bmp</FaceUpImg>
-				  <FaceDownImg>Music64.bmp</FaceDownImg>
-			  </DigitalAudio>
-        <Navigation>
-          <Bounds>4,90,100,80</Bounds>
-          <FaceUpImg>World64.bmp</FaceUpImg>
-          <FaceDownImg>World64.bmp</FaceDownImg>
-        </Navigation>
-        <Options>
-          <Bounds>4,175,100,80</Bounds>
-          <FaceUpImg>Gear64.bmp</FaceUpImg>
-          <FaceDownImg>Gear64.bmp</FaceDownImg>
-        </Options>
-    </Buttons>
+      <NavigationBar>
+        <BackgroundImg>NavigationBar.png</BackgroundImg>
+		    <Buttons>
+          <Media>
+				    <Bounds>4,5,100,80</Bounds>
+				    <FaceUpImg>music.png</FaceUpImg>
+				    <FaceDownImg>music.png</FaceDownImg>
+			    </Media>
+          <Navigation>
+            <Bounds>4,90,100,80</Bounds>
+            <FaceUpImg>world.png</FaceUpImg>
+            <FaceDownImg>world.png</FaceDownImg>
+          </Navigation>
+          <Options>
+            <Bounds>4,175,100,80</Bounds>
+            <FaceUpImg>gear.png</FaceUpImg>
+            <FaceDownImg>gear.png</FaceDownImg>
+          </Options>
+        </Buttons>
+      </NavigationBar>
 	  </Home>
-    <DigitalAudio>
-      <GraphicalProgressBar>
-        <Bounds>4,400,592,64</Bounds>
-        <HandleImg>Box.bmp</HandleImg>
-      </GraphicalProgressBar>
+    <Media>
+      <NavigationBar>
+        <BackgroundImg>NavigationBar.png</BackgroundImg>
+        <Buttons>
+          <Home>
+            <Bounds>4,5,100,80</Bounds>
+            <FaceUpImg>home.png</FaceUpImg>
+            <FaceDownImg>home.png</FaceDownImg>
+          </Home>
+          <Navigation>
+            <Bounds>4,90,100,80</Bounds>
+            <FaceUpImg>world.png</FaceUpImg>
+            <FaceDownImg>world.png</FaceDownImg>
+          </Navigation>
+          <Options>
+            <Bounds>4,175,100,80</Bounds>
+            <FaceUpImg>gear.png</FaceUpImg>
+            <FaceDownImg>gear.png</FaceDownImg>
+          </Options>
+        </Buttons>
+      </NavigationBar>
       <MediaList>
-        <Bounds>20,40,200,200</Bounds>
+        <Bounds>120,40,300,300</Bounds>
       </MediaList>
-    </DigitalAudio>
+    </Media>
     <Options>
     </Options>
     <Navigation>
     </Navigation>
   </Views>
   <OverlayControls>
-    <MediaQuickBar>
-      <Bounds>-173, 395, 934, 75</Bounds>
+    <MediaControlBar>
+      <Bounds>-133, 395, 934, 75</Bounds>
       <BackgroundImg>bottombar.png</BackgroundImg>
       <AnimationPath>
-        <AnimationPathPoint>-173,480,2000,1</AnimationPathPoint>
-        <AnimatinoPathPoint>-173,405,2000,1</AnimatinoPathPoint>
+        <AnimationPathPoint>-133,480,500,1</AnimationPathPoint>
+        <AnimatinoPathPoint>-133,405,500,1</AnimatinoPathPoint>
       </AnimationPath>
       <Buttons>
         <Play>
@@ -70,6 +89,24 @@
           <FaceDownImg>previous.png</FaceDownImg>
         </Previous>
       </Buttons>
-    </MediaQuickBar>
+      <ThermometerProgressBar>
+        <Bounds>193,36,243,30</Bounds>
+        <OverlayMask>diagonal_mask.png</OverlayMask>
+      </ThermometerProgressBar>
+    </MediaControlBar>
+    <MediaInfoBar>
+      <Bounds>300,0,340,60</Bounds>
+      <BackgroundImg>toprighttriangle.png</BackgroundImg>
+      <AnimationPath>
+        <AnimationPathPoint>345,-60,500,1</AnimationPathPoint>
+        <AnimatinoPathPoint>345,0,500,1</AnimatinoPathPoint>
+      </AnimationPath>
+      <MediaCreator>
+        <Bounds>30,0,200,30</Bounds>
+      </MediaCreator>
+      <MediaTitle>
+        <Bounds>50,25,200,30</Bounds>
+      </MediaTitle>
+    </MediaInfoBar>
   </OverlayControls>
 </Skin>

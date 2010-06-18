@@ -47,10 +47,19 @@ namespace CarMp.ViewControls
                 _currentPath.AnimationSetReverse();
         }
 
+        protected void SetLocation(PointF pPoint)
+        {
+            Bounds = new RectangleF(pPoint.X, pPoint.Y, Bounds.Width, Bounds.Height);
+        }
+
         protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
         {
+        }
+
+        protected override void PreRender()
+        {
             PointF currentPoint = _currentPath.GetCurrentPoint();
-            Bounds = new RectangleF(currentPoint.X, currentPoint.Y, Bounds.Width, Bounds.Height);
+            SetLocation(currentPoint);
         }
     }
 }

@@ -6,10 +6,11 @@ using System.Xml;
 
 namespace CarMp.ViewControls
 {
-    public class MediaQuickBar : AnimationContainer
+    public class MediaControlBar : AnimationContainer
     {
         private const string XPATH_BOUNDS = "Bounds";
         private const string XPATH_BUTTONS = "Buttons/*";
+        private const string XPATH_PROGRESS_BAR = "ThermometerProgressBar";
         private const string XPATH_ANIMATION_POINT = "AnimationPath/*";
         private const string XPATH_BACKGROUND_IMAGE = "BackgroundImg";
 
@@ -19,6 +20,7 @@ namespace CarMp.ViewControls
         private const string XPATH_NODE_PREVIOUS = "Previous";
         private const string XPATH_NODE_NEXT = "Next";
 
+        private ThermometerProgressBar _progressBar;
         private Direct2D.BitmapData _backgroundBitmapData;
         private SlimDX.Direct2D.Bitmap _backgroundImage = null;
 
@@ -38,12 +40,41 @@ namespace CarMp.ViewControls
                 _backgroundBitmapData = new Direct2D.BitmapData(
                     System.IO.Path.Combine(pSkinPath, node.InnerText));
             }
-            
+
+            node = pSkinViewNode.SelectSingleNode(XPATH_PROGRESS_BAR);
+            if (node != null)
+            {
+                _progressBar = new ThermometerProgressBar();
+                _progressBar.ApplySkin(node, pSkinPath);
+                _progressBar.ScrollChanged += (sender, e) =>
+                {
+                    MediaManager.SetCurrentPos(_progressBar.Value);
+                };
+
+                MediaManager.MediaProgressChanged += new MediaProgressChangedHandler(
+                    (sender, eventArgs) => 
+                        {
+                            _progressBar.Value = eventArgs.MediaPosition;
+                        });
+
+                MediaManager.MediaChanged += new MediaChangedHandler(
+                    (sender, eventArgs) =>
+                        {
+                            _progressBar.Value = 0;
+                            _progressBar.MaximumValue = eventArgs.MediaDetail.Length;
+                        });
+
+                _progressBar.StartRender();
+                AddViewControl(_progressBar);
+            }           
 
             AnimationPath path = this.CreateAnimationPath();
             foreach (XmlNode pointNode in pSkinViewNode.SelectNodes(XPATH_ANIMATION_POINT))
             {
-                path.AddAnimationPoint(XmlHelper.GetAnimationPathPoint(pointNode.InnerText));
+                AnimationPathPoint point = XmlHelper.GetAnimationPathPoint(pointNode.InnerText);
+                if (path.AnimationPointCount == 0)
+                    SetLocation(point.Location);
+                path.AddAnimationPoint(point);
             }
 
             foreach (XmlNode buttonNode in pSkinViewNode.SelectNodes(XPATH_BUTTONS))
@@ -56,15 +87,21 @@ namespace CarMp.ViewControls
                 switch (buttonNode.Name)
                 {
                     case XPATH_NODE_PLAY:
-                        button.Click += new EventHandler((sender, e) => MediaManager.StartPlayback());
+                        button.Click += (sender, e) => MediaManager.StartPlayback();
                         button.ButtonString = XPATH_NODE_PLAY;
                         break;
                     case XPATH_NODE_STOP:
-                        button.Click += new EventHandler((sender, e) => MediaManager.StopPlayback());
+                        button.Click += (sender, e) => MediaManager.StopPlayback();
                         button.ButtonString = XPATH_NODE_STOP;
                         break;
                     case XPATH_NODE_PAUSE:
-                        button.Click += new EventHandler((sender, e) => MediaManager.PausePlayback());
+                        button.Click += (sender, e) => MediaManager.PausePlayback();
+                        break;
+                    case XPATH_NODE_NEXT:
+                        button.Click += (sender, e) => MediaManager.MediaNext();
+                        break;
+                    case XPATH_NODE_PREVIOUS:
+                        button.Click += (sender, e) => MediaManager.MediaPrevious();
                         break;
                     //case XPATH_NODE_PREVIOUS:
                     //    button.Click += new EventHandler((sender, e) => MediaManager.());
@@ -79,7 +116,7 @@ namespace CarMp.ViewControls
             base.OnRender(pRenderTarget);
 
             if (_backgroundImage == null
-                && _backgroundBitmapData != null)
+                && _backgroundBitmapData.Data != null)
             {
                 _backgroundImage = Direct2D.GetBitmap(_backgroundBitmapData, pRenderTarget.Renderer);
             }

@@ -94,7 +94,7 @@ namespace CarMp
 
                     if (FormatSupported(file.Extension.ToUpper()))
                     {
-                        _mList.Add(GetInfo(file));
+                        _mList.Add(FileMediaInfo.GetInfo(file));
 
                         _count++;
                         _totalAddedCount++;
@@ -147,42 +147,6 @@ namespace CarMp
             // Force close
             _ScanThread.Abort();
         }
-
-        
-        private MediaItem GetInfo(FileInfo pFile)
-        {
-            Id3Read reader = new Id3Read(pFile.FullName);
-            MediaItem item = new MediaItem();
-            if (string.IsNullOrEmpty(reader.Title) && string.IsNullOrEmpty(reader.Artist))
-            {
-                FilenameInfo fileParser = new FilenameInfo();
-                fileParser.Parse(pFile.Name);
-
-                item.Track = fileParser.Track;
-                item.Artist = fileParser.Artist;
-                item.Title = fileParser.Title;
-            }
-            else
-            {
-                item.Album = reader.Album;
-                item.Artist = reader.Artist;
-                item.Title = reader.Title;
-            }
-            item.FileName = pFile.Name;
-            item.Path = pFile.FullName;
-            item.Track = reader.Track;
-            item.Genre = reader.Genre;
-            item.Kbps = reader.BitRate;
-
-            // Clean up item records
-            if (string.IsNullOrEmpty(item.Album)) item.Album = "NoAlbum";
-            if (string.IsNullOrEmpty(item.Artist)) item.Artist = "NoArtist";
-            if (string.IsNullOrEmpty(item.Title)) item.Title = "Untitled";
-
-            //item.Album = reader.A
-            return item;
-            //reader.read();
-        }//
 
 
         private Boolean FormatSupported(String pFormat)

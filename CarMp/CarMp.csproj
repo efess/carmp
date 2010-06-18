@@ -82,9 +82,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Callbacks\MediaChangedArgs.cs" />
+    <Compile Include="Callbacks\MediaProgressChangedArgs.cs" />
+    <Compile Include="DigitalMediaItem.cs" />
     <Compile Include="Direct2D.cs" />
+    <Compile Include="EventQueue.cs" />
+    <Compile Include="FileSystem\FileMediaInfo.cs" />
+    <Compile Include="Helpers\SkinningHelper.cs" />
     <Compile Include="IAudioController.cs" />
     <Compile Include="SkinSettings.cs" />
+    <Compile Include="Static\LinearMath.cs" />
     <Compile Include="ViewControls\AnimationContainer\AnimationContainer.cs" />
     <Compile Include="ViewControls\AnimationContainer\AnimationPath.cs" />
     <Compile Include="ViewControls\AnimationContainer\AnimationPathPoint.cs" />
@@ -92,15 +99,15 @@
     <Compile Include="ViewControls\GraphicalButton\GraphicalButton.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="DataObjects\DigitalMediaLibrary.cs" />
-    <Compile Include="DataObjects\ListHistory.cs" />
+    <Compile Include="DataObjects\MediaHistory.cs" />
     <Compile Include="DataObjects\Mappings\DigitalMediaLibraryMapping.cs" />
-    <Compile Include="DataObjects\Mappings\ListHistoryMapping.cs" />
+    <Compile Include="DataObjects\Mappings\MediaHistoryMapping.cs" />
     <Compile Include="DataObjects\Mappings\MediaGroupMapping.cs" />
     <Compile Include="DataObjects\MediaGroup.cs" />
     <Compile Include="DataObjects\MediaGroupItem.cs" />
     <Compile Include="DataObjects\Mappings\MediaGroupItemMap.cs" />
     <Compile Include="DebugHandler.cs" />
-    <Compile Include="Delegates.cs" />
+    <Compile Include="Callbacks\Delegates.cs" />
     <Compile Include="DragableListHistory.cs" />
     <Compile Include="ViewControls\DragableList\DragableList.cs" />
     <Compile Include="ViewControls\DragableList\DragableListCollection.cs" />
@@ -108,7 +115,7 @@
     <Compile Include="ViewControls\DragableList\DragableListTextItem.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="FileSystem\FileSystem.cs" />
-    <Compile Include="FileSystem\FileSystemItem.cs" />
+    <Compile Include="FileSystemItem.cs" />
     <Compile Include="Forms\FormDebug.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -134,8 +141,12 @@
     <Compile Include="MediaManager.cs" />
     <Compile Include="DigitalMediaScanner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ViewControls\MediaQuickBar.cs" />
-    <Compile Include="XmlHelper.cs" />
+    <Compile Include="ViewControls\MediaControlBar.cs" />
+    <Compile Include="ViewControls\MediaInfoBar.cs" />
+    <Compile Include="ViewControls\ScrollableText\ScrollableText.cs" />
+    <Compile Include="ViewControls\Text\Text.cs" />
+    <Compile Include="ViewControls\ThermometerProgressBar\ThermometerProgressBar.cs" />
+    <Compile Include="Helpers\XmlHelper.cs" />
     <EmbeddedResource Include="Forms\FormDebug.resx">
       <DependentUpon>FormDebug.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -175,8 +186,9 @@
     <Compile Include="ViewControls\GraphicalProgressBar\GraphicalProgressBar.cs" />
     <Compile Include="Views\HomeView.cs" />
     <Compile Include="Views\D2DViewFactory.cs" />
-    <Compile Include="Views\MusicView.cs" />
-    <Compile Include="Win32Helpers.cs" />
+    <Compile Include="Views\MediaView.cs" />
+    <Compile Include="Helpers\Win32Helpers.cs" />
+    <Compile Include="Views\NavigationView.cs" />
     <Compile Include="WinampController.cs" />
   </ItemGroup>
   <ItemGroup>

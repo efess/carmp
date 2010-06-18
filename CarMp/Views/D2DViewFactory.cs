@@ -7,7 +7,7 @@ namespace CarMp.Views
 {
     public class D2DViewFactory
     {
-        public const string DIGITAL_AUDIO = "DigitalAudio";
+        public const string MEDIA = "Media";
         public const string HOME = "Home";
         public const string NAVIGATION = "Navigation";
         public const string OPTIONS = "Options";
@@ -25,8 +25,8 @@ namespace CarMp.Views
 
             switch (pViewName)
             {
-                case DIGITAL_AUDIO:
-                    newView = new MusicView(_windowSize);
+                case MEDIA:
+                    newView = new MediaView(_windowSize);
                     break;
                 case HOME:
                     newView = new HomeView(_windowSize);

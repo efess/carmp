@@ -36,6 +36,11 @@ namespace CarMp
             get { return (object)FullPath; }
         }
 
+        public override int ItemSpecificType
+        {
+            get { return (int)ItemType; }
+        }
+
         public FileSystemItem(string pDisplayString, FileSystemItemType pItemType, string pPath)
             : base(pDisplayString, TranslateMediaEnum(pItemType))
         {

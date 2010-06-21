@@ -64,7 +64,7 @@ namespace CarMp.Views
             MediaList.InsertNextIntoCurrent(new RootItem("File System", RootItemType.FileSystem));
 
             int listIndex = 1;
-            foreach (MediaListItem item in MediaManager.MediaListHistory)
+            foreach (MediaListItem item in MediaManager.MediaHistory)
             {
                 listIndex++;
             }

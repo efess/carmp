@@ -90,6 +90,7 @@
     <Compile Include="FileSystem\FileMediaInfo.cs" />
     <Compile Include="Helpers\SkinningHelper.cs" />
     <Compile Include="IAudioController.cs" />
+    <Compile Include="MediaListItemFactory.cs" />
     <Compile Include="SkinSettings.cs" />
     <Compile Include="Static\LinearMath.cs" />
     <Compile Include="ViewControls\AnimationContainer\AnimationContainer.cs" />

@@ -9,7 +9,7 @@ namespace CarMp
 {
     public class MediaHistory
     {
-        public virtual int Index { get; set; }
+        public virtual int ListIndex { get; set; }
         public virtual string DisplayString { get; set; }
         public virtual MediaListItemType MediaType { get; set; }
         public virtual string Key { get; set; }

@@ -16,7 +16,7 @@ namespace CarMp
         public static event MediaChangedHandler MediaChanged;
         public static event MediaProgressChangedHandler MediaProgressChanged;
 
-        private static MediaListHistory MediaHistory;
+        public static MediaListHistory MediaHistory { private set; get; }
         private static Dictionary<int, NHibernate.ISession> _DataSessions;
         private static IAudioController _audioController;
 
@@ -61,7 +61,7 @@ namespace CarMp
         {
             _audioController = pAudioController;
             _DataSessions = new Dictionary<int, NHibernate.ISession>();
-            MediaHistory = new MediaListHistory();
+            MediaHistory = new MediaListHistory(new MediaListItemFactory());
             GetListHistory();
         }
 
@@ -84,13 +84,13 @@ namespace CarMp
 
             foreach (MediaHistory history in lHistories)
             {
-                MediaHistory.Push(new MediaListItem(history.DisplayString, history.ItemType, history.TargetId));
+                MediaHistory.AddHistoryItem(history);
             }
         }
 
         private static void SaveListHistory()
         {
-            for (int i = 0; i < MediaListHistory.Count; i++)
+            for (int i = 0; i < MediaHistory.Count; i++)
             {
                 
             }

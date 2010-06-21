@@ -32,6 +32,10 @@ namespace CarMp
             get { return (object)TargetId; }
         }
 
+        public override int ItemSpecificType
+        {
+            get { return (int)ItemType; }
+        }
         /// <summary>
         /// Type representing what type of item this item is
         /// </summary>

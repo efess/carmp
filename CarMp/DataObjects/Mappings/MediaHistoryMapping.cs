@@ -10,7 +10,7 @@ namespace CarMp
     {
         public MediaHistoryMapping()
         {
-            Map(x => x.Index, "ListIndex");
+            Id(x => x.ListIndex);
             Map(x => x.DisplayString);
             Map(x => x.MediaType);
             Map(x => x.Key);

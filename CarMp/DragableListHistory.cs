@@ -10,9 +10,11 @@ namespace CarMp
 
     public class MediaListHistory : Stack<MediaListItem>
     {
-        public MediaListHistory(List<MediaHistory> pMediaHistories)
-        {
+        private MediaListItemFactory _mediaListItemFactory;
 
+        public MediaListHistory(MediaListItemFactory pMediaListItemFactory)
+        {
+            _mediaListItemFactory = pMediaListItemFactory;
         }
 
         /// <summary>
@@ -49,9 +51,9 @@ namespace CarMp
                 MediaListItem item = mediaListArray[i];
 
                 MediaHistory history = new MediaHistory();
-                history.Index = i;
-                history.ItemSpecificType = 
-                yield return 
+                history.ListIndex = i;
+                //history.ItemSpecificType = 
+                yield return history;
             }
         }
     }

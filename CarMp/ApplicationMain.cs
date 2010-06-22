@@ -9,10 +9,11 @@ using System.Threading;
 
 namespace CarMp
 {
-    public class ApplicationMain
+    public class AppMain
     {
         private const int TIMER_GRANULARITY = 10;
         public static Forms.FormHost AppFormHost;
+        public static MediaManager MediaManager { get; private set; }
 
         public const string COMMANDLINE_DEBUG = "-DEBUG";
         public const string COMMANDLINE_XML_SETTINGS_PATH = "-settings";
@@ -93,7 +94,7 @@ namespace CarMp
 
             formSplash.IncreaseProgress(80, "Initializing Media Manager...");
             System.Threading.Thread.Sleep(100);
-            MediaManager.Initialize(new WinampController());
+            MediaManager = new CarMp.MediaManager(new WinampController());
 
             formSplash.IncreaseProgress(100, "Done");
             formSplash.CloseSplash();
@@ -107,7 +108,7 @@ namespace CarMp
                   .UsingFile(pDatabaseLocation)
               )
             .Mappings(m =>
-                m.FluentMappings.AddFromAssemblyOf<ApplicationMain>())
+                m.FluentMappings.AddFromAssemblyOf<AppMain>())
             .BuildSessionFactory();
 
             return sessionFactory.OpenSession();
@@ -135,7 +136,7 @@ namespace CarMp
 
         private static void ProcessExit(object sender, EventArgs e)
         {
-            MediaManager.Close();
+            AppMain.MediaManager.Close();
         }
     }
 }

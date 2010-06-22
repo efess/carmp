@@ -32,7 +32,7 @@ namespace CarMp.ViewControls
             {
                 Text textView = new Text();
                 textView.ApplySkin(node, pSkinPath);
-                MediaManager.MediaChanged += (sender, e) => 
+                AppMain.MediaManager.MediaChanged += (sender, e) => 
                     {
                         textView.TextString = e.MediaDetail.Artist;
                     };
@@ -45,7 +45,7 @@ namespace CarMp.ViewControls
             {
                 Text textView = new Text();
                 textView.ApplySkin(node, pSkinPath);
-                MediaManager.MediaChanged += (sender, e) =>
+                AppMain.MediaManager.MediaChanged += (sender, e) =>
                 {
                     textView.TextString = e.MediaDetail.Title;
                 };

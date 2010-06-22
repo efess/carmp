@@ -28,9 +28,9 @@ namespace CarMp
         /// <summary>
         /// Representing a unique ID to define this object
         /// </summary>
-        public override object Key
+        public override string Key
         {
-            get { return (object)ItemType; }
+            get { return ItemType.ToString(); }
         }
 
         public override int ItemSpecificType

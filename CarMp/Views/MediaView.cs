@@ -64,7 +64,7 @@ namespace CarMp.Views
             MediaList.InsertNextIntoCurrent(new RootItem("File System", RootItemType.FileSystem));
 
             int listIndex = 1;
-            foreach (MediaListItem item in MediaManager.MediaHistory)
+            foreach (MediaListItem item in AppMain.MediaManager.MediaListHistory)
             {
                 listIndex++;
             }
@@ -74,16 +74,6 @@ namespace CarMp.Views
         {
 
         }
-
-        //private void graphicalButton1_Click(object sender, System.EventArgs e)
-        //{
-        //    ApplicationMain.AppFormHost.OpenContent(FormHost.HOME, true);
-        //}
-
-        //private void graphicalButton1_Click(object sender, System.EventArgs e)
-        //{
-        //    ApplicationMain.AppFormHost.OpenContent(FormHost.HOME, true);
-        //}
 
         private void MediaList_SelectedItemChanged(object sender, SelectedItemChangedEventArgs e)
         {
@@ -95,78 +85,20 @@ namespace CarMp.Views
             switch (selectedItem.MediaType)
             {
                 case MediaListItemType.Group:
-                    MediaList.ClearAndFillNextList(MediaManager.GetNewList(selectedItem).ToArray());
+                    new Action(() => AppMain.MediaManager.SetMediaHistory(MediaList.CurrentListIndex, selectedItem)
+                        ).BeginInvoke(null, null);
+                    MediaList.ClearAndFillNextList(AppMain.MediaManager.GetNewList(selectedItem).ToArray());
                     MediaList.ChangeListForward();
                     break;
                 case MediaListItemType.Song:
-                    MediaManager.PlayMediaListItem(selectedItem);
+                    AppMain.MediaManager.PlayMediaListItem(selectedItem);
                     break;
             }
-            //if (selectedItem is RootItem)
-            //{
-            //    RootItem rootItem = selectedItem as RootItem;
-
-            //    switch (rootItem.ItemType)
-            //    {
-            //        case RootItemType.DigitalMediaLibrary:
-            //            break;
-            //        case RootItemType.FileSystem:
-            //            MediaList.ClearAndFillNextList(MediaManager.GetFSRootLevelItems().ToArray());
-            //            MediaList.ChangeListForward();
-            //            break;
-            //    }
-            //}
-            //else if (selectedItem is MediaListItem)
-            //{
-            //    DigitalMediaItem mediaItem = selectedItem as DigitalMediaItem;
-
-            //    if (mediaItem.ItemType == DigitalMediaItemType.Song)
-            //    {
-            //        MediaManager.StartPlayback(mediaItem);
-            //    }
-            //    else
-            //    {
-            //        MediaList.ClearAndFillNextList(MediaManager.GetNewMediaList(mediaItem.TargetId).ToArray());
-            //        MediaList.ChangeListForward();
-            //    }
-            //}
-            //else if (selectedItem is FileSystemItem)
-            //{
-            //    FileSystemItem fsItem = selectedItem as FileSystemItem;
-
-            //    switch (fsItem.ItemType)
-            //    {
-            //        case FileSystemItemType.HardDrive:
-            //        case FileSystemItemType.MemoryCard:
-            //        case FileSystemItemType.Directory:
-            //            MediaList.ClearAndFillNextList(MediaManager.GetNewFSMediaList(fsItem.FullPath).ToArray());
-            //            MediaList.ChangeListForward();
-            //            break;
-            //        case FileSystemItemType.AudioFile:
-            //            MediaManager.StartPlayback(fsItem);
-            //            break;
-
-            //    }
-            //}
-            //else
-            //{
-            //    throw new Exception("Unknown media item type");
-            //}
         }
 
         private void MediaList_AfterListChanged(object sender, ListChangeEventArgs e)
         {
             //mediaListHistoryCurrentIndex += e.SwitchDirection == DragableListSwitchDirection.Back ? -1 : 0;
-        }
-
-        private void graphicalButton3_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void graphicalButton2_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }

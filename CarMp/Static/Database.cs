@@ -8,7 +8,7 @@ using FluentNHibernate.Cfg.Db;
 
 namespace CarMp
 {
-    public class Database
+    public static class Database
     {
         private static ISessionFactory _SessionFactory;
         public static void InitializeDatabase(string pDatabaseFile)
@@ -19,7 +19,7 @@ namespace CarMp
                   .UsingFile(pDatabaseFile)
               )
             .Mappings(m =>
-                m.FluentMappings.AddFromAssemblyOf<ApplicationMain>())
+                m.FluentMappings.AddFromAssemblyOf<AppMain>())
             .BuildSessionFactory();
         }
 

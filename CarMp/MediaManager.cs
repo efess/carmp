@@ -5,33 +5,29 @@ using System.Text;
 using CarMpMediaInfo;
 using System.Collections;
 using NHibernate.Criterion;
+using System.Threading;
 using System.IO;
 
 namespace CarMp
 {
-    public static class MediaManager
+    public class MediaManager
     {
         private const long TIMER_DEFAULT_INTERVAL = 1000;
 
-        public static event MediaChangedHandler MediaChanged;
-        public static event MediaProgressChangedHandler MediaProgressChanged;
+        public event MediaChangedHandler MediaChanged;
+        public event MediaProgressChangedHandler MediaProgressChanged;
 
-        public static MediaListHistory MediaHistory { private set; get; }
-        private static Dictionary<int, NHibernate.ISession> _DataSessions;
-        private static IAudioController _audioController;
+        public MediaHistoryManager MediaListHistory { private set; get; }
 
-        public static MediaState CurrentState { get; private set; }
+        public MediaState CurrentState { get; private set; }
 
-        private static System.Threading.Timer _progressTimer = new System.Threading.Timer((i) =>
-            OnTimerTick(),
-            null,
-            0,
-            TIMER_DEFAULT_INTERVAL
-            );
+        private Timer _progressTimer;
+        private Dictionary<int, NHibernate.ISession> _DataSessions;
+        private IAudioController _audioController;
 
-        private static MediaListItem _currentPlayingItem;
-        private static List<MediaListItem> _currentViewedList;
-        private static List<MediaListItem> _currentPlayList;
+        private MediaListItem _currentPlayingItem;
+        private List<MediaListItem> _currentViewedList;
+        private List<MediaListItem> _currentPlayList;
 
         // This may be dangerous... Throughout the lifetime of the application 
         // datasessions will be created for each threadid, and never closed.
@@ -39,7 +35,7 @@ namespace CarMp
 
         // This started out as bad design, and this is mostly a bandaid.
 
-        private static NHibernate.ISession DataSession
+        private NHibernate.ISession DataSession
         {
             get
             {
@@ -57,46 +53,41 @@ namespace CarMp
             }
         }
 
-        public static void Initialize(IAudioController pAudioController)
+        public MediaManager(IAudioController pAudioController)
         {
             _audioController = pAudioController;
             _DataSessions = new Dictionary<int, NHibernate.ISession>();
-            MediaHistory = new MediaListHistory(new MediaListItemFactory());
+            MediaListHistory = new MediaHistoryManager(new MediaListItemFactory());
             GetListHistory();
+
+            _progressTimer = new System.Threading.Timer(
+                (i) => OnTimerTick(),
+                null,
+                0,
+                TIMER_DEFAULT_INTERVAL
+            );
         }
 
-        public static void Close()
+        public void Close()
         {
             _audioController.StopPlayback();
         }
 
-        private static void GetListHistory()
+        private void GetListHistory()
         {
             IList<MediaHistory> lHistories = DataSession.
                 CreateCriteria(typeof(MediaHistory))
+                .AddOrder(new Order("ListIndex", true))
                 .List<MediaHistory>();
-
-            //lHistories.Sort(new Comparison<ListHistory>(delegate(ListHistory lh, ListHistory lh2)
-            //    {
-            //        return lh.Index.CompareTo(lh2.Index);
-            //    }
-            //    ));
 
             foreach (MediaHistory history in lHistories)
             {
-                MediaHistory.AddHistoryItem(history);
+                MediaListHistory.AddHistoryItem(history);
             }
+
         }
 
-        private static void SaveListHistory()
-        {
-            for (int i = 0; i < MediaHistory.Count; i++)
-            {
-                
-            }
-        }
-
-        private static List<MediaListItem> GetFSRootLevelItems()
+        private List<MediaListItem> GetFSRootLevelItems()
         {
             List<MediaListItem> fileSystemItems = new List<MediaListItem>();
             foreach (DriveInfo drives in FileSystem.GetDrives())
@@ -106,7 +97,7 @@ namespace CarMp
             return fileSystemItems;
         }
 
-        private static List<MediaListItem> GetMLRootLevelItems()
+        private List<MediaListItem> GetMLRootLevelItems()
         {
             IList<MediaGroup> groups = DataSession.CreateCriteria(typeof(MediaGroup)).Add(Expression.Eq("GroupType", (int)MediaGroupType.Root)).List<MediaGroup>();
             List<MediaListItem> items = new List<MediaListItem>();
@@ -117,12 +108,17 @@ namespace CarMp
             return items;
         }
 
-        public static void ClearMediaLibrary()
+        public void SetMediaHistory(int pListIndex, MediaListItem pMediaListItem)
+        {
+            MediaListHistory.AddHistoryItem(new MediaHistoryItem() { MediaListItem = pMediaListItem, Index = pListIndex });
+        }
+
+        public void ClearMediaLibrary()
         {
             DataSession.CreateSQLQuery("DELETE FROM DigitalMediaLibrary").ExecuteUpdate();
         }
 
-        public static void SaveMediaToLibrary(List<MediaItem> pMediaItems)
+        public void SaveMediaToLibrary(List<MediaItem> pMediaItems)
         {
             NHibernate.ISession dbSession = DataSession;
 
@@ -170,7 +166,7 @@ namespace CarMp
         /// <summary>
         /// Stop a song
         /// </summary>
-        public static void StopPlayback()
+        public void StopPlayback()
         {
             CurrentState = MediaState.Stopped;
             _audioController.StopPlayback();
@@ -179,7 +175,7 @@ namespace CarMp
         /// <summary>
         /// Starts Playing a stopped or paused song
         /// </summary>
-        public static void StartPlayback()
+        public void StartPlayback()
         {
             if(_currentPlayingItem != null)
             {
@@ -192,12 +188,12 @@ namespace CarMp
         /// <summary>
         /// Pauses playback of a song
         /// </summary>
-        public static void PausePlayback()
+        public void PausePlayback()
         {
             _audioController.PausePlayback();
         }
 
-        public static void PlayMediaListItem(MediaListItem pListItem)
+        public void PlayMediaListItem(MediaListItem pListItem)
         {
             _currentPlayingItem = pListItem;
             if (pListItem is FileSystemItem)
@@ -213,7 +209,7 @@ namespace CarMp
             SetPlayList();
         }
 
-        private static void PlayFromFile(string pPath)
+        private void PlayFromFile(string pPath)
         {
             StartPlayback(pPath);
             MediaItem mediaItem = FileMediaInfo.GetInfo(new System.IO.FileInfo(pPath));
@@ -221,7 +217,7 @@ namespace CarMp
             OnMediaChanged(mediaItem);
         }
 
-        private static void PlayFromMediaLibrary(int pTargetId)
+        private void PlayFromMediaLibrary(int pTargetId)
         {
             DigitalMediaLibrary item = GetDigitalMedia(pTargetId);
 
@@ -239,7 +235,7 @@ namespace CarMp
             OnMediaChanged(mediaItem);
         }
 
-        private static void SetPlayList()
+        private void SetPlayList()
         {
             List<MediaListItem> mediaListItems = new List<MediaListItem>();
 
@@ -255,28 +251,28 @@ namespace CarMp
         /// Plays a file from the media library
         /// </summary>
         /// <param name="pLibraryId"></param>
-        private static void StartPlayback(string pFullPath)
+        private void StartPlayback(string pFullPath)
         {
             CurrentState = MediaState.Playing;
             _audioController.PlayFile(pFullPath);
             _progressTimer.Change(0, TIMER_DEFAULT_INTERVAL);
         }
 
-        public static int GetCurrentPosition()
+        public int GetCurrentPosition()
         {
             return _audioController.GetCurrentPos();
         }
 
-        public static int GetSongLength()
+        public int GetSongLength()
         {
             return _audioController.GetSongLength();
         }
 
-        public static void SetCurrentPos(int pos)
+        public void SetCurrentPos(int pos)
         {
             _audioController.SetCurrentPos(pos);
         }
-        private static List<MediaListItem> GetNewMediaList(int pGroupId)
+        private List<MediaListItem> GetNewMediaList(int pGroupId)
         {
             List<MediaListItem> listOfItems = new List<MediaListItem>();
             IList<MediaGroup> mediaGroup = DataSession.CreateCriteria(typeof(MediaGroup)).Add(Expression.Eq("GroupId", pGroupId)).List<MediaGroup>();
@@ -294,7 +290,7 @@ namespace CarMp
             return listOfItems;
         }
 
-        private static DigitalMediaLibrary GetDigitalMedia(int pLibraryId)
+        private DigitalMediaLibrary GetDigitalMedia(int pLibraryId)
         {
             IList<DigitalMediaLibrary> digitalMedia = DataSession.CreateCriteria(typeof(DigitalMediaLibrary)).Add(Expression.Eq("LibraryId", pLibraryId)).List<DigitalMediaLibrary>();
             if (digitalMedia.Count > 0)
@@ -307,7 +303,7 @@ namespace CarMp
             }
         }
 
-        private static List<MediaListItem> GetNewFSMediaList(string pPath)
+        private List<MediaListItem> GetNewFSMediaList(string pPath)
         {
             List<MediaListItem> fileSystemItems = new List<MediaListItem>();
 
@@ -324,7 +320,7 @@ namespace CarMp
             return fileSystemItems;
         }
 
-        public static void MediaNext()
+        public void MediaNext()
         {
             if (_currentPlayingItem == null) return;
 
@@ -336,7 +332,7 @@ namespace CarMp
         }
 
 
-        public static void MediaPrevious()
+        public void MediaPrevious()
         {
             if (_currentPlayingItem == null) return;
 
@@ -347,7 +343,7 @@ namespace CarMp
                 PlayMediaListItem(_currentPlayList[_currentPlayList.Count - 1]);
         }
 
-        public static List<MediaListItem> GetNewList(MediaListItem pGroupItem)
+        public List<MediaListItem> GetNewList(MediaListItem pGroupItem)
         {
             List<MediaListItem> returnList = new List<MediaListItem>();
             if (pGroupItem is FileSystemItem)
@@ -383,7 +379,7 @@ namespace CarMp
             return returnList;
         }
 
-        private static void OnMediaChanged(MediaItem pMediaItem)
+        private void OnMediaChanged(MediaItem pMediaItem)
         {
             if (MediaChanged != null)
             {
@@ -391,19 +387,19 @@ namespace CarMp
             }
         }
 
-        private static void OnTimerTick()
+        private void OnTimerTick()
         {
             if (_audioController != null)
                 OnMediaProgressChanged(GetCurrentPosition());
         }
 
-        private static void OnMediaProgressChanged(int pSongPosition)
+        private void OnMediaProgressChanged(int pSongPosition)
         {
             if (MediaProgressChanged != null)
                 MediaProgressChanged(null, new MediaProgressChangedArgs(pSongPosition));
         }
         
-        //private static List<MediaListItem> GetNewMediaList(int pListHistoryIndex)
+        //private List<MediaListItem> GetNewMediaList(int pListHistoryIndex)
         //{
         //    if (pListHistoryIndex == 0)
         //    {
@@ -413,7 +409,7 @@ namespace CarMp
 
         //}
 
-        //private static DoQuery GetQueryConstraint(MediaListItem pItem)
+        //private DoQuery GetQueryConstraint(MediaListItem pItem)
         //{
         //    DoQuery query = new DoQuery();
         //    DoQueryConstraint constraint = new DoQueryConstraint()

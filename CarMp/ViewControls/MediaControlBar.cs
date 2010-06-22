@@ -48,16 +48,16 @@ namespace CarMp.ViewControls
                 _progressBar.ApplySkin(node, pSkinPath);
                 _progressBar.ScrollChanged += (sender, e) =>
                 {
-                    MediaManager.SetCurrentPos(_progressBar.Value);
+                    AppMain.MediaManager.SetCurrentPos(_progressBar.Value);
                 };
 
-                MediaManager.MediaProgressChanged += new MediaProgressChangedHandler(
+                AppMain.MediaManager.MediaProgressChanged += new MediaProgressChangedHandler(
                     (sender, eventArgs) => 
                         {
                             _progressBar.Value = eventArgs.MediaPosition;
                         });
 
-                MediaManager.MediaChanged += new MediaChangedHandler(
+                AppMain.MediaManager.MediaChanged += new MediaChangedHandler(
                     (sender, eventArgs) =>
                         {
                             _progressBar.Value = 0;
@@ -87,24 +87,24 @@ namespace CarMp.ViewControls
                 switch (buttonNode.Name)
                 {
                     case XPATH_NODE_PLAY:
-                        button.Click += (sender, e) => MediaManager.StartPlayback();
+                        button.Click += (sender, e) => AppMain.MediaManager.StartPlayback();
                         button.ButtonString = XPATH_NODE_PLAY;
                         break;
                     case XPATH_NODE_STOP:
-                        button.Click += (sender, e) => MediaManager.StopPlayback();
+                        button.Click += (sender, e) => AppMain.MediaManager.StopPlayback();
                         button.ButtonString = XPATH_NODE_STOP;
                         break;
                     case XPATH_NODE_PAUSE:
-                        button.Click += (sender, e) => MediaManager.PausePlayback();
+                        button.Click += (sender, e) => AppMain.MediaManager.PausePlayback();
                         break;
                     case XPATH_NODE_NEXT:
-                        button.Click += (sender, e) => MediaManager.MediaNext();
+                        button.Click += (sender, e) => AppMain.MediaManager.MediaNext();
                         break;
                     case XPATH_NODE_PREVIOUS:
-                        button.Click += (sender, e) => MediaManager.MediaPrevious();
+                        button.Click += (sender, e) => AppMain.MediaManager.MediaPrevious();
                         break;
                     //case XPATH_NODE_PREVIOUS:
-                    //    button.Click += new EventHandler((sender, e) => MediaManager.());
+                    //    button.Click += new EventHandler((sender, e) => AppMain.MediaManager.());
                     //    break;
                 }
             }

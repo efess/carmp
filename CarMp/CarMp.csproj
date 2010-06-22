@@ -98,7 +98,7 @@
     <Compile Include="ViewControls\AnimationContainer\AnimationPathPoint.cs" />
     <Compile Include="ViewControls\AnimationContainer\AnimationState.cs" />
     <Compile Include="ViewControls\GraphicalButton\GraphicalButton.cs" />
-    <Compile Include="Database.cs" />
+    <Compile Include="Static\Database.cs" />
     <Compile Include="DataObjects\DigitalMediaLibrary.cs" />
     <Compile Include="DataObjects\MediaHistory.cs" />
     <Compile Include="DataObjects\Mappings\DigitalMediaLibraryMapping.cs" />
@@ -109,7 +109,7 @@
     <Compile Include="DataObjects\Mappings\MediaGroupItemMap.cs" />
     <Compile Include="DebugHandler.cs" />
     <Compile Include="Callbacks\Delegates.cs" />
-    <Compile Include="DragableListHistory.cs" />
+    <Compile Include="MediaHistory.cs" />
     <Compile Include="ViewControls\DragableList\DragableList.cs" />
     <Compile Include="ViewControls\DragableList\DragableListCollection.cs" />
     <Compile Include="ViewControls\DragableList\DragableListItem.cs" />

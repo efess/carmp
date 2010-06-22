@@ -17,7 +17,7 @@ namespace CarMp
     public abstract class MediaListItem : DragableListTextItem
     {
         public abstract int ItemSpecificType { get; }
-        public abstract object Key { get; }
+        public abstract string Key { get; }
         internal MediaListItemType MediaType { get; private set; }
         protected MediaListItem(string pDisplayString, MediaListItemType pListItemType)
         {

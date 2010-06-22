@@ -46,7 +46,7 @@
         </Buttons>
       </NavigationBar>
       <MediaList>
-        <Bounds>120,40,300,300</Bounds>
+        <Bounds>120,80,300,300</Bounds>
       </MediaList>
     </Media>
     <Options>

@@ -34,10 +34,10 @@ namespace CarMp.Views
                     switch (buttonNode.Name)
                     {
                         case D2DViewFactory.MEDIA:
-                            button.Click += new EventHandler((sender, e) => ApplicationMain.AppFormHost.ShowView(D2DViewFactory.MEDIA));
+                            button.Click += new EventHandler((sender, e) => AppMain.AppFormHost.ShowView(D2DViewFactory.MEDIA));
                             break;
                         case D2DViewFactory.HOME:
-                            button.Click += new EventHandler((sender, e) => ApplicationMain.AppFormHost.ShowView(D2DViewFactory.HOME));
+                            button.Click += new EventHandler((sender, e) => AppMain.AppFormHost.ShowView(D2DViewFactory.HOME));
                             break;
                     }
                 }

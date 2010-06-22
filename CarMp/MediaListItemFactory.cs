@@ -10,14 +10,14 @@ namespace CarMp
         public MediaListItem CreateListItem(
             string pMediaListItemType,
             object pKey,
-            int pMediaItemType,
+            MediaListItemType pMediaItemType,
             int pSpecificItemType,
             string pDisplayString)
         {
             switch (pMediaListItemType.ToUpper())
             {
                 case "FILESYSTEMITEM":
-                    return new FileSystemItem(pDisplayString, (FileSystemItemType)pSpecificItemType, (string)pKey);
+                    return new FileSystemItem(pDisplayString, (FileSystemItemType)pSpecificItemType, (string)pKey);;
                 case "DIGITALMEDIAITEM":
                     return new DigitalMediaItem(pDisplayString, (DigitalMediaItemType)pSpecificItemType, Convert.ToInt32(pKey));
                 case "ROOTITEM":

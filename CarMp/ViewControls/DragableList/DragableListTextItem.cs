@@ -20,7 +20,6 @@ namespace CarMp.ViewControls
         private static SlimDX.DirectWrite.TextFormat StringDrawFormat = null;
         public DragableListTextItem()
         {
-
             if (StringDrawFormat == null)
                 StringDrawFormat = new SlimDX.DirectWrite.TextFormat(
                     Direct2D.StringFactory,

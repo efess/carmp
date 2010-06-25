@@ -9,6 +9,7 @@ namespace CarMp
 
     public delegate bool FileCheck(String FileName, Int32 FileSize);
     
+    public delegate void ChangeMediaListHandler(object sender, ChangeMediaListArgs pEventArgs);
     public delegate void MediaChangedHandler(object sender, MediaChangedArgs pMediaArgs);
     public delegate void MediaProgressChangedHandler(object sender, MediaProgressChangedArgs pMediaArgs);
     

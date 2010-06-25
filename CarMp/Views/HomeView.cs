@@ -21,7 +21,7 @@ namespace CarMp.Views
 
         public new void ApplySkin(XmlNode pSkinViewNode, string pSkinPath)
         {
-            _viewControls.Clear();
+            Clear();
 
             BackgroundImage = null;
             XmlNode xmlNode = pSkinViewNode.SelectSingleNode(XPATH_BACKGROUND_IMAGE);

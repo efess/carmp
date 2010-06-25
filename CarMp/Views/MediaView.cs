@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using CarMp.ViewControls;
 using System.Xml;
+using System.Runtime.Remoting.Messaging;
 
 namespace CarMp.Views
 {
@@ -16,6 +17,7 @@ namespace CarMp.Views
         
         private const string XPATH_PROGRESSBAR = "GraphicalProgressBar";
         private const string XPATH_MEDIALIST = "MediaList";
+        private const string XPATH_SHORTCUT_LIST = "ShortcutList";
 
         internal MediaView(System.Drawing.Size pWindowSize)
             : base(pWindowSize)
@@ -23,6 +25,16 @@ namespace CarMp.Views
             MediaList = new DragableList();
             MediaList.Bounds = new System.Drawing.RectangleF(20, 40, this.Width - 80, this.Height - 120);
             MediaList.SelectedItemChanged += new DragableList.SelectedItemChangedEventHandler(MediaList_SelectedItemChanged);
+
+            AppMain.MediaManager.ListChangeRequest += (sender, e) =>
+                {
+                    MediaList.ChangeList(e.ListIndex);
+                };
+
+            MediaList.AfterListChanged += (sender, e) =>
+                {
+                    AppMain.MediaManager.ExecuteListChanged(e.NewIndex);
+                };
             MediaList.StartRender();
 
             AddViewControl(MediaList);
@@ -43,11 +55,25 @@ namespace CarMp.Views
                 ProgressBar.ApplySkin(xmlNode, pSkinPath);
             }
 
+            xmlNode = pSkinNode.SelectSingleNode(XPATH_SHORTCUT_LIST);
+            if (xmlNode != null)
+            {
+                MediaShortcut shortcut = new MediaShortcut();
+                shortcut.ApplySkin(xmlNode, pSkinPath);
+                AddViewControl(shortcut);
+                shortcut.StartRender();
+            }
+
             xmlNode = pSkinNode.SelectSingleNode(XPATH_MEDIALIST);
             if (xmlNode != null)
             {
                 MediaList.ApplySkin(xmlNode, pSkinPath);
             }
+
+            MediaList.AfterListChanged += (sender, e) =>
+                {
+                    AppMain.MediaManager.ExecuteListChanged(e.NewIndex);
+                };
 
             base.ApplySkin(pSkinNode, pSkinPath);
         }
@@ -64,7 +90,7 @@ namespace CarMp.Views
             MediaList.InsertNextIntoCurrent(new RootItem("File System", RootItemType.FileSystem));
 
             int listIndex = 1;
-            foreach (MediaListItem item in AppMain.MediaManager.MediaListHistory)
+            foreach (MediaHistory item in AppMain.MediaManager.MediaListHistory)
             {
                 listIndex++;
             }
@@ -85,8 +111,15 @@ namespace CarMp.Views
             switch (selectedItem.MediaType)
             {
                 case MediaListItemType.Group:
-                    new Action(() => AppMain.MediaManager.SetMediaHistory(MediaList.CurrentListIndex, selectedItem)
-                        ).BeginInvoke(null, null);
+                    new Action<int>(selectedIndex => 
+                            {
+                                AppMain.MediaManager.SetMediaHistory(selectedIndex, selectedItem);
+                            }
+                        ).BeginInvoke(
+                        MediaList.CurrentListIndex,
+                        null,
+                        null);
+
                     MediaList.ClearAndFillNextList(AppMain.MediaManager.GetNewList(selectedItem).ToArray());
                     MediaList.ChangeListForward();
                     break;

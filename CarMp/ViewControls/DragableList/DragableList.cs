@@ -139,7 +139,6 @@ namespace CarMp.ViewControls
                 {
                     m_currentListSize_px = 0;
                 }
-                
             }
         }
 

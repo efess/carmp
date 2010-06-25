@@ -82,6 +82,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Callbacks\ChangeMediaListArgs.cs" />
     <Compile Include="Callbacks\MediaChangedArgs.cs" />
     <Compile Include="Callbacks\MediaProgressChangedArgs.cs" />
     <Compile Include="DigitalMediaItem.cs" />
@@ -109,7 +110,7 @@
     <Compile Include="DataObjects\Mappings\MediaGroupItemMap.cs" />
     <Compile Include="DebugHandler.cs" />
     <Compile Include="Callbacks\Delegates.cs" />
-    <Compile Include="MediaHistory.cs" />
+    <Compile Include="MediaHistoryManager.cs" />
     <Compile Include="ViewControls\DragableList\DragableList.cs" />
     <Compile Include="ViewControls\DragableList\DragableListCollection.cs" />
     <Compile Include="ViewControls\DragableList\DragableListItem.cs" />
@@ -144,6 +145,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewControls\MediaControlBar.cs" />
     <Compile Include="ViewControls\MediaInfoBar.cs" />
+    <Compile Include="ViewControls\MediaShortcut.cs" />
     <Compile Include="ViewControls\ScrollableText\ScrollableText.cs" />
     <Compile Include="ViewControls\Text\Text.cs" />
     <Compile Include="ViewControls\ThermometerProgressBar\ThermometerProgressBar.cs" />

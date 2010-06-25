@@ -19,7 +19,7 @@ namespace CarMp.ViewControls
 
         public void ApplySkin(XmlNode pSkinNode, string pSkinPath)
         {
-            _viewControls.Clear();
+            Clear();
 
             XmlNode node = pSkinNode.SelectSingleNode(XPATH_BOUNDS);
             if (node != null)

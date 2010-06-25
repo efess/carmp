@@ -139,6 +139,11 @@ namespace CarMp.ViewControls
                                 EndPoint = new PointF(0, pRectangle.Bottom)
                             }
                         );
+                ////
+                //// GOTTA IMPLEMENT ONRENDER here so the child list items can
+                //// have its bounds corrected by the parent!
+                ////
+                //// DrawItem is *old*!!
 
                 pRenderer.DrawRectangle(SelectionGradient, pRectangle, 2F);
             }

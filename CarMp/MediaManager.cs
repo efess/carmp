@@ -14,6 +14,8 @@ namespace CarMp
     {
         private const long TIMER_DEFAULT_INTERVAL = 1000;
 
+        public event ChangeMediaListHandler ListChangeRequest;
+        public event ChangeMediaListHandler ListChanged;
         public event MediaChangedHandler MediaChanged;
         public event MediaProgressChangedHandler MediaProgressChanged;
 
@@ -67,6 +69,15 @@ namespace CarMp
                 TIMER_DEFAULT_INTERVAL
             );
         }
+        public void SetList(int pListIndex)
+        {
+            OnListChangeRequest(pListIndex);
+        }
+        private void OnListChangeRequest(int pListIndex)
+        {
+            if(ListChangeRequest != null)
+                ListChangeRequest(this, new ChangeMediaListArgs(pListIndex));
+        }
 
         public void Close()
         {
@@ -110,7 +121,7 @@ namespace CarMp
 
         public void SetMediaHistory(int pListIndex, MediaListItem pMediaListItem)
         {
-            MediaListHistory.AddHistoryItem(new MediaHistoryItem() { MediaListItem = pMediaListItem, Index = pListIndex });
+            MediaListHistory.AddHistoryItem(pMediaListItem, pListIndex);
         }
 
         public void ClearMediaLibrary()
@@ -377,6 +388,13 @@ namespace CarMp
             }
             _currentViewedList = songList;
             return returnList;
+        }
+
+        public void ExecuteListChanged(int pListIndex) { OnListChanged(pListIndex); }
+        private void OnListChanged(int pListIndex)
+        {
+            if (ListChanged != null)
+                ListChanged(this, new ChangeMediaListArgs(pListIndex));
         }
 
         private void OnMediaChanged(MediaItem pMediaItem)

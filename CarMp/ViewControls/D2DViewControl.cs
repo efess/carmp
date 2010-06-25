@@ -14,7 +14,7 @@ namespace CarMp.ViewControls
         public event EventHandler RenderStop;
 
         protected D2DViewControl _mouseDownControl;
-        protected List<D2DViewControl> _viewControls;
+        private List<D2DViewControl> _viewControls;
 
         private bool _renderOk = false;
         public void StartRender()
@@ -132,6 +132,11 @@ namespace CarMp.ViewControls
         public float Height { get { return _bounds.Height; } }
         public float X { get { return _bounds.X; } }
         public float Y { get { return _bounds.Y; } }
+
+        public void Clear()
+        {
+            _viewControls.Clear();
+        }
 
         public void AddViewControl(D2DViewControl pViewControl)
         {

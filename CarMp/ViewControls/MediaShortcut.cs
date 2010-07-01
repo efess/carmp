@@ -24,6 +24,7 @@ namespace CarMp.ViewControls
         {
             Clear();
 
+            SkinningHelper.XmlRectangleFEntry(XPATH_BOUNDS, pSkinNode, ref _bounds);
             _internalList.SelectedItemChanged += (sender, e) =>
             {
                 var listItem = e.SelectedItem as ShortcutListItem;
@@ -51,13 +52,17 @@ namespace CarMp.ViewControls
                 };
             XmlNode node = pSkinNode.SelectSingleNode(XPATH_DRAGABLE_LIST);
             if (node != null)
-                _internalList.ApplySkin(node, pSkinPath);
+            {
+                if(IndexOf(_internalList) < 0)
+                    AddViewControl(_internalList);
 
-            SkinningHelper.XmlRectangleFEntry(XPATH_BOUNDS, pSkinNode, ref _bounds);
+                _internalList.ApplySkin(node, pSkinPath);
+            }
+
         }
+
         protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
         {
-            _internalList.Render(pRenderTarget);
         }
         
         private class ShortcutListItem : DragableListTextItem

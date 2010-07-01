@@ -24,6 +24,7 @@ namespace CarMp
         public MediaState CurrentState { get; private set; }
 
         private Timer _progressTimer;
+        private bool _timerHit;
         private Dictionary<int, NHibernate.ISession> _DataSessions;
         private IAudioController _audioController;
 
@@ -407,14 +408,26 @@ namespace CarMp
 
         private void OnTimerTick()
         {
+            if(_timerHit)
+                return;
+
             if (_audioController != null)
+            {
+                _timerHit = true;
                 OnMediaProgressChanged(GetCurrentPosition());
+                Thread.Sleep(700);
+
+                _timerHit = false;
+            }
         }
 
         private void OnMediaProgressChanged(int pSongPosition)
         {
-            if (MediaProgressChanged != null)
+            if (MediaProgressChanged != null )
+            {
                 MediaProgressChanged(null, new MediaProgressChangedArgs(pSongPosition));
+             
+            }
         }
         
         //private List<MediaListItem> GetNewMediaList(int pListHistoryIndex)

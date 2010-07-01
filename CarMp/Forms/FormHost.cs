@@ -33,14 +33,36 @@ namespace CarMp.Forms
 
         private Direct2D.RenderTargetWrapper _renderTarget;
 
+        private IObservable<IEvent<MouseEventArgs>> MouseUpObs;
+        private IObservable<IEvent<MouseEventArgs>> MouseDownObs;
+        private IObservable<IEvent<MouseEventArgs>> MouseMoveObs;
+
         public FormHost()
         {
+            
             _viewChanging = new ManualResetEvent(false);
             if (SessionSettings.Debug)
             {
                 OpenDebugForm();
             }
 
+            // REactive stuff. Not sure what to do with it yet. 
+            // Need to experiment more though.
+            MouseUpObs = Observable.FromEvent(
+                (EventHandler<MouseEventArgs> ev) => new MouseEventHandler(ev),
+                ev => MouseUp += ev,
+                ev => MouseUp -= ev);
+
+            MouseDownObs = Observable.FromEvent(
+                (EventHandler<MouseEventArgs> ev) => new MouseEventHandler(ev),
+                ev => MouseDown += ev,
+                ev => MouseDown -= ev);
+
+            MouseMoveObs = Observable.FromEvent(
+                (EventHandler<MouseEventArgs> ev) => new MouseEventHandler(ev),
+                ev => MouseMove += ev,
+                ev => MouseMove -= ev);
+            
             _fpsCalcFramesTotal = 0;
             _fpsCalcDate = DateTime.Now;
 
@@ -55,7 +77,6 @@ namespace CarMp.Forms
             }));
 
             this.ClientSizeChanged += (o, e) => { _renderTarget.Resize(this.ClientSize); };
-
             
             InitializeComponent();
 
@@ -257,11 +278,12 @@ namespace CarMp.Forms
                 _mouseDownViewControl = _currentView.GetViewControlContainingPoint(e.Location);
                 if(_mouseDownViewControl != null)
                     _mouseDownViewControl.MouseDown(e);
-            }   
+            }
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
+            return;
             EventQueue eventQueue = new EventQueue();
 
             if (_mouseDownViewControl != null)

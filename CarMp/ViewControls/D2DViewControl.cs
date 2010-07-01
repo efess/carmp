@@ -30,19 +30,27 @@ namespace CarMp.ViewControls
 
         public D2DViewControl GetViewControlContainingPoint(PointF pPoint)
         {
+            D2DViewControl control = GetViewControlContainingPoint(this, pPoint);
 
-            for (int i = _viewControls.Count - 1;
-                i >= 0;
-                i--)
-            {
-                if(_viewControls[i].GetScreenBounds().Contains(pPoint))
-                    return _viewControls[i];
-            }
-
-            if (GetScreenBounds().Contains(pPoint))
+            if (control == null && GetScreenBounds().Contains(pPoint))
                 return this;
 
-            return null;
+            return control == this ? null : control;
+        }
+
+        public D2DViewControl GetViewControlContainingPoint(D2DViewControl pViewControl, PointF pPoint)
+        {
+            if(pViewControl != null)
+            {
+                for (int i = pViewControl._viewControls.Count - 1;
+                    i >= 0;
+                    i--)
+                {
+                    if (pViewControl._viewControls[i].GetScreenBounds().Contains(pPoint))
+                        return GetViewControlContainingPoint(pViewControl._viewControls[i], pPoint);
+                }
+            }
+            return pViewControl;
         }
 
         protected RectangleF _bounds;
@@ -73,7 +81,7 @@ namespace CarMp.ViewControls
 
                 pRenderTarget.CurrentBounds = GetScreenBounds();
 
-                pRenderTarget.Renderer.PushAxisAlignedClip(pRenderTarget.CurrentBounds, SlimDX.Direct2D.AntialiasMode.Aliased);
+                pRenderTarget.Renderer.PushAxisAlignedClip(GetAllowedRenderingArea(pRenderTarget.CurrentBounds) , SlimDX.Direct2D.AntialiasMode.Aliased);
 
                 OnRender(pRenderTarget);
                 pRenderTarget.Renderer.PopAxisAlignedClip();
@@ -83,6 +91,16 @@ namespace CarMp.ViewControls
                     _viewControls[i].Render(pRenderTarget);
                 }
             }
+        }
+
+        internal RectangleF GetAllowedRenderingArea(RectangleF pChildBounds)
+        {
+            if (Parent == null)
+                return pChildBounds;
+            
+            RectangleF newRect = pChildBounds;
+            newRect.Intersect(Parent.Bounds);
+            return newRect;
         }
 
         internal RectangleF GetScreenBounds()
@@ -100,11 +118,13 @@ namespace CarMp.ViewControls
 
         internal PointF GetScreenPoint(PointF pPointToAdd)
         {
-            if (Parent != null)
-            {
-                return Parent.GetScreenPoint(new PointF(pPointToAdd.X + Parent.Bounds.X, pPointToAdd.Y + Parent.Bounds.Y));
-            }
-            return pPointToAdd;
+            if (Parent == null)
+                return pPointToAdd;
+
+            return Parent.GetScreenPoint(
+                new PointF(
+                    pPointToAdd.X + Parent.Bounds.X, 
+                    pPointToAdd.Y + Parent.Bounds.Y));
         }
 
         internal PointF GetControlPointFromScreen(PointF pPointToSubtract)
@@ -142,6 +162,11 @@ namespace CarMp.ViewControls
         {
             pViewControl.Parent = this;
             _viewControls.Add(pViewControl);
+        }
+
+        public int IndexOf(D2DViewControl pViewControl)
+        {
+            return _viewControls.IndexOf(pViewControl);
         }
 
         private MouseEventArgs TransformMouseEventArgs(MouseEventArgs e)

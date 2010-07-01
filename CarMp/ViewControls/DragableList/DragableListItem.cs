@@ -14,7 +14,7 @@ using SlimDX.Windows;
 
 namespace CarMp.ViewControls
 {
-    public abstract class DragableListItem : IDisposable
+    public abstract class DragableListItem : D2DViewControl, IDisposable
     {
         private const int SELECTION_BORDER_PADDING = 1;
 
@@ -109,12 +109,12 @@ namespace CarMp.ViewControls
             pCanvas.DrawRectangle(SelectionPen, m_selectionRectangle);
             SelectionPen.Dispose();
         }
-
+        
         /// <summary>
         /// Override this
         /// </summary>
         /// <param name="pCanvas"></param>
-        internal virtual void DrawItem(Direct2D.RenderTargetWrapper pRenderer, RectangleF pRectangle) 
+        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderer) 
         {
             if (m_selected)
             {
@@ -135,17 +135,17 @@ namespace CarMp.ViewControls
                         }),
                             new LinearGradientBrushProperties()
                             {
-                                StartPoint = new PointF(pRectangle.Top, 0),
-                                EndPoint = new PointF(0, pRectangle.Bottom)
+                                StartPoint = new PointF(0, 0),
+                                EndPoint = new PointF(0, _bounds.Height)
                             }
                         );
                 ////
                 //// GOTTA IMPLEMENT ONRENDER here so the child list items can
                 //// have its bounds corrected by the parent!
                 ////
-                //// DrawItem is *old*!!
+                //// DrawItem is *old*!!x
 
-                pRenderer.DrawRectangle(SelectionGradient, pRectangle, 2F);
+                pRenderer.DrawRectangle(SelectionGradient, _bounds, 2F);
             }
         }
 

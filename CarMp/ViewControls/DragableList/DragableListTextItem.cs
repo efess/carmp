@@ -39,11 +39,11 @@ namespace CarMp.ViewControls
         public string DisplayString { get; set; }
 
 
-        internal override void DrawItem(Direct2D.RenderTargetWrapper pRenderer, RectangleF pRectangle)
+        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderer)
         {
             if(StringLayout == null)
             {
-                StringLayout = new SlimDX.DirectWrite.TextLayout(Direct2D.StringFactory, DisplayString, StringDrawFormat, pRectangle.Width, pRectangle.Height);
+                StringLayout = new SlimDX.DirectWrite.TextLayout(Direct2D.StringFactory, DisplayString, StringDrawFormat, _bounds.Width, _bounds.Height);
             }
 
             if (LinearGradient == null)
@@ -64,19 +64,19 @@ namespace CarMp.ViewControls
                     }),
                         new LinearGradientBrushProperties()
                         {
-                            StartPoint = new PointF(0, pRectangle.Top),
-                            EndPoint = new PointF(0, pRectangle.Bottom)
+                            StartPoint = new PointF(0, 0),
+                            EndPoint = new PointF(0, _bounds.Height)
                         }
                     );
             }
 
-            LinearGradient.EndPoint = new PointF(0, pRectangle.Bottom);
-            LinearGradient.StartPoint = new PointF(0, pRectangle.Top);
+            LinearGradient.EndPoint = new PointF(0, 0);
+            LinearGradient.StartPoint = new PointF(0, _bounds.Height);
 
-            pRenderer.DrawTextLayout(new PointF(pRectangle.Location.X + 4,pRectangle.Location.Y), StringLayout, LinearGradient);
+            pRenderer.DrawTextLayout(new PointF(4, 0), StringLayout, LinearGradient);
             
             // Call base which will draw the selection is selected
-            base.DrawItem(pRenderer, pRectangle);
+            base.OnRender(pRenderer);
         }
     }
 }

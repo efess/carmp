@@ -529,8 +529,10 @@ namespace CarMp.ViewControls
         }
         // Overrided Events
 
-        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
+        protected override void PreRender()
         {
+            this.Clear();
+            
             for (int i = 0; i < this.m_listDisplayCount; i++)
             {
                 if (this.CurrentListItemViewIndexZero + i < m_listCurrentDisplay.Count)
@@ -540,7 +542,12 @@ namespace CarMp.ViewControls
                         (m_listItemSize * i) - CurrentListLocVertOffset_px,
                         this.Width,
                         m_listItemSize);
-                    this.m_listCurrentDisplay[this.CurrentListItemViewIndexZero + i].DrawItem(pRenderTarget, currentRect);
+                    D2DViewControl control = this.m_listCurrentDisplay[this.CurrentListItemViewIndexZero + i];
+                    control.StartRender();
+                    control.Bounds = currentRect;
+                    this.AddViewControl(control);
+                    
+                    //this.m_listCurrentDisplay[this.CurrentListItemViewIndexZero + i].DrawItem(pRenderTarget, currentRect);
                 }
 
                 if (m_listHShift_px != 0 && i < m_listNextDisplay.Count)
@@ -551,9 +558,17 @@ namespace CarMp.ViewControls
                         ((m_listItemSize * i) - NextListLocVertOffset_px),
                         this.Width,
                         m_listItemSize);
-                    this.m_listNextDisplay[this.NextListItemViewIndexZero + i].DrawItem(pRenderTarget, nextRect);
+                    D2DViewControl control = this.m_listNextDisplay[this.NextListItemViewIndexZero + i];
+                    control.StartRender();
+                    control.Bounds = nextRect;
+                    this.AddViewControl(control);
                 }
             }
+        }
+
+        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
+        {
+            
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
@@ -683,7 +698,7 @@ namespace CarMp.ViewControls
                     m_listHShift_px += directionSign * (int)(-50 / j);
                     j+= .5;
                 }
-                Application.DoEvents();
+
                 Thread.Sleep(5);
             }
 

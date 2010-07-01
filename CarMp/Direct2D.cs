@@ -134,6 +134,12 @@ namespace CarMp
 
             public void DrawTextLayout(PointF pPoint, SlimDX.DirectWrite.TextLayout pTextLayout, SlimDX.Direct2D.Brush pBrush)
             {
+                if (pBrush is LinearGradientBrush)
+                {
+                    LinearGradientBrush brush = pBrush as LinearGradientBrush;
+                    brush.EndPoint = TransformPoint(brush.EndPoint);
+                    brush.StartPoint = TransformPoint(brush.StartPoint);
+                }
                 Renderer.DrawTextLayout(TransformPoint(pPoint), pTextLayout, pBrush);
             }
             public void DrawTextLayout(Point pPoint, SlimDX.DirectWrite.TextLayout pTextLayout, SlimDX.Direct2D.Brush pBrush)

@@ -105,6 +105,15 @@
     <Compile Include="Helpers\SkinningHelper.cs" />
     <Compile Include="IAudioController.cs" />
     <Compile Include="MediaListItemFactory.cs" />
+    <Compile Include="Reactive\DefaultObservable.cs" />
+    <Compile Include="Reactive\Touch\EventToTouchBridge.cs" />
+    <Compile Include="Reactive\Touch\TouchGesture.cs" />
+    <Compile Include="Reactive\Touch\Touch.cs" />
+    <Compile Include="Reactive\Touch\TouchGestureObservable.cs" />
+    <Compile Include="Reactive\Touch\TouchMove.cs" />
+    <Compile Include="Reactive\Touch\TouchMoveObservable.cs" />
+    <Compile Include="Reactive\Touch\TouchObservable.cs" />
+    <Compile Include="Reactive\UnSubscriber.cs" />
     <Compile Include="SkinSettings.cs" />
     <Compile Include="Static\LinearMath.cs" />
     <Compile Include="ViewControls\AnimationContainer\AnimationContainer.cs" />

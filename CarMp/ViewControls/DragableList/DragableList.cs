@@ -1,20 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Threading;
-using SlimDX.Direct2D;
-
-// Don't compile wiht these namespaces if we're not using them.
-
-using SlimDX;
-using SlimDX.Direct2D;
-using SlimDX.Windows;
 using System.Xml;
 
 

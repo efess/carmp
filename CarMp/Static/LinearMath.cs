@@ -8,6 +8,15 @@ namespace CarMp
 {
     public static class LinearMath
     {
+
+        public static float DistanceBetweenTwoPoint(PointF pPoint1, PointF pPoint2)
+        {
+            return (float)Math.Sqrt(
+                Math.Pow(pPoint2.X - pPoint1.X, 2) +
+                Math.Pow(pPoint2.Y - pPoint1.Y, 2)
+                );
+        }
+
         public static float SlopeOfTwoPoints(PointF pPoint1, PointF pPoint2)
         {
             float slope = 1;

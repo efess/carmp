@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using SlimDX.Direct2D;
 using System.Xml;
 using System.IO;
+using CarMp.Reactive.Touch;
 
 namespace CarMp.ViewControls
 {
@@ -84,6 +85,8 @@ namespace CarMp.ViewControls
 
         public GraphicalButton()
         {
+            SuscribeTouchGesture((tg) => OnClick(tg));
+
             if (StringDrawFormat == null)
                 StringDrawFormat = new SlimDX.DirectWrite.TextFormat(
                     Direct2D.StringFactory,
@@ -144,7 +147,6 @@ namespace CarMp.ViewControls
         protected override void OnMouseUp(MouseEventArgs e)
         {
             _mouseDown = false;
-            OnClick();
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
@@ -152,9 +154,10 @@ namespace CarMp.ViewControls
             _mouseDown = true;
         }
 
-        private void OnClick()
+        private void OnClick(TouchGesture pTouchGesture)
         {
-            if (Click != null)
+            if (pTouchGesture.Gesture == GestureType.Click
+                && Click != null)
             {
                 Click(this, new EventArgs());
             }

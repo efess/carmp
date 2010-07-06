@@ -14,6 +14,7 @@ namespace CarMp
         {
             if(Ds != null)
             {
+                return;
                 Ds.Invoke(debugString);
             }
         }

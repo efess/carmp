@@ -107,10 +107,7 @@ namespace CarMp.ViewControls
             //// GEOMETRY AND SHIT
             long diffMs = (pTicks - _lastTicks) / 10000; // 10000 ticks in a ms
 
-            float totalDistance = (float)Math.Sqrt(
-                Math.Pow(_currentEndPoint.Location.X - _currentStartPoint.Location.X, 2) +
-                Math.Pow(_currentEndPoint.Location.Y - _currentStartPoint.Location.Y, 2)
-                );
+            float totalDistance = LinearMath.DistanceBetweenTwoPoint(_currentStartPoint.Location, _currentEndPoint.Location);
 
             float angleStartToEnd = LinearMath.AngleOfTwoPoints(_currentStartPoint.Location, _currentEndPoint.Location);
             

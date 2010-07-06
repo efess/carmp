@@ -5,6 +5,7 @@ using System.Text;
 using System.Drawing;
 using System.Windows.Forms;
 using CarMp.Views;
+using CarMp.Reactive.Touch;
 
 namespace CarMp.ViewControls
 {
@@ -15,6 +16,7 @@ namespace CarMp.ViewControls
 
         protected D2DViewControl _mouseDownControl;
         private List<D2DViewControl> _viewControls;
+        private static TouchObservables _touchObs;
 
         private bool _renderOk = false;
         public void StartRender()
@@ -26,6 +28,47 @@ namespace CarMp.ViewControls
         {
             _renderOk = false;
             OnRenderStop();
+        }
+
+        internal static void SetTouchObservables(TouchObservables pTouchObs)
+        {
+            _touchObs = pTouchObs;
+        }
+
+        public virtual void SuscribeTouchMove(Action<TouchMove> pTouchMoveAction)
+        {
+            InternalSubscribeTouchMove(pTouchMoveAction);
+        }
+
+        public virtual void SuscribeTouchGesture(Action<TouchGesture> pTouchGestureAction)
+        {
+            InternalSubscribeTouchGesture(pTouchGestureAction);
+        }
+
+        private void InternalSubscribeTouchMove(Action<TouchMove> pTouchMoveAction)
+        {
+            _touchObs.ObsTouchMove.Where<TouchMove>(tm =>
+                {
+                    return GetScreenBounds().Contains(tm.Location);
+                })
+                .Select<TouchMove, TouchMove>(tm => 
+                {
+                    return new TouchMove(GetControlPointFromScreen(tm.Location), tm.TouchDown, tm.Velocity);
+                })
+                .Subscribe(pTouchMoveAction);            
+        }
+
+        private void InternalSubscribeTouchGesture(Action<TouchGesture> pTouchGestureAction)
+        {
+            _touchObs.ObsTouchGesture.Where<TouchGesture>(tm =>
+                {
+                    return GetScreenBounds().Contains(tm.Location);
+                })
+                .Select<TouchGesture, TouchGesture>(tm =>
+                {
+                    return new TouchGesture(tm.Gesture, GetControlPointFromScreen(tm.Location));
+                })
+                .Subscribe(pTouchGestureAction);
         }
 
         public D2DViewControl GetViewControlContainingPoint(PointF pPoint)

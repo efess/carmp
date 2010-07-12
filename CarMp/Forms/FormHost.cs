@@ -40,7 +40,9 @@ namespace CarMp.Forms
         {
             // Initialize & set Touch Observable
             _mouseEventProcessor = new EventToTouchBridge(this);
-            D2DViewControl.SetTouchObservables(_mouseEventProcessor.ObservablTouchActions);
+            _mouseEventProcessor.ObservablTouchActions.ObsTouchGesture.Subscribe((tg) => RouteTouchEvents(tg));
+            _mouseEventProcessor.ObservablTouchActions.ObsTouchMove.Subscribe((tm) => RouteTouchEvents(tm));
+            //D2DViewControl.SetTouchObservables(_mouseEventProcessor.ObservablTouchActions);
 
             _viewChanging = new ManualResetEvent(false);
             if (SessionSettings.Debug)
@@ -76,6 +78,27 @@ namespace CarMp.Forms
 
             Action renderingLoop = new Action(() => RenderingLoop());
             renderingLoop.BeginInvoke(null, null);
+        }
+
+        public void RouteTouchEvents(Touch pTouchEvent)
+        {
+            D2DViewControl currentlySelected = null;
+            for (int i = _overlayViewControls.Count - 1;
+                i >= 0;
+                i--)
+            {
+                currentlySelected = _overlayViewControls[i].GetViewControlContainingPoint(pTouchEvent.Location);
+                if (currentlySelected != null)
+                {
+                    currentlySelected.SendTouch(pTouchEvent);
+                    return;
+                }
+            }
+
+            
+            currentlySelected = _currentView.GetViewControlContainingPoint(pTouchEvent.Location);
+            if(currentlySelected != null)
+                currentlySelected.SendTouch(pTouchEvent);
         }
 
         private void InitializeOverlayControls()
@@ -131,6 +154,7 @@ namespace CarMp.Forms
                     // View is showing, hide this view
                 }
 
+                // Create view
                 if (_loadedViews.ContainsKey(pViewName))
                     _currentView = _loadedViews[pViewName];
                 else
@@ -146,8 +170,10 @@ namespace CarMp.Forms
                         if (viewSkinNode != null)
                             (_currentView as ISkinable).ApplySkin(viewSkinNode, SessionSettings.SkinPath);
                     }
-                    _currentView.StartRender();
+
                 }
+                _currentView.StartRender();
+
             }
             finally
             {
@@ -209,7 +235,7 @@ namespace CarMp.Forms
                 _fpsCalcFramesTotal++;
                 if ( DateTime.Now.AddSeconds(-1) > _fpsCalcDate)
                 {
-                    //System.Diagnostics.Debug.WriteLine("CurrentFPS: " + (_fpsCalcFramesTotal - _fpsCalcFramesCurrent).ToString());
+                    DebugHandler.DebugPrint("CurrentFPS: " + (_fpsCalcFramesTotal - _fpsCalcFramesCurrent).ToString());
                     _fpsCalcFramesCurrent = _fpsCalcFramesTotal;
                     _fpsCalcDate = DateTime.Now;
                 }

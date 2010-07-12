@@ -85,8 +85,6 @@ namespace CarMp.ViewControls
 
         public GraphicalButton()
         {
-            SuscribeTouchGesture((tg) => OnClick(tg));
-
             if (StringDrawFormat == null)
                 StringDrawFormat = new SlimDX.DirectWrite.TextFormat(
                     Direct2D.StringFactory,
@@ -144,6 +142,14 @@ namespace CarMp.ViewControls
             }
         }
 
+        protected override void OnTouchGesture(TouchGesture pTouchGesture)
+        {
+            if (pTouchGesture.Gesture == GestureType.Click
+                && Click != null)
+            {
+                Click(this, new EventArgs());
+            }       
+        }
         protected override void OnMouseUp(MouseEventArgs e)
         {
             _mouseDown = false;
@@ -152,15 +158,6 @@ namespace CarMp.ViewControls
         protected override void OnMouseDown(MouseEventArgs e)
         {
             _mouseDown = true;
-        }
-
-        private void OnClick(TouchGesture pTouchGesture)
-        {
-            if (pTouchGesture.Gesture == GestureType.Click
-                && Click != null)
-            {
-                Click(this, new EventArgs());
-            }
         }
     }
 }

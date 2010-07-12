@@ -168,6 +168,7 @@
     <Compile Include="ViewControls\MediaControlBar.cs" />
     <Compile Include="ViewControls\MediaInfoBar.cs" />
     <Compile Include="ViewControls\MediaShortcut.cs" />
+    <Compile Include="ViewControls\OverlayControls.cs" />
     <Compile Include="ViewControls\ScrollableText\ScrollableText.cs" />
     <Compile Include="ViewControls\Text\Text.cs" />
     <Compile Include="ViewControls\ThermometerProgressBar\ThermometerProgressBar.cs" />

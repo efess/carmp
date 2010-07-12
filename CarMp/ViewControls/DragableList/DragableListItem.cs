@@ -102,6 +102,19 @@ namespace CarMp.ViewControls
             }
             m_buffered = false;
         }
+
+        /// <summary>
+        /// Send Touch events to Parent (List)
+        /// </summary>
+        /// <param name="pTouch"></param>
+        public override void SendTouch(Reactive.Touch.Touch pTouch)
+        {
+            if (Parent != null
+                && Parent is DragableList)
+                Parent.SendTouch(pTouch);
+
+            base.SendTouch(pTouch);
+        }
         
         internal virtual void DrawSelection(Graphics pCanvas)
         {

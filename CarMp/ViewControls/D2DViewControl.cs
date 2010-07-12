@@ -9,14 +9,15 @@ using CarMp.Reactive.Touch;
 
 namespace CarMp.ViewControls
 {
-    public abstract class D2DViewControl
+    public abstract class D2DViewControl : IDisposable
     {
         public event EventHandler RenderStart;
         public event EventHandler RenderStop;
 
         protected D2DViewControl _mouseDownControl;
         private List<D2DViewControl> _viewControls;
-        private static TouchObservables _touchObs;
+
+//        private static TouchObservables _touchObs;
 
         private bool _renderOk = false;
         public void StartRender()
@@ -30,52 +31,52 @@ namespace CarMp.ViewControls
             OnRenderStop();
         }
 
-        internal static void SetTouchObservables(TouchObservables pTouchObs)
-        {
-            _touchObs = pTouchObs;
-        }
+        //internal static void SetTouchObservables(TouchObservables pTouchObs)
+        //{
+        //    _touchObs = pTouchObs;
+        //}
 
-        public virtual void SuscribeTouchMove(Action<TouchMove> pTouchMoveAction)
-        {
-            InternalSubscribeTouchMove(pTouchMoveAction);
-        }
+        //public virtual void SuscribeTouchMove(Action<TouchMove> pTouchMoveAction)
+        //{
+        //    InternalSubscribeTouchMove(pTouchMoveAction);
+        //}
 
-        public virtual void SuscribeTouchGesture(Action<TouchGesture> pTouchGestureAction)
-        {
-            InternalSubscribeTouchGesture(pTouchGestureAction);
-        }
+        //public virtual void SuscribeTouchGesture(Action<TouchGesture> pTouchGestureAction)
+        //{
+        //    InternalSubscribeTouchGesture(pTouchGestureAction);
+        //}
 
-        private void InternalSubscribeTouchMove(Action<TouchMove> pTouchMoveAction)
-        {
-            _touchObs.ObsTouchMove.Where<TouchMove>(tm =>
-                {
-                    return GetScreenBounds().Contains(tm.Location);
-                })
-                .Select<TouchMove, TouchMove>(tm => 
-                {
-                    return new TouchMove(GetControlPointFromScreen(tm.Location), tm.TouchDown, tm.Velocity);
-                })
-                .Subscribe(pTouchMoveAction);            
-        }
+        //private void InternalSubscribeTouchMove(Action<TouchMove> pTouchMoveAction)
+        //{
+        //    _touchObs.ObsTouchMove.Where<TouchMove>(tm =>
+        //        {
+        //            return _visible && GetScreenBounds().Contains(tm.Location);
+        //        })
+        //        .Select<TouchMove, TouchMove>(tm => 
+        //        {
+        //            return new TouchMove(GetControlPointFromScreen(tm.Location), tm.TouchDown, tm.Velocity);
+        //        })
+        //        .Subscribe(pTouchMoveAction);            
+        //}
 
-        private void InternalSubscribeTouchGesture(Action<TouchGesture> pTouchGestureAction)
-        {
-            _touchObs.ObsTouchGesture.Where<TouchGesture>(tm =>
-                {
-                    return GetScreenBounds().Contains(tm.Location);
-                })
-                .Select<TouchGesture, TouchGesture>(tm =>
-                {
-                    return new TouchGesture(tm.Gesture, GetControlPointFromScreen(tm.Location));
-                })
-                .Subscribe(pTouchGestureAction);
-        }
+        //private void InternalSubscribeTouchGesture(Action<TouchGesture> pTouchGestureAction)
+        //{
+        //    _touchObs.ObsTouchGesture.Where<TouchGesture>(tm =>
+        //        {
+        //            return _visible && GetScreenBounds().Contains(tm.Location);
+        //        })
+        //        .Select<TouchGesture, TouchGesture>(tm =>
+        //        {
+        //            return new TouchGesture(tm.Gesture, GetControlPointFromScreen(tm.Location));
+        //        })
+        //        .Subscribe(pTouchGestureAction);
+        //}
 
         public D2DViewControl GetViewControlContainingPoint(PointF pPoint)
         {
             D2DViewControl control = GetViewControlContainingPoint(this, pPoint);
 
-            if (control == null && GetScreenBounds().Contains(pPoint))
+            if (control == this && GetScreenBounds().Contains(pPoint))
                 return this;
 
             return control == this ? null : control;
@@ -85,12 +86,15 @@ namespace CarMp.ViewControls
         {
             if(pViewControl != null)
             {
-                for (int i = pViewControl._viewControls.Count - 1;
-                    i >= 0;
-                    i--)
+                lock (pViewControl._viewControls)
                 {
-                    if (pViewControl._viewControls[i].GetScreenBounds().Contains(pPoint))
-                        return GetViewControlContainingPoint(pViewControl._viewControls[i], pPoint);
+                    for (int i = pViewControl._viewControls.Count - 1;
+                        i >= 0;
+                        i--)
+                    {
+                        if (pViewControl._viewControls[i].GetScreenBounds().Contains(pPoint))
+                            return GetViewControlContainingPoint(pViewControl._viewControls[i], pPoint);
+                    }
                 }
             }
             return pViewControl;
@@ -127,8 +131,9 @@ namespace CarMp.ViewControls
                 pRenderTarget.Renderer.PushAxisAlignedClip(GetAllowedRenderingArea(pRenderTarget.CurrentBounds) , SlimDX.Direct2D.AntialiasMode.Aliased);
 
                 OnRender(pRenderTarget);
-                pRenderTarget.Renderer.PopAxisAlignedClip();
 
+                pRenderTarget.Renderer.PopAxisAlignedClip();
+                
                 for(int i = _viewControls.Count-1; i >= 0; i--)
                 {
                     _viewControls[i].Render(pRenderTarget);
@@ -187,8 +192,19 @@ namespace CarMp.ViewControls
             return GetControlPointFromScreen(Bounds.Location);
         }
 
+        internal PointF ConvertScreenToControlPoint(PointF pPointToConvert)
+        {
+            PointF newPoint = new PointF(pPointToConvert.X - Bounds.X, pPointToConvert.Y - Bounds.Y);
+            if (Parent != null)
+            {
+                return Parent.ConvertScreenToControlPoint(newPoint);
+            }
+            return newPoint;
+        }
+
+
         protected abstract void OnRender(Direct2D.RenderTargetWrapper pRenderTarget);
-        
+
         public SizeF Size { get { return _bounds.Size; } }
         public PointF Location { get { return _bounds.Location; } }
         public float Width { get { return _bounds.Width; } }
@@ -198,8 +214,30 @@ namespace CarMp.ViewControls
 
         public void Clear()
         {
-            _viewControls.Clear();
+            lock (_viewControls)
+            {
+                _viewControls.Clear();
+            }
         }
+
+        public virtual void SendTouch(Touch pTouch) 
+        {
+            PointF newPoint = ConvertScreenToControlPoint(pTouch.Location);
+
+            if (pTouch is TouchMove)
+            {
+                OnTouchMove(new TouchMove(newPoint, (pTouch as TouchMove).TouchDown,(pTouch as TouchMove).Velocity));
+            }
+            else if (pTouch is TouchGesture)
+            {
+                OnTouchGesture(new TouchGesture((pTouch as TouchGesture).Gesture,newPoint));
+            }
+        }
+
+        protected virtual void OnTouchGesture(TouchGesture pTouchGesture) { }
+        protected virtual void OnTouchMove(TouchMove pTouchMove) { }
+
+        public virtual void Dispose() { }
 
         public void AddViewControl(D2DViewControl pViewControl)
         {

@@ -12,9 +12,9 @@ namespace CarMp
 
         public static void DebugPrint(String debugString)
         {
+            return;
             if(Ds != null)
             {
-                return;
                 Ds.Invoke(debugString);
             }
         }

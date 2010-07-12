@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.Threading;
 using System.Xml;
+using CarMp.Reactive.Touch;
 
 
 namespace CarMp.ViewControls
@@ -82,6 +83,9 @@ namespace CarMp.ViewControls
         private int m_mouseVelocityStartThreshold = 2;
         private int m_mouseListChangeThreshold = 50;
         
+        //touch vars
+        private TouchMove _touchPreviousPoint;
+
         // Velocity Delegate
         private VelocityStart m_velocityDelegate;
         private bool m_velocityStop;
@@ -560,6 +564,44 @@ namespace CarMp.ViewControls
             
         }
 
+        protected override void OnTouchGesture(Reactive.Touch.TouchGesture pTouchGesture)
+        {
+            switch (pTouchGesture.Gesture)
+            {
+                case Reactive.Touch.GestureType.Click:
+                    SelectItem(Convert.ToInt32(pTouchGesture.Location.X), Convert.ToInt32(pTouchGesture.Location.Y));
+                    return;
+                case Reactive.Touch.GestureType.SwipeLeft:
+                    ChangeListForward();
+                    return;
+                case Reactive.Touch.GestureType.SwipeRight:
+                    ChangeListBack();
+                    return;
+            }
+        }
+
+
+        protected override void OnTouchMove(Reactive.Touch.TouchMove pTouchMove)
+        {
+            if (_touchPreviousPoint != null)
+            {
+                if (pTouchMove.TouchDown)
+                {
+                    int delta = Convert.ToInt32(_touchPreviousPoint.Y - pTouchMove.Location.Y);
+                    ShiftList(delta);
+                }
+                else
+                {
+                    if (pTouchMove.Velocity > m_mouseVelocityStartThreshold)
+                    {
+                        StartVelocity(Convert.ToInt32(pTouchMove.Velocity));
+                    }
+                }
+            }
+            
+            _touchPreviousPoint = pTouchMove;
+        }
+
         protected override void OnMouseMove(MouseEventArgs e)
         {
             if (!this.m_mouseDown || m_ignoreMouseEvents)
@@ -621,7 +663,7 @@ namespace CarMp.ViewControls
             // Check list move threshold
             if (Math.Abs(m_mouseMoveVelocity) > m_mouseVelocityStartThreshold)
             {
-                StartVelocity();
+                StartVelocity(m_mouseMoveVelocity);
             }
             
             base.OnMouseUp(e);
@@ -644,10 +686,10 @@ namespace CarMp.ViewControls
             base.OnMouseDown(e);
         }
 
-        private void StartVelocity()
+        private void StartVelocity(int pVelocity)
         {
-            m_velocityDelegate = new VelocityStart(Velocity);
-            m_velocityDelegate.BeginInvoke(m_mouseMoveVelocity, null, null);
+            m_velocityDelegate = (i) => Velocity(i);
+            m_velocityDelegate.BeginInvoke(pVelocity, null, null);
         }
 
         private void Velocity(int pInitialVelocity)

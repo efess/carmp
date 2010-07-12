@@ -44,7 +44,7 @@ namespace CarMp.Reactive.Touch
             // Defaults
             TouchDownClickThreshold = 200;
             TouchDownClickDistanceTolerance = 5;
-            TouchSwipeDistanceThreshold = 200;
+            TouchSwipeDistanceThreshold = 50;
             TouchSwipeVelocityThreshold = 1000;
 
             CreateEventSubscriptions();
@@ -69,6 +69,8 @@ namespace CarMp.Reactive.Touch
                 SendTouchGesture(new TouchGesture(GestureType.Click, e.Location));
                 return;
             }
+            ProcessMouseMove(e);
+            
         }
 
         private void ProcessMouseDown(MouseEventArgs e)
@@ -107,7 +109,7 @@ namespace CarMp.Reactive.Touch
                     // HACK: the following code.
                     float x = _startHighVelocityPoint.X - e.X;
                     float y = _startHighVelocityPoint.Y - e.Y;
-                    System.Diagnostics.Debug.WriteLine("IS IN SWIPE X: " + x.ToString()  + " y: " + y.ToString());
+                    DebugHandler.DebugPrint("IS IN SWIPE X: " + x.ToString()  + " y: " + y.ToString());
                     if (Math.Abs(x) > Math.Abs(y))
                     {
                         if (Math.Abs(x) > TouchSwipeDistanceThreshold)
@@ -137,20 +139,20 @@ namespace CarMp.Reactive.Touch
                 }
             }
 
-            _previousPointTime = DateTime.Now;
+            _previousPointTime = dt;
             _previousPoint = e.Location;
         }
 
         private void SendTouchGesture(TouchGesture pTouchGesture)
         {
             ObservablTouchActions.ObsTouchGesture.PushTouchGesture(pTouchGesture);
-            System.Diagnostics.Debug.WriteLine("Gesture: " + pTouchGesture.Gesture.ToString() + " at " + pTouchGesture.X.ToString() + "," + pTouchGesture.Y.ToString());
+            DebugHandler.DebugPrint("Gesture: " + pTouchGesture.Gesture.ToString() + " at " + pTouchGesture.X.ToString() + "," + pTouchGesture.Y.ToString());
         }
 
         private void SendTouchMove(TouchMove pTouchMove)
         {
             ObservablTouchActions.ObsTouchMove.PushTouchMove(pTouchMove);
-            System.Diagnostics.Debug.WriteLine("Velocity: " + pTouchMove.Velocity.ToString() + ", down: " + pTouchMove.TouchDown.ToString() + " at " + pTouchMove.X.ToString() + "," + pTouchMove.Y.ToString());
+            DebugHandler.DebugPrint("Velocity: " + pTouchMove.Velocity.ToString() + ", down: " + pTouchMove.TouchDown.ToString() + " at " + pTouchMove.X.ToString() + "," + pTouchMove.Y.ToString());
         }
     }
 }

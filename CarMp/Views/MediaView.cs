@@ -35,7 +35,6 @@ namespace CarMp.Views
                 {
                     AppMain.MediaManager.ExecuteListChanged(e.NewIndex);
                 };
-            MediaList.StartRender();
 
             AddViewControl(MediaList);
 
@@ -68,6 +67,7 @@ namespace CarMp.Views
             if (xmlNode != null)
             {
                 MediaList.ApplySkin(xmlNode, pSkinPath);
+                MediaList.StartRender();
             }
 
             MediaList.AfterListChanged += (sender, e) =>

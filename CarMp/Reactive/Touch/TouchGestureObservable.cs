@@ -9,10 +9,8 @@ namespace CarMp.Reactive.Touch
     {
         public void PushTouchGesture(TouchGesture pTouchGesture)
         {
-            lock (_observerList)
-            {
-                _observerList.ForEach(obs => obs.OnNext(pTouchGesture));
-            }
+
+            PushToObservers(pTouchGesture);
         }
     }
 }

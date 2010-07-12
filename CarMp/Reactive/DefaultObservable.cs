@@ -7,6 +7,7 @@ namespace CarMp.Reactive
 {
     public abstract class DefaultObservable<T> : IObservable<T>
     {
+        protected object _listLockObject = new object();
         public DefaultObservable()
         {
             _observerList = new List<IObserver<T>>();
@@ -14,9 +15,20 @@ namespace CarMp.Reactive
 
         protected List<IObserver<T>> _observerList;
 
+        protected virtual void PushToObservers(T pData)
+        {
+            IObserver<T>[] copyArray = new IObserver<T>[_observerList.Count];
+
+            _observerList.CopyTo(copyArray);
+            for (int i = 0;
+                i < copyArray.Length;
+                i++)
+                copyArray[i].OnNext(pData);
+        }
+
         public IDisposable Subscribe(IObserver<T> observer)
         {
-            lock (_observerList)
+            lock (_listLockObject)
             {
                 if (!_observerList.Contains(observer))
                     _observerList.Add(observer);

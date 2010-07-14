@@ -27,9 +27,9 @@ namespace CarMp.ViewControls
         private int m_bufferSize;
 
         // Position of list in view
-        private int m_listLocPx;
+        private float m_listLocPx;
 
-        internal int ListLocPx
+        internal float ListLocPx
         {
             get
             {

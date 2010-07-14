@@ -113,6 +113,7 @@
     <Compile Include="Reactive\Touch\TouchMove.cs" />
     <Compile Include="Reactive\Touch\TouchMoveObservable.cs" />
     <Compile Include="Reactive\Touch\TouchObservable.cs" />
+    <Compile Include="Reactive\Touch\VelocityAggregator.cs" />
     <Compile Include="Reactive\UnSubscriber.cs" />
     <Compile Include="SkinSettings.cs" />
     <Compile Include="Static\LinearMath.cs" />

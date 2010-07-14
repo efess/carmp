@@ -11,17 +11,15 @@ namespace CarMp.Reactive.Touch
     {
         //**** Mouse State Vars
 
-        private bool _isDown;
         private bool _isInSwipe;
         private PointF _downPoint;
         private DateTime _downTime;
         private PointF _previousPoint;
         private PointF _startHighVelocityPoint;
         private DateTime _previousPointTime;
-        
-        private int _moveVelocity;
+        private VelocityAggregator _velocity;
 
-        //****
+        private System.Threading.Timer _velocityTimer;
 
         //**** Feel Control Properties / Parameters
 
@@ -47,8 +45,11 @@ namespace CarMp.Reactive.Touch
             TouchSwipeDistanceThreshold = 50;
             TouchSwipeVelocityThreshold = 1000;
 
+            _velocity = new VelocityAggregator(3);
+
             CreateEventSubscriptions();
             ObservablTouchActions = new TouchObservables();
+            _velocityTimer = new System.Threading.Timer(new System.Threading.TimerCallback(ProcessVelocity));
         }
 
         public void CreateEventSubscriptions()
@@ -60,23 +61,18 @@ namespace CarMp.Reactive.Touch
 
         private void ProcessMouseUp(MouseEventArgs e)
         {
-            _isDown = false;
-
             // Check for Click
             if (TouchDownClickThreshold > (DateTime.Now - _downTime).TotalMilliseconds
                 && Math.Abs(_downPoint.Y - e.Y) < TouchDownClickDistanceTolerance)
             {
                 SendTouchGesture(new TouchGesture(GestureType.Click, e.Location));
                 return;
-            }
-            ProcessMouseMove(e);
-            
+            }            
         }
 
         private void ProcessMouseDown(MouseEventArgs e)
         {
             _isInSwipe = false;
-            _isDown = true;
             _downPoint = e.Location;
             _downTime = DateTime.Now;
         }
@@ -84,22 +80,31 @@ namespace CarMp.Reactive.Touch
         private void ProcessMouseMove(MouseEventArgs e)
         {
             DateTime dt = DateTime.Now;
+
             if (dt == _previousPointTime) return;
 
-            float velocity = LinearMath.DistanceBetweenTwoPoint(e.Location, _previousPoint)
+            bool mouseDown = e.Button == MouseButtons.Left;
+
+            _velocity.VelocityNow = LinearMath.DistanceBetweenTwoPoint(e.Location, _previousPoint)
                 / (float)((dt - _previousPointTime).TotalSeconds);
             
-            SendTouchMove(new TouchMove(e.Location, _isDown, velocity));
+            float velocityNow = _velocity.GetVelocity;
 
-            if (_isDown)
+            // WORKS FUCKING SWEET!
+            //... Except direction is fucked up. Spoke too soon...
+            //System.Diagnostics.Debug.WriteLine("MouseMove- velocity: " + velocityNow + "  now: " + e.X.ToString() + "," + e.Y.ToString() + " previous: " + _previousPoint.X.ToString() + "," + _previousPoint.Y.ToString() + " " + e.Button.ToString());
+
+            SendTouchMove(new TouchMove(e.Location, mouseDown, velocityNow));
+
+            if (mouseDown)
             {
                 // Check for swipe
-                if (!_isInSwipe && velocity > TouchSwipeVelocityThreshold)
+                if (!_isInSwipe && velocityNow > TouchSwipeVelocityThreshold)
                 {
                     _isInSwipe = true;
                     _startHighVelocityPoint = e.Location;
                 }
-                else if (_isInSwipe && velocity < TouchSwipeVelocityThreshold)
+                else if (_isInSwipe && velocityNow < TouchSwipeVelocityThreshold)
                     _isInSwipe = false;
                 else if (_isInSwipe)
                 {
@@ -142,6 +147,16 @@ namespace CarMp.Reactive.Touch
             _previousPointTime = dt;
             _previousPoint = e.Location;
         }
+
+        private void ProcessVelocity(object pStateObject)
+        {
+
+            ////////////////////////
+            // WHEN MOOUSE STOPS, VERY ABRUPTLY, Must maintain a decent velocity somehow?
+            //
+
+        }
+
 
         private void SendTouchGesture(TouchGesture pTouchGesture)
         {

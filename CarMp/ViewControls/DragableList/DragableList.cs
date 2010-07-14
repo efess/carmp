@@ -25,21 +25,22 @@ namespace CarMp.ViewControls
         public event SelectedItemChangedEventHandler SelectedItemChanged;
 
         // List vars
+        private int m_lastYDirection;
         
         // Height of each list item
-        private int m_listItemSize = 25;
+        private float m_listItemSize = 25;
 
         // Horizontal shift during list changes
-        private int m_listHShift_px;
+        private float m_listHShift_px;
 
         /// <summary>
         /// Current List scrollable height in pixles (ListCount - ViewAble) * ItemSize
         /// </summary>
-        private int m_currentListSize_px;
+        private float m_currentListSize_px;
         /// <summary>
         /// Next List scrollable height in pixles (ListCount - ViewAble) * ItemSize
         /// </summary>
-        private int m_nextListSize_px;
+        private float m_nextListSize_px;
 
         /// <summary>
         /// Number of items that can be visible
@@ -55,13 +56,13 @@ namespace CarMp.ViewControls
         /// Current displayed list
         /// </summary>
         private DragableListCollection m_listCurrentDisplay = new DragableListCollection(); // SHould base class these items
-        private int m_currentListLoc_px;
+        private float m_currentListLoc_px;
         
         /// <summary>
         /// Next list shown only during transition - reference is assigned to m_listContents immediately after
         /// </summary>
         private DragableListCollection m_listNextDisplay = new DragableListCollection();
-        private int m_nextListLoc_px;
+        private float m_nextListLoc_px;
 
         /// <summary>
         /// Collection of lists that can be navigated by this control
@@ -87,7 +88,7 @@ namespace CarMp.ViewControls
         private TouchMove _touchPreviousPoint;
 
         // Velocity Delegate
-        private VelocityStart m_velocityDelegate;
+        private Action<int,int> m_velocityDelegate;
         private bool m_velocityStop;
 
         public void ApplySkin(XmlNode pXmlNode, string pSkinPath)
@@ -126,7 +127,7 @@ namespace CarMp.ViewControls
                 m_currentListLoc_px = value.ListLocPx;
                 if (m_listCurrentDisplay.Count >= m_listDisplayCount)
                 {
-                    m_currentListSize_px = (m_listCurrentDisplay.Count * m_listItemSize) - Convert.ToInt32(this.Height);
+                    m_currentListSize_px = (m_listCurrentDisplay.Count * m_listItemSize) - this.Height;
                 }
                 else
                 {
@@ -160,7 +161,7 @@ namespace CarMp.ViewControls
         /// <summary>
         /// Vertical pixel offset of display list (0 - item.Height)
         /// </summary>
-        private int CurrentListLocVertOffset_px
+        private float CurrentListLocVertOffset_px
         {
             get
             {
@@ -171,7 +172,7 @@ namespace CarMp.ViewControls
         /// <summary>
         /// Vertical pixel offset of display list (0 - item.Height)
         /// </summary>
-        private int NextListLocVertOffset_px
+        private float NextListLocVertOffset_px
         {
             get
             {
@@ -182,7 +183,7 @@ namespace CarMp.ViewControls
         /// <summary>
         /// Returns Pixel location of top of display list
         /// </summary>
-        private int ListLoc_px
+        private float ListLoc_px
         {
             set
             {
@@ -211,7 +212,7 @@ namespace CarMp.ViewControls
         /// <summary>
         /// Returns current pixel size of whole list
         /// </summary>
-        private int ListSize_px
+        private float ListSize_px
         {
             get
             {
@@ -240,7 +241,7 @@ namespace CarMp.ViewControls
                 if (this.m_listCurrentDisplay.Count < m_listDisplayCount)
                     return 0;
                 else
-                    return m_currentListLoc_px / m_listItemSize;//(m_currentListLoc_px * (this.m_listCurrentDisplay.Count - CurrentListViewableItemCount)) / m_currentListSize_px;
+                    return Convert.ToInt32(Math.Floor(m_currentListLoc_px / m_listItemSize));//(m_currentListLoc_px * (this.m_listCurrentDisplay.Count - CurrentListViewableItemCount)) / m_currentListSize_px;
             }
         }
 
@@ -254,7 +255,7 @@ namespace CarMp.ViewControls
                 if (this.m_listNextDisplay.Count < m_listDisplayCount)
                     return 0;
                 else
-                    return (m_nextListLoc_px * (this.m_listNextDisplay.Count - NextListViewableItemCount)) / m_nextListSize_px;
+                    return Convert.ToInt32(Math.Floor((m_nextListLoc_px * (this.m_listNextDisplay.Count - NextListViewableItemCount)) / m_nextListSize_px));
             }
         }
 
@@ -290,12 +291,12 @@ namespace CarMp.ViewControls
         /// </summary>
         /// <param name="pPixel"></param>
         /// <returns></returns>
-        private int GetItemAtPx(int pPixel)
+        private int GetItemAtPx(float pPixel)
         {
             if (this.m_listCurrentDisplay.Count == 0)
                 return 0;
             else
-                return (pPixel * (this.m_listCurrentDisplay.Count)) / (m_listItemSize * CurrentList.Count);
+                return Convert.ToInt32(Math.Floor((pPixel * (this.m_listCurrentDisplay.Count)) / (m_listItemSize * CurrentList.Count)));
         }
 
         /// <summary>
@@ -335,7 +336,7 @@ namespace CarMp.ViewControls
         /// <param name="item"></param>
         public void InsertNextIntoCurrent(DragableListItem item)
         {
-            item.ClientSize = new Size(Convert.ToInt32(this.Width), m_listItemSize);
+            item.Bounds = new RectangleF(0, 0, this.Width, m_listItemSize);
 
             item.Index = this.m_listCurrentDisplay.Count;
 
@@ -364,7 +365,7 @@ namespace CarMp.ViewControls
                 throw new Exception("ListIndex is out of range - greater than next insertion");
             }
 
-            item.ClientSize = new Size(Convert.ToInt32(this.Width), m_listItemSize);
+            item.Bounds = new RectangleF(0, 0, this.Width, m_listItemSize);
             item.Index = this.m_listCurrentDisplay.Count;
 
             this.m_listCollection[pListIndex].Add(item);
@@ -583,18 +584,24 @@ namespace CarMp.ViewControls
 
         protected override void OnTouchMove(Reactive.Touch.TouchMove pTouchMove)
         {
+
             if (_touchPreviousPoint != null)
             {
+                int sign = Math.Sign(_touchPreviousPoint.Y - pTouchMove.Location.Y);
+                m_lastYDirection = sign != 0 ? sign : m_lastYDirection;
+
                 if (pTouchMove.TouchDown)
                 {
+                    m_velocityStop = true;
                     int delta = Convert.ToInt32(_touchPreviousPoint.Y - pTouchMove.Location.Y);
                     ShiftList(delta);
                 }
-                else
+                else if(_touchPreviousPoint.TouchDown)
                 {
                     if (pTouchMove.Velocity > m_mouseVelocityStartThreshold)
                     {
-                        StartVelocity(Convert.ToInt32(pTouchMove.Velocity));
+
+                        StartVelocity(Convert.ToInt32(pTouchMove.Velocity),m_lastYDirection);
                     }
                 }
             }
@@ -602,109 +609,27 @@ namespace CarMp.ViewControls
             _touchPreviousPoint = pTouchMove;
         }
 
-        protected override void OnMouseMove(MouseEventArgs e)
+
+        private void StartVelocity(int pVelocity, int pDirection)
         {
-            if (!this.m_mouseDown || m_ignoreMouseEvents)
-                return;
-            
-            e = FixMouseEventArgs(e);
-
-            int x = m_mouseDownLastMove.X - e.X;
-            int y = m_mouseDownLastMove.Y - e.Y;
-
-            if (Math.Abs(x) > Math.Abs(y))
-            {
-                m_mouseMoveVelocity = x;
-            }
-            else
-            {
-                m_mouseMoveVelocity = y;
-            }
-
-            this.ShiftList(this.m_mouseDownLastMove.Y - e.Y);
-            this.m_mouseDownLastMove = e.Location;
-
-            if (m_mouseListLock)
-                return;
-
-            if (Math.Abs(this.m_mouseDownLastMove.X - e.X) > 5 || Math.Abs(this.m_mouseDownLastMove.Y - e.Y) > 5)
-            {
-                m_mouseListLock = true;
-            }
+            m_velocityDelegate = (i, d) => Velocity(i, d);
+            m_velocityDelegate.BeginInvoke(pVelocity, pDirection, null, null);
         }
 
-        protected override void OnMouseUp(MouseEventArgs e)
+        private void Velocity(int pInitialVelocity, int pDirection)
         {
-            if (m_ignoreMouseEvents)
-                return;
-
-            e = FixMouseEventArgs(e);
-            this.m_mouseDown = false;
-
-            TimeSpan tempDownTimeSpan = (DateTime.Now - this.m_mouseDownTime);
-            int downTimeMs = (tempDownTimeSpan.Seconds * 1000) + tempDownTimeSpan.Milliseconds;
-
-            if (this.m_mouseDownTimeMsSelectTheshold > downTimeMs
-                && Math.Abs(m_mouseDownPoint.Y - e.Y) < m_mouseDownTimePxSelectThreashold)
-            {
-                SelectItem(e.X, e.Y);
-                return;
-            }
-
-            int horizontalMove =  m_mouseDownPoint.X - e.X;
-
-            // Check list change threshold
-            if (Math.Abs(horizontalMove) > m_mouseListChangeThreshold)
-            {
-                ChangeListHorizontalDistance(horizontalMove);
-                return;
-            }
-
-            // Check list move threshold
-            if (Math.Abs(m_mouseMoveVelocity) > m_mouseVelocityStartThreshold)
-            {
-                StartVelocity(m_mouseMoveVelocity);
-            }
-            
-            base.OnMouseUp(e);
-        }
-
-        protected override void OnMouseDown(MouseEventArgs e)
-        {
-            if (m_ignoreMouseEvents)
-                return;
-
-            e = FixMouseEventArgs(e);
-            this.m_mouseDown = true;
-            this.m_velocityStop = true;
-            this.m_mouseDownPoint = e.Location;
-            this.m_mouseDownLastMove = e.Location;
-            this.m_mouseMoveVelocity = 0;
-            
-            this.m_mouseDownTime = DateTime.Now;
-
-            base.OnMouseDown(e);
-        }
-
-        private void StartVelocity(int pVelocity)
-        {
-            m_velocityDelegate = (i) => Velocity(i);
-            m_velocityDelegate.BeginInvoke(pVelocity, null, null);
-        }
-
-        private void Velocity(int pInitialVelocity)
-        {
-            double velocityDecrease = (float)pInitialVelocity;
+            double iterationMs = 10;
+            double velocityDecrease = (float)pInitialVelocity / (1000 / iterationMs);
 
             // Coefficient of friction between metal & ice:
-            double friction = 0.02;
-            double zero = 1;
+            double friction = 0.015;
+            double zero = 0.1;
 
             m_velocityStop = false;
             while (Math.Abs(velocityDecrease) > zero && !m_velocityStop)
             {
                 velocityDecrease = velocityDecrease - (friction * velocityDecrease);
-                ShiftList((int)velocityDecrease);
+                ShiftList((int)(velocityDecrease * pDirection));
 
                 Thread.Sleep(10);
             }
@@ -717,6 +642,7 @@ namespace CarMp.ViewControls
 
             NextList = m_listCollection[pNewIndex];
             double j = 1;
+
             // fast switch
             for (; Math.Abs(m_listHShift_px) < this.Width; )
             {
@@ -742,7 +668,7 @@ namespace CarMp.ViewControls
 
         public override void OnSizeChanged(object sender, EventArgs e)
         {
-            this.m_listDisplayCount = Convert.ToInt32(this.Size.Height) / m_listItemSize + 1;
+            this.m_listDisplayCount = Convert.ToInt32(this.Size.Height / m_listItemSize + 1);
         }
     }
 
@@ -786,3 +712,89 @@ namespace CarMp.ViewControls
         }
     }
 }
+
+
+
+        //protected override void OnMouseMove(MouseEventArgs e)
+        //{
+        //    if (!this.m_mouseDown || m_ignoreMouseEvents)
+        //        return;
+            
+        //    e = FixMouseEventArgs(e);
+
+        //    int x = m_mouseDownLastMove.X - e.X;
+        //    int y = m_mouseDownLastMove.Y - e.Y;
+
+        //    if (Math.Abs(x) > Math.Abs(y))
+        //    {
+        //        m_mouseMoveVelocity = x;
+        //    }
+        //    else
+        //    {
+        //        m_mouseMoveVelocity = y;
+        //    }
+
+        //    this.ShiftList(this.m_mouseDownLastMove.Y - e.Y);
+        //    this.m_mouseDownLastMove = e.Location;
+
+        //    if (m_mouseListLock)
+        //        return;
+
+        //    if (Math.Abs(this.m_mouseDownLastMove.X - e.X) > 5 || Math.Abs(this.m_mouseDownLastMove.Y - e.Y) > 5)
+        //    {
+        //        m_mouseListLock = true;
+        //    }
+        //}
+
+        //protected override void OnMouseUp(MouseEventArgs e)
+        //{
+        //    if (m_ignoreMouseEvents)
+        //        return;
+
+        //    e = FixMouseEventArgs(e);
+        //    this.m_mouseDown = false;
+
+        //    TimeSpan tempDownTimeSpan = (DateTime.Now - this.m_mouseDownTime);
+        //    int downTimeMs = (tempDownTimeSpan.Seconds * 1000) + tempDownTimeSpan.Milliseconds;
+
+        //    if (this.m_mouseDownTimeMsSelectTheshold > downTimeMs
+        //        && Math.Abs(m_mouseDownPoint.Y - e.Y) < m_mouseDownTimePxSelectThreashold)
+        //    {
+        //        SelectItem(e.X, e.Y);
+        //        return;
+        //    }
+
+        //    int horizontalMove =  m_mouseDownPoint.X - e.X;
+
+        //    // Check list change threshold
+        //    if (Math.Abs(horizontalMove) > m_mouseListChangeThreshold)
+        //    {
+        //        ChangeListHorizontalDistance(horizontalMove);
+        //        return;
+        //    }
+
+        //    // Check list move threshold
+        //    if (Math.Abs(m_mouseMoveVelocity) > m_mouseVelocityStartThreshold)
+        //    {
+        //        StartVelocity(m_mouseMoveVelocity);
+        //    }
+            
+        //    base.OnMouseUp(e);
+        //}
+
+        //protected override void OnMouseDown(MouseEventArgs e)
+        //{
+        //    if (m_ignoreMouseEvents)
+        //        return;
+
+        //    e = FixMouseEventArgs(e);
+        //    this.m_mouseDown = true;
+        //    this.m_velocityStop = true;
+        //    this.m_mouseDownPoint = e.Location;
+        //    this.m_mouseDownLastMove = e.Location;
+        //    this.m_mouseMoveVelocity = 0;
+            
+        //    this.m_mouseDownTime = DateTime.Now;
+
+        //    base.OnMouseDown(e);
+        //}

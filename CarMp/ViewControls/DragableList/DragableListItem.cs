@@ -30,7 +30,7 @@ namespace CarMp.ViewControls
         private Size m_size;
 
         // Rectangle used to create selection square
-        private Rectangle m_selectionRectangle;
+        private RectangleF m_selectionRectangle;
 
         // Constructors
 
@@ -38,23 +38,16 @@ namespace CarMp.ViewControls
         {
         }
 
-        // Accessors
-        public Size ClientSize
+        public override void OnSizeChanged(object sender, EventArgs e)
         {
-            get
-            {
-                return m_size;
-            }
-            set
-            {
-                m_size = value;
-                m_selectionRectangle = new Rectangle(
-                    SELECTION_BORDER_PADDING,
-                    SELECTION_BORDER_PADDING,
-                    value.Width - (SELECTION_BORDER_PADDING * 2),
-                    value.Height - (SELECTION_BORDER_PADDING * 2)
-                    );
-            }
+            base.OnSizeChanged(sender, e);
+
+            m_selectionRectangle = new RectangleF(
+                SELECTION_BORDER_PADDING,
+                SELECTION_BORDER_PADDING,
+                Width - (SELECTION_BORDER_PADDING * 2),
+                Height - (SELECTION_BORDER_PADDING * 2)
+                );
         }
 
         internal Boolean Buffered
@@ -116,13 +109,6 @@ namespace CarMp.ViewControls
             base.SendTouch(pTouch);
         }
         
-        internal virtual void DrawSelection(Graphics pCanvas)
-        {
-            Pen SelectionPen = new Pen(Color.FromArgb(255, Color.Blue));
-            pCanvas.DrawRectangle(SelectionPen, m_selectionRectangle);
-            SelectionPen.Dispose();
-        }
-        
         /// <summary>
         /// Override this
         /// </summary>
@@ -152,13 +138,8 @@ namespace CarMp.ViewControls
                                 EndPoint = new PointF(0, _bounds.Height)
                             }
                         );
-                ////
-                //// GOTTA IMPLEMENT ONRENDER here so the child list items can
-                //// have its bounds corrected by the parent!
-                ////
-                //// DrawItem is *old*!!x
 
-                pRenderer.DrawRectangle(SelectionGradient, _bounds, 2F);
+                pRenderer.DrawRectangle(SelectionGradient, m_selectionRectangle, 2F);
             }
         }
 

@@ -5,6 +5,7 @@ using System.Text;
 using CarMp.ViewControls;
 using System.Xml;
 using System.Runtime.Remoting.Messaging;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace CarMp.Views
 {
@@ -19,11 +20,11 @@ namespace CarMp.Views
         private const string XPATH_MEDIALIST = "MediaList";
         private const string XPATH_SHORTCUT_LIST = "ShortcutList";
 
-        internal MediaView(System.Drawing.Size pWindowSize)
+        internal MediaView(SizeF pWindowSize)
             : base(pWindowSize)
         {
             MediaList = new DragableList();
-            MediaList.Bounds = new System.Drawing.RectangleF(20, 40, this.Width - 80, this.Height - 120);
+            MediaList.Bounds = new RectF(20, 40, this.Width - 80, this.Height - 120);
             MediaList.SelectedItemChanged += new DragableList.SelectedItemChangedEventHandler(MediaList_SelectedItemChanged);
 
             AppMain.MediaManager.ListChangeRequest += (sender, e) =>

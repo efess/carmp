@@ -6,11 +6,8 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-
-
-using SlimDX;
-using SlimDX.Direct2D;
-using SlimDX.Windows;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using Microsoft.WindowsAPICodePack.DirectX;
 
 namespace CarMp.ViewControls
 {
@@ -18,7 +15,7 @@ namespace CarMp.ViewControls
     {
         private const int SELECTION_BORDER_PADDING = 1;
 
-        private SlimDX.Direct2D.LinearGradientBrush SelectionGradient;
+        private LinearGradientBrush SelectionGradient;
 
         // Private members
         private int m_index;
@@ -30,7 +27,7 @@ namespace CarMp.ViewControls
         private Size m_size;
 
         // Rectangle used to create selection square
-        private RectangleF m_selectionRectangle;
+        private RectF m_selectionRectangle;
 
         // Constructors
 
@@ -42,7 +39,7 @@ namespace CarMp.ViewControls
         {
             base.OnSizeChanged(sender, e);
 
-            m_selectionRectangle = new RectangleF(
+            m_selectionRectangle = new RectF(
                 SELECTION_BORDER_PADDING,
                 SELECTION_BORDER_PADDING,
                 Width - (SELECTION_BORDER_PADDING * 2),
@@ -113,31 +110,33 @@ namespace CarMp.ViewControls
         /// Override this
         /// </summary>
         /// <param name="pCanvas"></param>
-        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderer) 
+        protected override void OnRender(CarMp.Direct2D.RenderTargetWrapper pRenderer) 
         {
             if (m_selected)
             {
                 if (SelectionGradient == null)
-                    SelectionGradient = new SlimDX.Direct2D.LinearGradientBrush(pRenderer.Renderer,
-                        new GradientStopCollection(pRenderer.Renderer, new GradientStop[] {
-                        new GradientStop
-                            {
-                                Color = Color.Gray,
-                                Position = 0
-                            }
-                            ,
-                        new GradientStop
-                            {
-                                Color = Color.Blue,
-                                Position = 1
-                            }
-                        }),
+                    SelectionGradient = pRenderer.Renderer.CreateLinearGradientBrush(
                             new LinearGradientBrushProperties()
                             {
-                                StartPoint = new PointF(0, 0),
-                                EndPoint = new PointF(0, _bounds.Height)
-                            }
-                        );
+                                StartPoint = new Point2F(0, 0),
+                                EndPoint = new Point2F(0, _bounds.Height)
+                            },
+                            pRenderer.Renderer.CreateGradientStopCollection(new GradientStop[] {
+                                new GradientStop
+                                    {
+                                        Color = new ColorF(Colors.Gray, 1),
+                                        Position = 0
+                                    }
+                                    ,
+                                new GradientStop
+                                    {
+                                        Color = new ColorF(Colors.Blue, 1),
+                                        Position = 1
+                                    }
+                                },
+                                Gamma.Gamma_10,
+                                ExtendMode.Clamp
+                        ));
 
                 pRenderer.DrawRectangle(SelectionGradient, m_selectionRectangle, 2F);
             }

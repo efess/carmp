@@ -23,6 +23,8 @@ namespace CarMp
 
         public MediaState CurrentState { get; private set; }
 
+        private int _currnetSongLength;
+        private int _lastSongPosition;
         private Timer _progressTimer;
         private bool _timerHit;
         private Dictionary<int, NHibernate.ISession> _DataSessions;
@@ -70,6 +72,32 @@ namespace CarMp
                 TIMER_DEFAULT_INTERVAL
             );
         }
+
+        private void ProcessSongPosition()
+        {
+            if(_currnetSongLength <= 0)
+                _currnetSongLength = GetSongLength();
+
+            int songPosition = GetCurrentPosition();
+
+            if (CurrentState == MediaState.Playing
+                && (songPosition >= _currnetSongLength
+                || songPosition <= 0))
+            {
+                MediaNext();
+
+                // Sleep, give mediacontroller time to do its thing.
+                Thread.Sleep(100);
+
+                songPosition = GetCurrentPosition();
+                _currnetSongLength = GetSongLength();
+            }
+
+            _lastSongPosition = songPosition;
+
+            OnMediaProgressChanged(songPosition);
+        }
+
         public void SetList(int pListIndex)
         {
             OnListChangeRequest(pListIndex);
@@ -191,9 +219,10 @@ namespace CarMp
         {
             if(_currentPlayingItem != null)
             {
-                CurrentState = MediaState.Playing;
                 _audioController.StartPlayback();
                 _progressTimer.Change(0, TIMER_DEFAULT_INTERVAL);
+
+                CurrentState = MediaState.Playing;
             }
         }
 
@@ -207,6 +236,12 @@ namespace CarMp
 
         public void PlayMediaListItem(MediaListItem pListItem)
         {
+            PlayMediaListItemInternal(pListItem);
+            SetPlayList();
+        }
+
+        private void PlayMediaListItemInternal(MediaListItem pListItem)
+        {
             _currentPlayingItem = pListItem;
             if (pListItem is FileSystemItem)
             {
@@ -218,7 +253,6 @@ namespace CarMp
                 var mediaItem = pListItem as DigitalMediaItem;
                 PlayFromMediaLibrary(mediaItem.TargetId);
             }
-            SetPlayList();
         }
 
         private void PlayFromFile(string pPath)
@@ -265,9 +299,9 @@ namespace CarMp
         /// <param name="pLibraryId"></param>
         private void StartPlayback(string pFullPath)
         {
-            CurrentState = MediaState.Playing;
             _audioController.PlayFile(pFullPath);
             _progressTimer.Change(0, TIMER_DEFAULT_INTERVAL);
+            CurrentState = MediaState.Playing;
         }
 
         public int GetCurrentPosition()
@@ -338,9 +372,9 @@ namespace CarMp
 
             int i = _currentPlayList.IndexOf(_currentPlayingItem);
             if (i < _currentPlayList.Count - 1)
-                PlayMediaListItem(_currentPlayList[i + 1]);
+                PlayMediaListItemInternal(_currentPlayList[i + 1]);
             else
-                PlayMediaListItem(_currentPlayList[0]);
+                PlayMediaListItemInternal(_currentPlayList[0]);
         }
 
 
@@ -350,9 +384,9 @@ namespace CarMp
 
             int i = _currentPlayList.IndexOf(_currentPlayingItem);
             if (i > 0)
-                PlayMediaListItem(_currentPlayList[i - 1]);
+                PlayMediaListItemInternal(_currentPlayList[i - 1]);
             else
-                PlayMediaListItem(_currentPlayList[_currentPlayList.Count - 1]);
+                PlayMediaListItemInternal(_currentPlayList[_currentPlayList.Count - 1]);
         }
 
         public List<MediaListItem> GetNewList(MediaListItem pGroupItem)
@@ -414,7 +448,8 @@ namespace CarMp
             if (_audioController != null)
             {
                 _timerHit = true;
-                OnMediaProgressChanged(GetCurrentPosition());
+                ProcessSongPosition();
+                
                 Thread.Sleep(700);
 
                 _timerHit = false;

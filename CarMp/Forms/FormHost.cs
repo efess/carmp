@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using CarMp.Views;
-using SlimDX.Direct2D;
 using System.Threading;
 using CarMp.ViewControls;
 using System.Xml;
 using CarMp.Reactive.Touch;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using Microsoft.WindowsAPICodePack.DirectX;
 
 namespace CarMp.Forms
 {
@@ -22,7 +22,7 @@ namespace CarMp.Forms
         private DateTime _fpsCalcDate;
         private long _fpsCalcFramesTotal;
         private long _fpsCalcFramesCurrent;
-
+        private Text _fpsControl;
         private D2DViewControl _mouseDownViewControl;
 
         private List<D2DViewControl> _overlayViewControls;
@@ -32,10 +32,19 @@ namespace CarMp.Forms
         private D2DView _currentView;
 
         private D2DViewFactory _viewFactory;
-        private FormDebug _debugForm;
 
         private Direct2D.RenderTargetWrapper _renderTarget;
 
+        RenderTargetProperties _renderProps = new RenderTargetProperties
+        {
+            PixelFormat = new PixelFormat(
+                Microsoft.WindowsAPICodePack.DirectX.DXGI.Format.B8G8R8A8_UNORM,
+                AlphaMode.Ignore),
+            Usage = RenderTargetUsage.None,
+            Type = RenderTargetType.Default // Software type is required to allow resource 
+            // sharing between hardware (HwndRenderTarget) 
+            // and software (WIC Bitmap render Target).
+        };
         public FormHost()
         {
             // Initialize & set Touch Observable
@@ -45,10 +54,6 @@ namespace CarMp.Forms
             //D2DViewControl.SetTouchObservables(_mouseEventProcessor.ObservablTouchActions);
 
             _viewChanging = new ManualResetEvent(false);
-            if (SessionSettings.Debug)
-            {
-                OpenDebugForm();
-            }   
             
             _fpsCalcFramesTotal = 0;
             _fpsCalcDate = DateTime.Now;
@@ -57,13 +62,13 @@ namespace CarMp.Forms
                 ControlStyles.AllPaintingInWmPaint |
                 ControlStyles.UserPaint, true);
 
-            _renderTarget = new Direct2D.RenderTargetWrapper(new WindowRenderTarget(new Factory(), new WindowRenderTargetProperties()
-            {
-                Handle = this.Handle,
-                PixelSize = this.ClientSize
-            }));
+            _renderTarget = new Direct2D.RenderTargetWrapper(
+                Direct2D.D2DFactory.CreateHwndRenderTarget(
+                _renderProps,
+                new HwndRenderTargetProperties(this.Handle, new SizeU(Convert.ToUInt32(ClientSize.Width), Convert.ToUInt32(ClientSize.Height)), PresentOptions.Immediately)));
+            
 
-            this.ClientSizeChanged += (o, e) => { _renderTarget.Resize(this.ClientSize); };
+            this.ClientSizeChanged += (o, e) => { _renderTarget.Resize(new SizeU(Convert.ToUInt32(ClientSize.Width), Convert.ToUInt32(ClientSize.Height))); };
             
             InitializeComponent();
 
@@ -71,7 +76,7 @@ namespace CarMp.Forms
             this.Location = SessionSettings.WindowLocation;
 
             _overlayViewControls = new List<D2DViewControl>();
-            _viewFactory = new D2DViewFactory(this.Size);
+            _viewFactory = new D2DViewFactory(new SizeF(ClientSize.Width, ClientSize.Height));
             _loadedViews = new Dictionary<string, D2DView>();
 
             InitializeOverlayControls();
@@ -108,6 +113,10 @@ namespace CarMp.Forms
             XmlNode infoBarNode = SessionSettings.CurrentSkin.GetOverlayNodeSkin("MediaInfoBar");
             XmlNode controlBarNode = SessionSettings.CurrentSkin.GetOverlayNodeSkin("MediaControlBar");
 
+            _fpsControl = new ViewControls.Text();
+            _fpsControl.Bounds = new RectF(this.Width - 40, 0, this.Width, 40);
+            _overlayViewControls.Add(_fpsControl);
+
             if (controlBarNode != null)
             {
                 controlBar = new MediaControlBar();
@@ -125,7 +134,7 @@ namespace CarMp.Forms
             }
 
             GraphicalButton toggleAnimation = new GraphicalButton();
-            toggleAnimation.Bounds = new RectangleF(450, 30, 64, 64);
+            toggleAnimation.Bounds = new RectF(450, 30, 514, 94);
             toggleAnimation.SetButtonUpBitmapData(@"C:\source\CarMp\trunk\Images\Skins\BMW\Box.bmp");
             int i = 0;
 
@@ -139,6 +148,7 @@ namespace CarMp.Forms
                         i = -1 ;
                     else i = 1;
                 };
+            _fpsControl.StartRender();
 
             toggleAnimation.StartRender();
             _overlayViewControls.Add(toggleAnimation);
@@ -199,23 +209,6 @@ namespace CarMp.Forms
             }
         }
 
-        private void OpenDebugForm()
-        {
-            _debugForm = new FormDebug();
-            
-            DebugHandler.De += new DebugHandler.DebugException(ex => _debugForm.WriteException(ex));
-            DebugHandler.Ds += new DebugHandler.DebugString(str => _debugForm.WriteText(str));
-
-            _debugForm.Location =
-                new Point(
-                    Screen.PrimaryScreen.Bounds.Width - _debugForm.Width - 20,
-                    Screen.PrimaryScreen.Bounds.Height - _debugForm.Height - 40
-                    );
-
-            _debugForm.StartPosition = FormStartPosition.Manual;
-            _debugForm.Show();
-        }
-
         // OnPaint implmentation
         //protected override void OnPaint(PaintEventArgs e)
         //{
@@ -225,6 +218,7 @@ namespace CarMp.Forms
 
         private void RenderingLoop()
         {
+            System.Threading.Thread.CurrentThread.Name = "Rendering Loop";
             while (true)
             {
                 _viewChanging.WaitOne();
@@ -235,12 +229,12 @@ namespace CarMp.Forms
                 _fpsCalcFramesTotal++;
                 if ( DateTime.Now.AddSeconds(-1) > _fpsCalcDate)
                 {
-                    DebugHandler.DebugPrint("CurrentFPS: " + (_fpsCalcFramesTotal - _fpsCalcFramesCurrent).ToString());
+                    _fpsControl.TextString = (_fpsCalcFramesTotal - _fpsCalcFramesCurrent).ToString(); ;
                     _fpsCalcFramesCurrent = _fpsCalcFramesTotal;
                     _fpsCalcDate = DateTime.Now;
                 }
 
-                System.Threading.Thread.Sleep(10);
+                System.Threading.Thread.Sleep(5);
             }
         }
 
@@ -249,8 +243,8 @@ namespace CarMp.Forms
              if (!_renderTarget.IsOccluded)
              {
                  _renderTarget.BeginDraw();
-                 _renderTarget.Transform = Matrix3x2.Identity;
-                 _renderTarget.Clear(Color.Black);
+                 _renderTarget.Transform = Matrix3x2F.Identity;
+                 _renderTarget.Clear(new ColorF(Colors.Black, 1f));
 
                  _currentView.Render(_renderTarget);
                  

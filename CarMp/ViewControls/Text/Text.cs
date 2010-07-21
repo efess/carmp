@@ -3,17 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using Microsoft.WindowsAPICodePack.DirectX;
 
 namespace CarMp.ViewControls
 {
     public class Text : D2DViewControl, ISkinable
     {
         private const string XPATH_BOUNDS = "Bounds";
-        
-        private SlimDX.DirectWrite.TextLayout StringLayout = null;
-        private SlimDX.Direct2D.SolidColorBrush ColorBrush = null;
+        private const string XPATH_BACKGROUND = "BackgroundImg";
+        private const string XPATH_TEXT_POSITION = "TextPosition";
 
-        private SlimDX.DirectWrite.TextFormat StringDrawFormat = null;
+        private D2DBitmap Background;
+        private Point2F _textPosition = new Point2F(0, 0);
+        private Direct2D.BitmapData _background;
+        private TextLayout StringLayout = null;
+        private SolidColorBrush ColorBrush = null;
+
+        private TextFormat StringDrawFormat = null;
         
         public Text()
         {
@@ -21,8 +29,11 @@ namespace CarMp.ViewControls
         }
 
         public void ApplySkin(XmlNode pSkinNode, string pSkinPath)
-        {
+        { 
+            _textPosition = new Point2F(0, 0);
+            SkinningHelper.XmlPointFEntry(XPATH_TEXT_POSITION, pSkinNode,ref _textPosition);
             SkinningHelper.XmlRectangleFEntry(XPATH_BOUNDS, pSkinNode, ref _bounds);
+            SkinningHelper.XmlBitmapEntry(XPATH_BACKGROUND, pSkinNode, pSkinPath, ref _background);
         }
 
         private string _textString;
@@ -38,27 +49,37 @@ namespace CarMp.ViewControls
         
         protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
         {
+            if (Background == null
+                && _background.Data != null)
+            {
+                Background = Direct2D.GetBitmap(_background, pRenderTarget.Renderer);
+            }
+
+            if (Background != null)
+                pRenderTarget.DrawBitmap(Background, new RectF(0, 0, Bounds.Width, Bounds.Height));
+
             if (_textString == null) return;
+
             if (StringDrawFormat == null)
-                StringDrawFormat = new SlimDX.DirectWrite.TextFormat(
-                    Direct2D.StringFactory,
+            {
+                StringDrawFormat = Direct2D.StringFactory.CreateTextFormat(
                     "Arial",
-                    SlimDX.DirectWrite.FontWeight.Normal,
-                    SlimDX.DirectWrite.FontStyle.Normal,
-                    SlimDX.DirectWrite.FontStretch.Normal,
                     20F,
-                    "en-us")
-                    {
-                        TextAlignment = SlimDX.DirectWrite.TextAlignment.Leading,
-                        WordWrapping = SlimDX.DirectWrite.WordWrapping.NoWrap
-                    };
+                    FontWeight.Normal,
+                    FontStyle.Normal,
+                    FontStretch.Normal,
+                    new System.Globalization.CultureInfo("en-us"));
+
+                StringDrawFormat.TextAlignment = TextAlignment.Leading;
+                StringDrawFormat.WordWrapping = WordWrapping.NoWrap;
+            }
 
             if (StringLayout == null)
-                StringLayout = new SlimDX.DirectWrite.TextLayout(Direct2D.StringFactory, _textString, StringDrawFormat, Bounds.Width, Bounds.Height);
+                StringLayout = Direct2D.StringFactory.CreateTextLayout(_textString, StringDrawFormat, Bounds.Width, Bounds.Height);
 
             if (ColorBrush == null)
-                ColorBrush = new SlimDX.Direct2D.SolidColorBrush(pRenderTarget.Renderer, System.Drawing.Color.NavajoWhite);
-            pRenderTarget.DrawTextLayout(new System.Drawing.PointF(0,0), StringLayout, ColorBrush);
+                ColorBrush = pRenderTarget.Renderer.CreateSolidColorBrush(new ColorF(Colors.WhiteSmoke, 1f));
+            pRenderTarget.DrawTextLayout(_textPosition, StringLayout, ColorBrush);
         }
     }
 }

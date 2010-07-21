@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Drawing;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace CarMp
 {
     public static class LinearMath
     {
 
-        public static float DistanceBetweenTwoPoint(PointF pPoint1, PointF pPoint2)
+        public static float DistanceBetweenTwoPoint(Point2F pPoint1, Point2F pPoint2)
         {
             return (float)Math.Sqrt(
                 Math.Pow(pPoint2.X - pPoint1.X, 2) +
@@ -17,7 +18,7 @@ namespace CarMp
                 );
         }
 
-        public static float SlopeOfTwoPoints(PointF pPoint1, PointF pPoint2)
+        public static float SlopeOfTwoPoints(Point2F pPoint1, Point2F pPoint2)
         {
             float slope = 1;
             if (pPoint1.X != pPoint2.X)
@@ -25,7 +26,7 @@ namespace CarMp
                 slope = (pPoint2.Y - pPoint1.Y) /
                  (pPoint2.X - pPoint1.X);
             }
-            else if (pPoint2.Y < pPoint2.Y)
+            else if (pPoint1.Y < pPoint2.Y)
                 slope = -1;
 
             return slope;
@@ -34,7 +35,7 @@ namespace CarMp
         /// <summary>
         /// Finds angle of Slope in Radians
         /// </summary>
-        public static float AngleOfTwoPoints(PointF pPoint1, PointF pPoint2)
+        public static float AngleOfTwoPoints(Point2F pPoint1, Point2F pPoint2)
         {
             float slope = 0;
             if (pPoint1.X != pPoint2.X)

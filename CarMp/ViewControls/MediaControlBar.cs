@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace CarMp.ViewControls
 {
@@ -13,6 +14,7 @@ namespace CarMp.ViewControls
         private const string XPATH_PROGRESS_BAR = "ThermometerProgressBar";
         private const string XPATH_ANIMATION_POINT = "AnimationPath/*";
         private const string XPATH_BACKGROUND_IMAGE = "BackgroundImg";
+        private const string XPATH_TEXT = "Text";
 
         private const string XPATH_NODE_PLAY = "Play";
         private const string XPATH_NODE_STOP = "Stop";
@@ -22,7 +24,7 @@ namespace CarMp.ViewControls
 
         private ThermometerProgressBar _progressBar;
         private Direct2D.BitmapData _backgroundBitmapData;
-        private SlimDX.Direct2D.Bitmap _backgroundImage = null;
+        private D2DBitmap _backgroundImage = null;
 
         public void ApplySkin(XmlNode pSkinViewNode, string pSkinPath)
         {
@@ -41,6 +43,22 @@ namespace CarMp.ViewControls
                     System.IO.Path.Combine(pSkinPath, node.InnerText));
             }
 
+            node = pSkinViewNode.SelectSingleNode(XPATH_TEXT);
+            if (node != null)
+            {
+                Text text = new Text();
+                text.ApplySkin(node, pSkinPath);
+                AppMain.MediaManager.MediaProgressChanged += new MediaProgressChangedHandler(
+                    (sender, eventArgs) =>
+                    {
+                        text.TextString = ((eventArgs.MediaPosition / 1000) / 60) 
+                            + ":" 
+                            + ((eventArgs.MediaPosition / 1000) % 60).ToString().PadLeft(2,'0');
+                    });
+                text.StartRender();
+                AddViewControl(text);
+            }
+
             node = pSkinViewNode.SelectSingleNode(XPATH_PROGRESS_BAR);
             if (node != null)
             {
@@ -48,7 +66,7 @@ namespace CarMp.ViewControls
                 _progressBar.ApplySkin(node, pSkinPath);
                 _progressBar.ScrollChanged += (sender, e) =>
                 {
-                    AppMain.MediaManager.SetCurrentPos(_progressBar.Value);
+                    AppMain.MediaManager.SetCurrentPos(Convert.ToInt32(_progressBar.Value));
                 };
 
                 AppMain.MediaManager.MediaProgressChanged += new MediaProgressChangedHandler(
@@ -122,7 +140,7 @@ namespace CarMp.ViewControls
             }
             if (_backgroundImage != null)
             {
-                pRenderTarget.DrawBitmap(_backgroundImage, new System.Drawing.RectangleF(0, 0, _backgroundBitmapData.Width, _backgroundBitmapData.Height));
+                pRenderTarget.DrawBitmap(_backgroundImage, new RectF(0, 0, _backgroundBitmapData.Width, _backgroundBitmapData.Height));
             }
         }
     }

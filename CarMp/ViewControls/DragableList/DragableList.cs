@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Xml;
 using CarMp.Reactive.Touch;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 
 namespace CarMp.ViewControls
@@ -336,7 +337,7 @@ namespace CarMp.ViewControls
         /// <param name="item"></param>
         public void InsertNextIntoCurrent(DragableListItem item)
         {
-            item.Bounds = new RectangleF(0, 0, this.Width, m_listItemSize);
+            item.Bounds = new RectF(0, 0, this.Width, m_listItemSize);
 
             item.Index = this.m_listCurrentDisplay.Count;
 
@@ -365,7 +366,7 @@ namespace CarMp.ViewControls
                 throw new Exception("ListIndex is out of range - greater than next insertion");
             }
 
-            item.Bounds = new RectangleF(0, 0, this.Width, m_listItemSize);
+            item.Bounds = new RectF(0, 0, this.Width, m_listItemSize);
             item.Index = this.m_listCurrentDisplay.Count;
 
             this.m_listCollection[pListIndex].Add(item);
@@ -521,6 +522,11 @@ namespace CarMp.ViewControls
                 pEventArgs.Y - Convert.ToInt32(Y),
                 pEventArgs.Delta);
         }
+
+
+        private void DirtyView()
+        {
+        }
         // Overrided Events
 
         protected override void PreRender()
@@ -531,11 +537,13 @@ namespace CarMp.ViewControls
             {
                 if (this.CurrentListItemViewIndexZero + i < m_listCurrentDisplay.Count)
                 {
-                    RectangleF currentRect = new RectangleF(
+                    float yShift = (m_listItemSize * i) - CurrentListLocVertOffset_px;
+                    RectF currentRect = new RectF(
                         m_listHShift_px, 
-                        (m_listItemSize * i) - CurrentListLocVertOffset_px,
-                        this.Width,
-                        m_listItemSize);
+                        yShift,
+                        this.Width + m_listHShift_px,
+                        m_listItemSize + yShift);
+
                     D2DViewControl control = this.m_listCurrentDisplay[this.CurrentListItemViewIndexZero + i];
                     control.StartRender();
                     control.Bounds = currentRect;
@@ -546,12 +554,15 @@ namespace CarMp.ViewControls
 
                 if (m_listHShift_px != 0 && i < m_listNextDisplay.Count)
                 {
+                    float yShift = ((m_listItemSize * i) - NextListLocVertOffset_px);
+                    float xShift = m_listHShift_px - (this.Width * Math.Sign(m_listHShift_px));
 
-                    RectangleF nextRect = new RectangleF(
-                        m_listHShift_px - (this.Width * Math.Sign(m_listHShift_px)), 
-                        ((m_listItemSize * i) - NextListLocVertOffset_px),
-                        this.Width,
-                        m_listItemSize);
+                    RectF nextRect = new RectF(
+                        xShift,
+                        yShift,
+                        this.Width + xShift,
+                        m_listItemSize + yShift);
+
                     D2DViewControl control = this.m_listNextDisplay[this.NextListItemViewIndexZero + i];
                     control.StartRender();
                     control.Bounds = nextRect;
@@ -581,10 +592,8 @@ namespace CarMp.ViewControls
             }
         }
 
-
         protected override void OnTouchMove(Reactive.Touch.TouchMove pTouchMove)
         {
-
             if (_touchPreviousPoint != null)
             {
                 int sign = Math.Sign(_touchPreviousPoint.Y - pTouchMove.Location.Y);
@@ -600,7 +609,6 @@ namespace CarMp.ViewControls
                 {
                     if (pTouchMove.Velocity > m_mouseVelocityStartThreshold)
                     {
-
                         StartVelocity(Convert.ToInt32(pTouchMove.Velocity),m_lastYDirection);
                     }
                 }
@@ -612,7 +620,11 @@ namespace CarMp.ViewControls
 
         private void StartVelocity(int pVelocity, int pDirection)
         {
-            m_velocityDelegate = (i, d) => Velocity(i, d);
+            m_velocityDelegate = (i, d) =>
+            {
+                Velocity(i, d);
+                System.Threading.Thread.CurrentThread.Name = "Velocity";
+            };
             m_velocityDelegate.BeginInvoke(pVelocity, pDirection, null, null);
         }
 
@@ -639,6 +651,7 @@ namespace CarMp.ViewControls
         {
             int directionSign = pDirection == DragableListSwitchDirection.Back ? -1 : 1;
             m_ignoreMouseEvents = true;
+            _touchPreviousPoint = null;
 
             NextList = m_listCollection[pNewIndex];
             double j = 1;

@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Drawing;
 using System.Windows.Forms;
 using CarMp.Views;
 using CarMp.Reactive.Touch;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace CarMp.ViewControls
 {
@@ -16,8 +16,6 @@ namespace CarMp.ViewControls
 
         protected D2DViewControl _mouseDownControl;
         private List<D2DViewControl> _viewControls;
-
-//        private static TouchObservables _touchObs;
 
         private bool _renderOk = false;
         public void StartRender()
@@ -31,48 +29,7 @@ namespace CarMp.ViewControls
             OnRenderStop();
         }
 
-        //internal static void SetTouchObservables(TouchObservables pTouchObs)
-        //{
-        //    _touchObs = pTouchObs;
-        //}
-
-        //public virtual void SuscribeTouchMove(Action<TouchMove> pTouchMoveAction)
-        //{
-        //    InternalSubscribeTouchMove(pTouchMoveAction);
-        //}
-
-        //public virtual void SuscribeTouchGesture(Action<TouchGesture> pTouchGestureAction)
-        //{
-        //    InternalSubscribeTouchGesture(pTouchGestureAction);
-        //}
-
-        //private void InternalSubscribeTouchMove(Action<TouchMove> pTouchMoveAction)
-        //{
-        //    _touchObs.ObsTouchMove.Where<TouchMove>(tm =>
-        //        {
-        //            return _visible && GetScreenBounds().Contains(tm.Location);
-        //        })
-        //        .Select<TouchMove, TouchMove>(tm => 
-        //        {
-        //            return new TouchMove(GetControlPointFromScreen(tm.Location), tm.TouchDown, tm.Velocity);
-        //        })
-        //        .Subscribe(pTouchMoveAction);            
-        //}
-
-        //private void InternalSubscribeTouchGesture(Action<TouchGesture> pTouchGestureAction)
-        //{
-        //    _touchObs.ObsTouchGesture.Where<TouchGesture>(tm =>
-        //        {
-        //            return _visible && GetScreenBounds().Contains(tm.Location);
-        //        })
-        //        .Select<TouchGesture, TouchGesture>(tm =>
-        //        {
-        //            return new TouchGesture(tm.Gesture, GetControlPointFromScreen(tm.Location));
-        //        })
-        //        .Subscribe(pTouchGestureAction);
-        //}
-
-        public D2DViewControl GetViewControlContainingPoint(PointF pPoint)
+        public D2DViewControl GetViewControlContainingPoint(Point2F pPoint)
         {
             D2DViewControl control = GetViewControlContainingPoint(this, pPoint);
 
@@ -82,16 +39,18 @@ namespace CarMp.ViewControls
             return control == this ? null : control;
         }
 
-        public D2DViewControl GetViewControlContainingPoint(D2DViewControl pViewControl, PointF pPoint)
+        public D2DViewControl GetViewControlContainingPoint(D2DViewControl pViewControl, Point2F pPoint)
         {
             if(pViewControl != null)
             {
                 lock (pViewControl._viewControls)
                 {
+                    int c = pViewControl._viewControls.Count;
                     for (int i = pViewControl._viewControls.Count - 1;
                         i >= 0;
                         i--)
                     {
+                        if (c != pViewControl._viewControls.Count) System.Diagnostics.Debugger.Break();
                         if (pViewControl._viewControls[i].GetScreenBounds().Contains(pPoint))
                             return GetViewControlContainingPoint(pViewControl._viewControls[i], pPoint);
                     }
@@ -100,8 +59,16 @@ namespace CarMp.ViewControls
             return pViewControl;
         }
 
-        protected RectangleF _bounds;
-        public RectangleF Bounds
+        public Point2F Location
+        {
+            get
+            {
+                return new Point2F(Bounds.Left, Bounds.Top);
+            }
+        }
+
+        protected RectF _bounds;
+        public RectF Bounds
         {
             get { return _bounds; }
             set { 
@@ -127,8 +94,7 @@ namespace CarMp.ViewControls
                 PreRender();
 
                 pRenderTarget.CurrentBounds = GetScreenBounds();
-
-                pRenderTarget.Renderer.PushAxisAlignedClip(GetAllowedRenderingArea(pRenderTarget.CurrentBounds) , SlimDX.Direct2D.AntialiasMode.Aliased);
+                pRenderTarget.Renderer.PushAxisAlignedClip(GetAllowedRenderingArea(pRenderTarget.CurrentBounds) , AntialiasMode.PerPrimitive);
 
                 OnRender(pRenderTarget);
 
@@ -141,60 +107,59 @@ namespace CarMp.ViewControls
             }
         }
 
-        internal RectangleF GetAllowedRenderingArea(RectangleF pChildBounds)
-        {
+        internal RectF GetAllowedRenderingArea(RectF pChildBounds)
+            {
             if (Parent == null)
                 return pChildBounds;
             
-            RectangleF newRect = pChildBounds;
-            newRect.Intersect(Parent.Bounds);
-            return newRect;
+            return pChildBounds.Intersect(Parent.Bounds); ;
         }
 
-        internal RectangleF GetScreenBounds()
+        internal RectF GetScreenBounds()
         {
-            return new RectangleF(GetScreenPoint(), Bounds.Size);
+            Point2F screenPoint = GetScreenPoint();
+            return new RectF(screenPoint.X, screenPoint.Y, screenPoint.X + Bounds.Width, screenPoint.Y + Bounds.Height);
         }
 
-        internal PointF GetScreenPoint()
+        internal Point2F GetScreenPoint()
         {
             if (Parent == null)
-                return Bounds.Location;
+                return Location;
 
-            return GetScreenPoint(Bounds.Location);
+            return GetScreenPoint(Location);
         }
 
-        internal PointF GetScreenPoint(PointF pPointToAdd)
+        internal Point2F GetScreenPoint(Point2F pPointToAdd)
         {
             if (Parent == null)
                 return pPointToAdd;
 
             return Parent.GetScreenPoint(
-                new PointF(
-                    pPointToAdd.X + Parent.Bounds.X, 
-                    pPointToAdd.Y + Parent.Bounds.Y));
+                new Point2F(
+                    pPointToAdd.X + Parent.Bounds.Left, 
+                    pPointToAdd.Y + Parent.Bounds.Top));
         }
 
-        internal PointF GetControlPointFromScreen(PointF pPointToSubtract)
+        internal Point2F GetControlPointFromScreen(Point2F pPointToSubtract)
         {
             if (Parent != null)
             {
-                return Parent.GetControlPointFromScreen(new PointF(pPointToSubtract.X - Parent.Bounds.X, pPointToSubtract.Y - Parent.Bounds.Y));
+                return Parent.GetControlPointFromScreen(new Point2F(pPointToSubtract.X - Parent.Bounds.Left, pPointToSubtract.Y - Parent.Bounds.Top));
             }
             return pPointToSubtract;
         }
 
-        internal PointF GetControlPointFromScreen()
+        internal Point2F GetControlPointFromScreen()
         {
             if (Parent == null)
-                return Bounds.Location;
+                return new Point2F(Bounds.Left, Bounds.Height);
 
-            return GetControlPointFromScreen(Bounds.Location);
+            return GetControlPointFromScreen(new Point2F(Bounds.Left, Bounds.Top));
         }
 
-        internal PointF ConvertScreenToControlPoint(PointF pPointToConvert)
+        internal Point2F ConvertScreenToControlPoint(Point2F pPointToConvert)
         {
-            PointF newPoint = new PointF(pPointToConvert.X - Bounds.X, pPointToConvert.Y - Bounds.Y);
+            Point2F newPoint = new Point2F(pPointToConvert.X - Bounds.Left, pPointToConvert.Y - Bounds.Top);
             if (Parent != null)
             {
                 return Parent.ConvertScreenToControlPoint(newPoint);
@@ -205,12 +170,11 @@ namespace CarMp.ViewControls
 
         protected abstract void OnRender(Direct2D.RenderTargetWrapper pRenderTarget);
 
-        public SizeF Size { get { return _bounds.Size; } }
-        public PointF Location { get { return _bounds.Location; } }
+        public SizeF Size { get { return new SizeF(_bounds.Width, _bounds.Height); } }
         public float Width { get { return _bounds.Width; } }
         public float Height { get { return _bounds.Height; } }
-        public float X { get { return _bounds.X; } }
-        public float Y { get { return _bounds.Y; } }
+        public float X { get { return _bounds.Left; } }
+        public float Y { get { return _bounds.Top; } }
 
         public void Clear()
         {
@@ -222,7 +186,7 @@ namespace CarMp.ViewControls
 
         public virtual void SendTouch(Touch pTouch) 
         {
-            PointF newPoint = ConvertScreenToControlPoint(pTouch.Location);
+            Point2F newPoint = ConvertScreenToControlPoint(pTouch.Location);
 
             if (pTouch is TouchMove)
             {
@@ -241,63 +205,16 @@ namespace CarMp.ViewControls
 
         public void AddViewControl(D2DViewControl pViewControl)
         {
-            pViewControl.Parent = this;
-            _viewControls.Add(pViewControl);
+            lock (_viewControls)
+            {
+                pViewControl.Parent = this;
+                _viewControls.Add(pViewControl);
+            }
         }
 
         public int IndexOf(D2DViewControl pViewControl)
         {
             return _viewControls.IndexOf(pViewControl);
-        }
-
-        private MouseEventArgs TransformMouseEventArgs(MouseEventArgs e)
-        {
-            PointF newPoint = GetControlPointFromScreen(e.Location);
-            return new MouseEventArgs(e.Button, e.Clicks, Convert.ToInt32(newPoint.X), Convert.ToInt32(newPoint.Y), e.Delta);
-        }
-
-        protected virtual void OnMouseDown(System.Windows.Forms.MouseEventArgs e)
-        {
-            //for (int i = _viewControls.Count - 1; i >= 0; i--)
-            //{
-            //    if (_viewControls[i].Bounds.Contains(e.Location))
-            //    {
-            //        _viewControls[i].OnMouseDown(e);
-            //        _mouseDownControl = _viewControls[i];
-            //        break;
-            //    }
-            //}
-        }
-
-        protected virtual void OnMouseMove(System.Windows.Forms.MouseEventArgs e)
-        {
-            //if (_mouseDownControl != null)
-            //    _mouseDownControl.OnMouseMove(e);
-
-            //for (int i = _viewControls.Count - 1; i >= 0; i--)
-            //{
-            //    if (_mouseDownControl != _viewControls[i]
-            //        && _viewControls[i].Bounds.Contains(e.Location))
-            //    {
-            //        _viewControls[i].OnMouseMove(e);
-            //        break;
-            //    }
-            //}
-        }
-
-        protected virtual void OnMouseUp(System.Windows.Forms.MouseEventArgs e) { }
-
-        internal void MouseMove(MouseEventArgs e)
-        {
-            OnMouseMove(TransformMouseEventArgs(e));
-        }
-        internal void MouseDown(MouseEventArgs e)
-        {
-            OnMouseDown(TransformMouseEventArgs(e));
-        }
-        internal void MouseUp(MouseEventArgs e)
-        {
-            OnMouseUp(TransformMouseEventArgs(e));
         }
 
         protected virtual void OnRenderStart()

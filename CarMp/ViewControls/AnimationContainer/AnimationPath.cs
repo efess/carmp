@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Drawing;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace CarMp.ViewControls
 {
     public class AnimationPath
     {
         private AnimationPathPoint _currentStartPoint;
-        private System.Drawing.PointF _lastPoint;
+        private Point2F _lastPoint;
         private long _lastTicks;
         private int _increment;
         private AnimationPathPoint _currentEndPoint;
@@ -33,7 +33,7 @@ namespace CarMp.ViewControls
             get { return PointCollection.Count; }
         }
 
-        public PointF GetCurrentPoint()
+        public Point2F GetCurrentPoint()
         {
             if(CurrentState == AnimationState.Started)
                 IncrementAnimation();
@@ -101,7 +101,7 @@ namespace CarMp.ViewControls
             _lastTicks = currentTicks;
         }
 
-        private PointF CalculateCurrentPoint(long pTicks)
+        private Point2F CalculateCurrentPoint(long pTicks)
         {
 
             //// GEOMETRY AND SHIT
@@ -115,7 +115,7 @@ namespace CarMp.ViewControls
             float velocity = totalDistance / _currentEndPoint.MoveTime; // pixels per ms (ppm)
             float additionalDistance = velocity * diffMs;
 
-            System.Drawing.PointF point = new System.Drawing.PointF(
+            Point2F point = new Point2F(
                 _lastPoint.X + additionalDistance * (float)Math.Cos(angleStartToEnd),
                 _lastPoint.Y + additionalDistance * (float)Math.Sin(angleStartToEnd));
 

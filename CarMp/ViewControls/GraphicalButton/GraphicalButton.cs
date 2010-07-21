@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using SlimDX.Direct2D;
 using System.Xml;
 using System.IO;
 using CarMp.Reactive.Touch;
+using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using Microsoft.WindowsAPICodePack.DirectX;
 
 namespace CarMp.ViewControls
 {
@@ -23,11 +24,11 @@ namespace CarMp.ViewControls
         private const string XPATH_BUTTON_DOWN_IMAGE = "FaceDownImg";
 
         // Direct2d Resources
-        private SlimDX.DirectWrite.TextLayout StringLayout = null;
-        private SlimDX.DirectWrite.TextFormat StringDrawFormat = null;
-        private SlimDX.Direct2D.SolidColorBrush StringBrush = null;
-        private SlimDX.Direct2D.Bitmap ButtonUpBitmap = null;
-        private SlimDX.Direct2D.Bitmap ButtonDownBitmap = null;
+        private TextLayout StringLayout = null;
+        private TextFormat StringDrawFormat = null;
+        private SolidColorBrush StringBrush = null;
+        private D2DBitmap ButtonUpBitmap = null;
+        private D2DBitmap ButtonDownBitmap = null;
 
         ~GraphicalButton()
         {
@@ -85,46 +86,51 @@ namespace CarMp.ViewControls
 
         public GraphicalButton()
         {
+            
             if (StringDrawFormat == null)
-                StringDrawFormat = new SlimDX.DirectWrite.TextFormat(
-                    Direct2D.StringFactory,
+            {
+                StringDrawFormat = Direct2D.StringFactory.CreateTextFormat(
                     "Arial",
-                    SlimDX.DirectWrite.FontWeight.Normal,
-                    SlimDX.DirectWrite.FontStyle.Normal,
-                    SlimDX.DirectWrite.FontStretch.Normal,
                     20F,
-                    "en-us") { TextAlignment = SlimDX.DirectWrite.TextAlignment.Leading };
+                    FontWeight.Normal,
+                    FontStyle.Normal,
+                    FontStretch.Normal,
+                    new System.Globalization.CultureInfo("en-us"));
+
+                StringDrawFormat.TextAlignment = TextAlignment.Center;
+                StringDrawFormat.WordWrapping = WordWrapping.Wrap;
+            }
         }
 
         protected override void OnRender(Direct2D.RenderTargetWrapper pRenderer)
         {
             if (StringLayout == null)
             {
-                StringLayout = new SlimDX.DirectWrite.TextLayout(Direct2D.StringFactory, _buttonString, StringDrawFormat, Bounds.Width, Bounds.Height);
+                StringLayout = Direct2D.StringFactory.CreateTextLayout(_buttonString, StringDrawFormat, Bounds.Width, Bounds.Height);
             }
 
             if(StringBrush == null)
             {
-                StringBrush = new SolidColorBrush(pRenderer.Renderer, (SlimDX.Color4)3453);
+                StringBrush = pRenderer.Renderer.CreateSolidColorBrush(new ColorF(Colors.White, 1F));
             }
 
             if (ButtonUpBitmap == null
                 && _buttonUpImageData.Data != null)
             {
-                ButtonUpBitmap = new SlimDX.Direct2D.Bitmap(pRenderer.Renderer, new Size(_buttonUpImageData.Width, _buttonUpImageData.Height), new SlimDX.DataStream(_buttonUpImageData.Data, true, false), _buttonUpImageData.Stride, _buttonUpImageData.BitmapProperties);
+                ButtonUpBitmap = Direct2D.GetBitmap(_buttonUpImageData, pRenderer.Renderer);
             }
 
             if (ButtonDownBitmap == null
                 && _buttonDownImageData.Data != null)
             {
-                ButtonDownBitmap = new SlimDX.Direct2D.Bitmap(pRenderer.Renderer, new Size(_buttonDownImageData.Width, _buttonDownImageData.Height), new SlimDX.DataStream(_buttonDownImageData.Data, true, false), _buttonDownImageData.Stride, _buttonDownImageData.BitmapProperties);
+                ButtonDownBitmap = Direct2D.GetBitmap(_buttonDownImageData, pRenderer.Renderer);
             }
 
-            pRenderer.DrawTextLayout( new PointF(0, 0), StringLayout, StringBrush);
+            pRenderer.DrawTextLayout(new Point2F(0, 0), StringLayout, StringBrush);
             
             //pRenderTarget.DrawTextring(_buttonString, new Font(FontFamily.GenericSansSerif, 12), new SolidBrush(Color.Blue), new Point(5, 5));
 
-            RectangleF imageLocation = new RectangleF(
+            RectF imageLocation = new RectF(
                 0,
                 0,
                 _buttonUpImageData.Width,
@@ -149,15 +155,6 @@ namespace CarMp.ViewControls
             {
                 Click(this, new EventArgs());
             }       
-        }
-        protected override void OnMouseUp(MouseEventArgs e)
-        {
-            _mouseDown = false;
-        }
-
-        protected override void OnMouseDown(MouseEventArgs e)
-        {
-            _mouseDown = true;
         }
     }
 }

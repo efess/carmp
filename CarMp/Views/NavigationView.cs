@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using CarMp.ViewControls;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace CarMp.Views
 {
@@ -13,11 +14,11 @@ namespace CarMp.Views
         private const string XPATH_NAVIGATION_NODE = "NavigationBar";
         private const string XPATH_BUTTONS = "Buttons/*";
 
-        public NavigationView(System.Drawing.Size pWindowSize)
+        public NavigationView(SizeF pWindowSize)
             : base(pWindowSize) { }
 
         private CarMp.Direct2D.BitmapData _navigationBarBackgroundBitmapData;
-        private SlimDX.Direct2D.Bitmap _navigationBarBackgroundBitmap = null;
+        private D2DBitmap _navigationBarBackgroundBitmap = null;
         
         public void ApplySkin(XmlNode pSkinNode, string pSkinPath)
         {
@@ -58,7 +59,7 @@ namespace CarMp.Views
             }
 
             if(_navigationBarBackgroundBitmap != null)
-                pRenderTarget.DrawBitmap(_navigationBarBackgroundBitmap, new System.Drawing.RectangleF(0, 0, _navigationBarBackgroundBitmapData.Width, _navigationBarBackgroundBitmapData.Height));
+                pRenderTarget.DrawBitmap(_navigationBarBackgroundBitmap, new RectF(0, 0, _navigationBarBackgroundBitmapData.Width, _navigationBarBackgroundBitmapData.Height));
         }
     }
 }

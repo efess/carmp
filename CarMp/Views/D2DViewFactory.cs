@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace CarMp.Views
 {
@@ -12,9 +13,9 @@ namespace CarMp.Views
         public const string NAVIGATION = "Navigation";
         public const string OPTIONS = "Options";
 
-        private System.Drawing.Size _windowSize;
+        private SizeF _windowSize;
 
-        public D2DViewFactory(System.Drawing.Size pWindowSize)
+        public D2DViewFactory(SizeF pWindowSize)
         {
             _windowSize = pWindowSize;
         }

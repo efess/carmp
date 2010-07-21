@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SlimDX.Direct2D;
-using System.Drawing;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace CarMp.ViewControls
 {
@@ -47,9 +46,9 @@ namespace CarMp.ViewControls
                 _currentPath.AnimationSetReverse();
         }
 
-        protected void SetLocation(PointF pPoint)
+        protected void SetLocation(Point2F pPoint)
         {
-            Bounds = new RectangleF(pPoint.X, pPoint.Y, Bounds.Width, Bounds.Height);
+            Bounds = new RectF(pPoint.X, pPoint.Y, Bounds.Width + pPoint.X, Bounds.Height + pPoint.Y);
         }
 
         protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
@@ -58,7 +57,7 @@ namespace CarMp.ViewControls
 
         protected override void PreRender()
         {
-            PointF currentPoint = _currentPath.GetCurrentPoint();
+            Point2F currentPoint = _currentPath.GetCurrentPoint();
             SetLocation(currentPoint);
         }
     }

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SlimDX.Direct2D;
 using System.Xml;
 using CarMp.ViewControls;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace CarMp.Views
 {
@@ -12,11 +12,11 @@ namespace CarMp.Views
     {
         private const string XPATH_BACKGROUND_IMAGE = "BackgroundImg";
 
-        private SlimDX.Direct2D.Bitmap BackgroundImage = null;
+        private D2DBitmap BackgroundImage = null;
 
         private Direct2D.BitmapData _backgroundImage;
         
-        internal HomeView(System.Drawing.Size pWindowSize)
+        internal HomeView(SizeF pWindowSize)
             : base(pWindowSize) {}
 
         public new void ApplySkin(XmlNode pSkinViewNode, string pSkinPath)
@@ -38,16 +38,16 @@ namespace CarMp.Views
 
         protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
         {
-            base.OnRender(pRenderTarget);
             if (BackgroundImage == null
                 && _backgroundImage.Data != null)
             {
-                BackgroundImage = new SlimDX.Direct2D.Bitmap(pRenderTarget.Renderer, new System.Drawing.Size(_backgroundImage.Width, _backgroundImage.Height), new SlimDX.DataStream(_backgroundImage.Data, true, false), _backgroundImage.Stride, _backgroundImage.BitmapProperties);
+                BackgroundImage = Direct2D.GetBitmap(_backgroundImage, pRenderTarget.Renderer);
             }
             if (BackgroundImage != null)
             {
-                pRenderTarget.DrawBitmap(BackgroundImage, new System.Drawing.RectangleF(0,0,_backgroundImage.Width, _backgroundImage.Height));
+                pRenderTarget.DrawBitmap(BackgroundImage, new RectF(0,0,_backgroundImage.Width, _backgroundImage.Height));
             }
+            base.OnRender(pRenderTarget);
         }
     }
 }

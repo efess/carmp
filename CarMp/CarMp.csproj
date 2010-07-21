@@ -59,13 +59,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\FluentNHibernate.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.DirectX">
+      <HintPath>..\Libraries\Microsoft.WindowsAPICodePack.DirectX.dll</HintPath>
+    </Reference>
     <Reference Include="NHibernate, Version=2.1.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\NHibernate.dll</HintPath>
-    </Reference>
-    <Reference Include="SlimDX, Version=2.0.8.42, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libraries\x86\SlimDX.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -99,7 +98,9 @@
     <Compile Include="Callbacks\MediaChangedArgs.cs" />
     <Compile Include="Callbacks\MediaProgressChangedArgs.cs" />
     <Compile Include="DigitalMediaItem.cs" />
-    <Compile Include="Direct2D.cs" />
+    <Compile Include="D2D\Direct2D.cs" />
+    <Compile Include="D2D\Imaging.cs" />
+    <Compile Include="D2D\RectFExt.cs" />
     <Compile Include="EventQueue.cs" />
     <Compile Include="FileSystem\FileMediaInfo.cs" />
     <Compile Include="Helpers\SkinningHelper.cs" />
@@ -141,12 +142,6 @@
     <Compile Include="Enums.cs" />
     <Compile Include="FileSystem\FileSystem.cs" />
     <Compile Include="FileSystemItem.cs" />
-    <Compile Include="Forms\FormDebug.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\FormDebug.designer.cs">
-      <DependentUpon>FormDebug.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\FormHost.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -174,10 +169,6 @@
     <Compile Include="ViewControls\Text\Text.cs" />
     <Compile Include="ViewControls\ThermometerProgressBar\ThermometerProgressBar.cs" />
     <Compile Include="Helpers\XmlHelper.cs" />
-    <EmbeddedResource Include="Forms\FormDebug.resx">
-      <DependentUpon>FormDebug.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormHost.resx">
       <DependentUpon>FormHost.cs</DependentUpon>
       <SubType>Designer</SubType>

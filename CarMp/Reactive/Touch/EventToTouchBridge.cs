@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Drawing;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace CarMp.Reactive.Touch
 {
@@ -12,10 +13,10 @@ namespace CarMp.Reactive.Touch
         //**** Mouse State Vars
 
         private bool _isInSwipe;
-        private PointF _downPoint;
+        private Point2F _downPoint;
         private DateTime _downTime;
-        private PointF _previousPoint;
-        private PointF _startHighVelocityPoint;
+        private Point2F _previousPoint;
+        private Point2F _startHighVelocityPoint;
         private DateTime _previousPointTime;
         private VelocityAggregator _velocity;
 
@@ -65,7 +66,7 @@ namespace CarMp.Reactive.Touch
             if (TouchDownClickThreshold > (DateTime.Now - _downTime).TotalMilliseconds
                 && Math.Abs(_downPoint.Y - e.Y) < TouchDownClickDistanceTolerance)
             {
-                SendTouchGesture(new TouchGesture(GestureType.Click, e.Location));
+                SendTouchGesture(new TouchGesture(GestureType.Click, new Point2F(e.Location.X, e.Location.Y)));
                 return;
             }            
         }
@@ -73,19 +74,20 @@ namespace CarMp.Reactive.Touch
         private void ProcessMouseDown(MouseEventArgs e)
         {
             _isInSwipe = false;
-            _downPoint = e.Location;
+            _downPoint = new Point2F(e.X, e.Y);
             _downTime = DateTime.Now;
         }
 
         private void ProcessMouseMove(MouseEventArgs e)
         {
             DateTime dt = DateTime.Now;
+            Point2F mousePoint = new Point2F(e.X, e.Y);
 
             if (dt == _previousPointTime) return;
 
             bool mouseDown = e.Button == MouseButtons.Left;
 
-            _velocity.VelocityNow = LinearMath.DistanceBetweenTwoPoint(e.Location, _previousPoint)
+            _velocity.VelocityNow = LinearMath.DistanceBetweenTwoPoint(mousePoint, _previousPoint)
                 / (float)((dt - _previousPointTime).TotalSeconds);
             
             float velocityNow = _velocity.GetVelocity;
@@ -94,7 +96,7 @@ namespace CarMp.Reactive.Touch
             //... Except direction is fucked up. Spoke too soon...
             //System.Diagnostics.Debug.WriteLine("MouseMove- velocity: " + velocityNow + "  now: " + e.X.ToString() + "," + e.Y.ToString() + " previous: " + _previousPoint.X.ToString() + "," + _previousPoint.Y.ToString() + " " + e.Button.ToString());
 
-            SendTouchMove(new TouchMove(e.Location, mouseDown, velocityNow));
+            SendTouchMove(new TouchMove(mousePoint, mouseDown, velocityNow));
 
             if (mouseDown)
             {
@@ -102,7 +104,7 @@ namespace CarMp.Reactive.Touch
                 if (!_isInSwipe && velocityNow > TouchSwipeVelocityThreshold)
                 {
                     _isInSwipe = true;
-                    _startHighVelocityPoint = e.Location;
+                    _startHighVelocityPoint = mousePoint;
                 }
                 else if (_isInSwipe && velocityNow < TouchSwipeVelocityThreshold)
                     _isInSwipe = false;
@@ -125,7 +127,7 @@ namespace CarMp.Reactive.Touch
                                 x > 0
                                 ? GestureType.SwipeLeft
                                 : GestureType.SwipeRight
-                                , e.Location));
+                                , mousePoint));
                         }
                     }
                     else
@@ -138,14 +140,14 @@ namespace CarMp.Reactive.Touch
                                 y > 0
                                 ? GestureType.SwipeUp
                                 : GestureType.SwipeDown
-                                , e.Location));
+                                , mousePoint));
                         }
                     }
                 }
             }
 
             _previousPointTime = dt;
-            _previousPoint = e.Location;
+            _previousPoint = mousePoint;
         }
 
         private void ProcessVelocity(object pStateObject)

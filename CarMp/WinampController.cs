@@ -58,6 +58,8 @@ namespace CarMp
                     WinampApp.Start();
                 }
             }
+            System.Threading.Thread.Sleep(500);
+            SetDefaultSettings();
         }
 
         
@@ -139,13 +141,13 @@ namespace CarMp
         }
         public int GetSongLength()
         {
+            // Appears to make winamp jump back some ms in the song
             if (DebugIgnoreCommands) { return 10000; }
             return SendUserMessageToWinamp(WA_IPC.IPC_GETOUTPUTTIME, 1) * 1000;
         }
 
         private int SendUserMessageToWinamp(WA_IPC pMessageType, int pParameter)
         {
-            return 0;
             if (!Initialized)
             {
                 DebugHandler.DebugPrint("Winamp not initialized, cannot send message");
@@ -158,7 +160,6 @@ namespace CarMp
 
         private int SendCopyDataToWinamp(Win32Helpers.COPYDATASTRUCT pData, int pParameter)
         {
-            return 0;
             if (!Initialized)
             {
                 DebugHandler.DebugPrint("Winamp not initialized, cannot send message");

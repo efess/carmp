@@ -96,9 +96,15 @@
         </Previous>
       </Buttons>
       <ThermometerProgressBar>
-        <Bounds>193,36,243,30</Bounds>
-        <OverlayMask>diagonal_mask.png</OverlayMask>
+        <Bounds>154,40,322,27</Bounds>
+        <BackgroundImg>ProgressBackground.png</BackgroundImg>
+        <OverlayMask>ProgressOverlay.png</OverlayMask>
       </ThermometerProgressBar>
+      <Text>
+        <Bounds>478,40,75,27</Bounds>
+        <TextPosition>30,1</TextPosition>
+        <BackgroundImg>PositionBackground.png</BackgroundImg>
+      </Text>
     </MediaControlBar>
     <MediaInfoBar>
       <Bounds>300,0,340,60</Bounds>

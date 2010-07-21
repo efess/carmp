@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace CarMp.ViewControls
 {
@@ -15,7 +16,7 @@ namespace CarMp.ViewControls
         private const string XPATH_ANIMATION_POINT = "AnimationPath/*";
 
         private Direct2D.BitmapData _backgroundBitmapData;
-        private SlimDX.Direct2D.Bitmap _backgroundImage = null;
+        private D2DBitmap _backgroundImage = null;
 
         public void ApplySkin(XmlNode pSkinNode, string pSkinPath)
         {
@@ -82,7 +83,7 @@ namespace CarMp.ViewControls
             }
             if (_backgroundImage != null)
             {
-                pRenderTarget.DrawBitmap(_backgroundImage, new System.Drawing.RectangleF(0, 0, _backgroundBitmapData.Width, _backgroundBitmapData.Height));
+                pRenderTarget.DrawBitmap(_backgroundImage, new RectF(0, 0, _backgroundBitmapData.Width, _backgroundBitmapData.Height));
             }
         }
     }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Drawing;
 using System.Xml;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace CarMp
 {
@@ -22,12 +23,23 @@ namespace CarMp
             return false;
         }
 
-        public static bool XmlRectangleFEntry(string pXpath, XmlNode pXmlNode, ref RectangleF pRectangleF)
+        public static bool XmlRectangleFEntry(string pXpath, XmlNode pXmlNode, ref RectF pRectangleF)
         {
             XmlNode xmlNode = pXmlNode.SelectSingleNode(pXpath);
             if (xmlNode != null)
             {
                 pRectangleF = XmlHelper.GetBoundsRectangle(xmlNode.InnerText);
+                return true;
+            }
+            return false;
+        }
+
+        public static bool XmlPointFEntry(string pXpath, XmlNode pXmlNode, ref Point2F pPointF)
+        {
+            XmlNode xmlNode = pXmlNode.SelectSingleNode(pXpath);
+            if (xmlNode != null)
+            {
+                pPointF = XmlHelper.GetPoint(xmlNode.InnerText);
                 return true;
             }
             return false;

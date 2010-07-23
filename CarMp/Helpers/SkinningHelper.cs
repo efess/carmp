@@ -44,5 +44,16 @@ namespace CarMp
             }
             return false;
         }
+
+        public static bool XmlTextStyleEntry(string pXpath, XmlNode pXmlNode, ref TextStyle pFont)
+        {
+            XmlNode xmlNode = pXmlNode.SelectSingleNode(pXpath);
+            if (xmlNode != null)
+            {
+                pFont = new TextStyle(xmlNode);
+                return true;
+            }
+            return false;
+        }
     }
 }

@@ -1,19 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Threading;
 using System.Xml;
 using CarMp.Reactive.Touch;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using Microsoft.WindowsAPICodePack.DirectX;
 
 
 namespace CarMp.ViewControls
 {
     public class DragableList : D2DViewControl, ISkinable
     {
+        private const string XPATH_BACKGROUND_IMAGE = "BackgroundImg";
         private const string XPATH_BOUNDS = "Bounds";
+
+        private Brush _backgroundBrush;
 
         public delegate void ListChangedEventHandler(object sender, ListChangeEventArgs e);
         public delegate void SelectedItemChangedEventHandler(object sender, SelectedItemChangedEventArgs e);
@@ -24,6 +27,9 @@ namespace CarMp.ViewControls
         public event ListChangedEventHandler BeforeListChanged;
         public event ListChangedEventHandler AfterListChanged;
         public event SelectedItemChangedEventHandler SelectedItemChanged;
+
+        private Direct2D.BitmapData _background;
+        private D2DBitmap Background = null;
 
         // List vars
         private int m_lastYDirection;
@@ -79,8 +85,6 @@ namespace CarMp.ViewControls
         private int m_mouseDownTimeMsSelectTheshold = 200;
         private int m_mouseDownTimePxSelectThreashold = 5;
 
-        private Point m_mouseDownPoint;
-        private Point m_mouseDownLastMove;
         private int m_mouseMoveVelocity;
         private int m_mouseVelocityStartThreshold = 2;
         private int m_mouseListChangeThreshold = 50;
@@ -94,6 +98,7 @@ namespace CarMp.ViewControls
 
         public void ApplySkin(XmlNode pXmlNode, string pSkinPath)
         {
+            SkinningHelper.XmlBitmapEntry(XPATH_BACKGROUND_IMAGE, pXmlNode, pSkinPath, ref _background);
             XmlNode xmlNode = pXmlNode.SelectSingleNode(XPATH_BOUNDS);
             if (xmlNode != null)
             {
@@ -573,7 +578,44 @@ namespace CarMp.ViewControls
 
         protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
         {
-            
+            if (_backgroundBrush == null)
+            {
+                _backgroundBrush = pRenderTarget.Renderer.CreateLinearGradientBrush(
+                            new LinearGradientBrushProperties()
+                            {
+                                StartPoint = new Point2F(0, 0),
+                                EndPoint = new Point2F(0, _bounds.Height)
+                            },
+                            pRenderTarget.Renderer.CreateGradientStopCollection(new GradientStop[] {
+                                new GradientStop
+                                    {
+                                        Color = new ColorF(Colors.DarkGray, .3f),
+                                        Position = 0
+                                    }
+                                    ,
+                                new GradientStop
+                                    {
+                                        Color = new ColorF(Colors.Gray, .3f),
+                                        Position = 1
+                                    }
+                                },
+                                Gamma.Gamma_10,
+                                ExtendMode.Clamp
+                        ));
+            }
+
+            if (_backgroundBrush != null)
+                pRenderTarget.Renderer.FillRectangle(Bounds, _backgroundBrush);
+
+            if (Background == null
+                && _background.Data != null)
+            {
+                Background = Direct2D.GetBitmap(_background, pRenderTarget.Renderer);
+            }
+            if (Background != null)
+            {
+                pRenderTarget.DrawBitmap(Background, new RectF(0, 0, Bounds.Width, Bounds.Height));
+            }
         }
 
         protected override void OnTouchGesture(Reactive.Touch.TouchGesture pTouchGesture)
@@ -607,9 +649,9 @@ namespace CarMp.ViewControls
                 }
                 else if(_touchPreviousPoint.TouchDown)
                 {
-                    if (pTouchMove.Velocity > m_mouseVelocityStartThreshold)
+                    if (pTouchMove.Velocity.VelocityY > m_mouseVelocityStartThreshold)
                     {
-                        StartVelocity(Convert.ToInt32(pTouchMove.Velocity),m_lastYDirection);
+                        StartVelocity(Convert.ToInt32(pTouchMove.Velocity.VelocityY), m_lastYDirection);
                     }
                 }
             }

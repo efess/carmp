@@ -25,6 +25,7 @@
       </NavigationBar>
 	  </Home>
     <Media>
+      <BackgroundImg>Jp-Solberg1920x1200.jpg</BackgroundImg>
       <NavigationBar>
         <BackgroundImg>NavigationBar.png</BackgroundImg>
         <Buttons>
@@ -46,7 +47,7 @@
         </Buttons>
       </NavigationBar>
       <MediaList>
-        <Bounds>120,80,300,300</Bounds>
+        <Bounds>120,80,435,344</Bounds>
       </MediaList>
       <ShortcutList>
         <Bounds>120,5,300,70</Bounds>
@@ -104,6 +105,14 @@
         <Bounds>478,40,75,27</Bounds>
         <TextPosition>30,1</TextPosition>
         <BackgroundImg>PositionBackground.png</BackgroundImg>
+        <TextStyle>
+          <Size>20</Size>
+          <Face>Arial</Face>
+          <ColorOne>#CCCCCC</ColorOne>
+          <ColorTwo>#CCCCCC</ColorTwo>
+          <WordWrap>False</WordWrap>
+          <Alignment>Leading</Alignment>
+        </TextStyle>
       </Text>
     </MediaControlBar>
     <MediaInfoBar>
@@ -115,9 +124,25 @@
       </AnimationPath>
       <MediaCreator>
         <Bounds>30,0,200,30</Bounds>
+        <TextStyle>
+          <Size>20</Size>
+          <Face>Arial</Face>
+          <ColorOne>#CCCCCC</ColorOne>
+          <ColorTwo>#CCCCCC</ColorTwo>
+          <WordWrap>False</WordWrap>
+          <Alignment>Leading</Alignment>
+        </TextStyle>
       </MediaCreator>
       <MediaTitle>
         <Bounds>50,25,200,30</Bounds>
+        <TextStyle>
+          <Size>20</Size>
+          <Face>Arial</Face>
+          <ColorOne>#CCCCCC</ColorOne>
+          <ColorTwo>#CCCCCC</ColorTwo>
+          <WordWrap>False</WordWrap>
+          <Alignment>Leading</Alignment>
+        </TextStyle>
       </MediaTitle>
     </MediaInfoBar>
   </OverlayControls>

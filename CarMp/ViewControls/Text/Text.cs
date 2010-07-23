@@ -14,10 +14,12 @@ namespace CarMp.ViewControls
         private const string XPATH_BOUNDS = "Bounds";
         private const string XPATH_BACKGROUND = "BackgroundImg";
         private const string XPATH_TEXT_POSITION = "TextPosition";
-
+        private const string XPATH_TEXT_STYLE = "TextStyle";
+        private Font _font;
         private D2DBitmap Background;
         private Point2F _textPosition = new Point2F(0, 0);
         private Direct2D.BitmapData _background;
+        private TextStyle _textStyle;
         private TextLayout StringLayout = null;
         private SolidColorBrush ColorBrush = null;
 
@@ -34,6 +36,7 @@ namespace CarMp.ViewControls
             SkinningHelper.XmlPointFEntry(XPATH_TEXT_POSITION, pSkinNode,ref _textPosition);
             SkinningHelper.XmlRectangleFEntry(XPATH_BOUNDS, pSkinNode, ref _bounds);
             SkinningHelper.XmlBitmapEntry(XPATH_BACKGROUND, pSkinNode, pSkinPath, ref _background);
+            SkinningHelper.XmlTextStyleEntry(XPATH_TEXT_STYLE, pSkinNode, ref _textStyle);
         }
 
         private string _textString;
@@ -58,28 +61,16 @@ namespace CarMp.ViewControls
             if (Background != null)
                 pRenderTarget.DrawBitmap(Background, new RectF(0, 0, Bounds.Width, Bounds.Height));
 
-            if (_textString == null) return;
+            if (_textString == null
+                || _textStyle == null) return;
 
-            if (StringDrawFormat == null)
-            {
-                StringDrawFormat = Direct2D.StringFactory.CreateTextFormat(
-                    "Arial",
-                    20F,
-                    FontWeight.Normal,
-                    FontStyle.Normal,
-                    FontStretch.Normal,
-                    new System.Globalization.CultureInfo("en-us"));
-
-                StringDrawFormat.TextAlignment = TextAlignment.Leading;
-                StringDrawFormat.WordWrapping = WordWrapping.NoWrap;
-            }
-
+            if (_textStyle.Format == null)
+                _textStyle.Initialize(Direct2D.StringFactory);
+            
             if (StringLayout == null)
-                StringLayout = Direct2D.StringFactory.CreateTextLayout(_textString, StringDrawFormat, Bounds.Width, Bounds.Height);
+                StringLayout = Direct2D.StringFactory.CreateTextLayout(_textString, _textStyle.Format, Bounds.Width, Bounds.Height);
 
-            if (ColorBrush == null)
-                ColorBrush = pRenderTarget.Renderer.CreateSolidColorBrush(new ColorF(Colors.WhiteSmoke, 1f));
-            pRenderTarget.DrawTextLayout(_textPosition, StringLayout, ColorBrush);
+            pRenderTarget.DrawTextLayout(_textPosition, StringLayout, _textStyle.GetBrush(pRenderTarget));
         }
     }
 }

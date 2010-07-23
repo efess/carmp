@@ -18,7 +18,8 @@ namespace CarMp.Reactive.Touch
         private Point2F _previousPoint;
         private Point2F _startHighVelocityPoint;
         private DateTime _previousPointTime;
-        private VelocityAggregator _velocity;
+
+        private VelocityAggregator _velocityAgg;
 
         private System.Threading.Timer _velocityTimer;
 
@@ -46,7 +47,7 @@ namespace CarMp.Reactive.Touch
             TouchSwipeDistanceThreshold = 50;
             TouchSwipeVelocityThreshold = 1000;
 
-            _velocity = new VelocityAggregator(3);
+            _velocityAgg = new VelocityAggregator(3);
 
             CreateEventSubscriptions();
             ObservablTouchActions = new TouchObservables();
@@ -86,11 +87,19 @@ namespace CarMp.Reactive.Touch
             if (dt == _previousPointTime) return;
 
             bool mouseDown = e.Button == MouseButtons.Left;
+            float seconds = (float)(dt - _previousPointTime).TotalSeconds;
 
-            _velocity.VelocityNow = LinearMath.DistanceBetweenTwoPoint(mousePoint, _previousPoint)
-                / (float)((dt - _previousPointTime).TotalSeconds);
+            float xVelocity =Math.Abs((mousePoint.X - _previousPoint.X)
+                / seconds);
             
-            float velocityNow = _velocity.GetVelocity;
+            float yVelocity = Math.Abs((mousePoint.Y - _previousPoint.Y)
+                / seconds);
+                        
+            float directionalVelocity = LinearMath.DistanceBetweenTwoPoint(mousePoint, _previousPoint)
+                / seconds;
+
+            _velocityAgg.VelocityNow = new Velocity(xVelocity, yVelocity, directionalVelocity);
+            Velocity velocityNow = _velocityAgg.GetVelocity;
 
             // WORKS FUCKING SWEET!
             //... Except direction is fucked up. Spoke too soon...
@@ -101,12 +110,12 @@ namespace CarMp.Reactive.Touch
             if (mouseDown)
             {
                 // Check for swipe
-                if (!_isInSwipe && velocityNow > TouchSwipeVelocityThreshold)
+                if (!_isInSwipe && velocityNow.VelocityD > TouchSwipeVelocityThreshold)
                 {
                     _isInSwipe = true;
                     _startHighVelocityPoint = mousePoint;
                 }
-                else if (_isInSwipe && velocityNow < TouchSwipeVelocityThreshold)
+                else if (_isInSwipe && velocityNow.VelocityD < TouchSwipeVelocityThreshold)
                     _isInSwipe = false;
                 else if (_isInSwipe)
                 {
@@ -169,7 +178,7 @@ namespace CarMp.Reactive.Touch
         private void SendTouchMove(TouchMove pTouchMove)
         {
             ObservablTouchActions.ObsTouchMove.PushTouchMove(pTouchMove);
-            DebugHandler.DebugPrint("Velocity: " + pTouchMove.Velocity.ToString() + ", down: " + pTouchMove.TouchDown.ToString() + " at " + pTouchMove.X.ToString() + "," + pTouchMove.Y.ToString());
+            DebugHandler.DebugPrint("Velocity: " + pTouchMove.Velocity.VelocityD.ToString() + ", down: " + pTouchMove.TouchDown.ToString() + " at " + pTouchMove.X.ToString() + "," + pTouchMove.Y.ToString());
         }
     }
 }

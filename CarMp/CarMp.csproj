@@ -103,6 +103,7 @@
     <Compile Include="D2D\RectFExt.cs" />
     <Compile Include="EventQueue.cs" />
     <Compile Include="FileSystem\FileMediaInfo.cs" />
+    <Compile Include="TextStyle.cs" />
     <Compile Include="Helpers\SkinningHelper.cs" />
     <Compile Include="IAudioController.cs" />
     <Compile Include="MediaListItemFactory.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="Reactive\Touch\TouchMove.cs" />
     <Compile Include="Reactive\Touch\TouchMoveObservable.cs" />
     <Compile Include="Reactive\Touch\TouchObservable.cs" />
+    <Compile Include="Reactive\Touch\Velocity.cs" />
     <Compile Include="Reactive\Touch\VelocityAggregator.cs" />
     <Compile Include="Reactive\UnSubscriber.cs" />
     <Compile Include="SkinSettings.cs" />

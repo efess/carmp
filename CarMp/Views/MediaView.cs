@@ -14,8 +14,12 @@ namespace CarMp.Views
         DragableList MediaList;
         GraphicalProgressBar ProgressBar;
 
+        private Direct2D.BitmapData _background;
+        private D2DBitmap Background = null;
+
         System.Timers.Timer ProgressBarTimer;
-        
+
+        private const string XPATH_BACKGROUND_IMAGE = "BackgroundImg";
         private const string XPATH_PROGRESSBAR = "GraphicalProgressBar";
         private const string XPATH_MEDIALIST = "MediaList";
         private const string XPATH_SHORTCUT_LIST = "ShortcutList";
@@ -49,6 +53,7 @@ namespace CarMp.Views
 
         public new void ApplySkin(XmlNode pSkinNode, string pSkinPath)
         {
+            SkinningHelper.XmlBitmapEntry(XPATH_BACKGROUND_IMAGE, pSkinNode, pSkinPath, ref _background);
             XmlNode xmlNode = pSkinNode.SelectSingleNode(XPATH_PROGRESSBAR);
             if (xmlNode != null)
             {
@@ -81,6 +86,16 @@ namespace CarMp.Views
 
         protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
         {
+            if (Background == null
+                && _background.Data != null)
+            {
+                Background = Direct2D.GetBitmap(_background, pRenderTarget.Renderer);
+            }
+            if (Background != null)
+            {
+                pRenderTarget.DrawBitmap(Background, new RectF(0, 0, Bounds.Width, Bounds.Height));
+            }
+
             base.OnRender(pRenderTarget);
         }
 

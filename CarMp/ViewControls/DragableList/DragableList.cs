@@ -11,13 +11,8 @@ using Microsoft.WindowsAPICodePack.DirectX;
 
 namespace CarMp.ViewControls
 {
-    public class DragableList : D2DViewControl, ISkinable
+    public class DragableList : ViewControlCommonBase, ISkinable
     {
-        private const string XPATH_BACKGROUND_IMAGE = "BackgroundImg";
-        private const string XPATH_BOUNDS = "Bounds";
-
-        private Brush _backgroundBrush;
-
         public delegate void ListChangedEventHandler(object sender, ListChangeEventArgs e);
         public delegate void SelectedItemChangedEventHandler(object sender, SelectedItemChangedEventArgs e);
 
@@ -27,9 +22,6 @@ namespace CarMp.ViewControls
         public event ListChangedEventHandler BeforeListChanged;
         public event ListChangedEventHandler AfterListChanged;
         public event SelectedItemChangedEventHandler SelectedItemChanged;
-
-        private Direct2D.BitmapData _background;
-        private D2DBitmap Background = null;
 
         // List vars
         private int m_lastYDirection;
@@ -55,11 +47,6 @@ namespace CarMp.ViewControls
         private int m_listDisplayCount;
 
         /// <summary>
-        /// Used to bypass mouse event processing when internal operations are occurring
-        /// </summary>
-        private bool m_ignoreMouseEvents;
-
-        /// <summary>
         /// Current displayed list
         /// </summary>
         private DragableListCollection m_listCurrentDisplay = new DragableListCollection(); // SHould base class these items
@@ -77,17 +64,7 @@ namespace CarMp.ViewControls
         private List<DragableListCollection> m_listCollection = new List<DragableListCollection>();
         private int m_listCollectionIndex;
 
-        // Mouse vars
-        private Boolean m_mouseDown;
-        private Boolean m_mouseListLock;
-
-        private DateTime m_mouseDownTime;
-        private int m_mouseDownTimeMsSelectTheshold = 200;
-        private int m_mouseDownTimePxSelectThreashold = 5;
-
-        private int m_mouseMoveVelocity;
         private int m_mouseVelocityStartThreshold = 2;
-        private int m_mouseListChangeThreshold = 50;
         
         //touch vars
         private TouchMove _touchPreviousPoint;
@@ -98,24 +75,13 @@ namespace CarMp.ViewControls
 
         public void ApplySkin(XmlNode pXmlNode, string pSkinPath)
         {
-            SkinningHelper.XmlBitmapEntry(XPATH_BACKGROUND_IMAGE, pXmlNode, pSkinPath, ref _background);
-            XmlNode xmlNode = pXmlNode.SelectSingleNode(XPATH_BOUNDS);
-            if (xmlNode != null)
-            {
-                Bounds = XmlHelper.GetBoundsRectangle(xmlNode.InnerText);
-            }
-            else
-            {
-                throw new Exception("DragableList " + pXmlNode.Name + " does not contain a Bounds element");
-            }
+            base.ApplySkin(pXmlNode, pSkinPath);
+            this.OnSizeChanged(null, null);
         }
 
         // Constructors
         public DragableList()
         {
-            this.m_mouseDown = false;
-            this.m_ignoreMouseEvents = false;
-
             m_listCollection.Add(m_listCurrentDisplay);
         }
 
@@ -578,44 +544,7 @@ namespace CarMp.ViewControls
 
         protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
         {
-            if (_backgroundBrush == null)
-            {
-                _backgroundBrush = pRenderTarget.Renderer.CreateLinearGradientBrush(
-                            new LinearGradientBrushProperties()
-                            {
-                                StartPoint = new Point2F(0, 0),
-                                EndPoint = new Point2F(0, _bounds.Height)
-                            },
-                            pRenderTarget.Renderer.CreateGradientStopCollection(new GradientStop[] {
-                                new GradientStop
-                                    {
-                                        Color = new ColorF(Colors.DarkGray, .3f),
-                                        Position = 0
-                                    }
-                                    ,
-                                new GradientStop
-                                    {
-                                        Color = new ColorF(Colors.Gray, .3f),
-                                        Position = 1
-                                    }
-                                },
-                                Gamma.Gamma_10,
-                                ExtendMode.Clamp
-                        ));
-            }
-
-            if (_backgroundBrush != null)
-                pRenderTarget.Renderer.FillRectangle(Bounds, _backgroundBrush);
-
-            if (Background == null
-                && _background.Data != null)
-            {
-                Background = Direct2D.GetBitmap(_background, pRenderTarget.Renderer);
-            }
-            if (Background != null)
-            {
-                pRenderTarget.DrawBitmap(Background, new RectF(0, 0, Bounds.Width, Bounds.Height));
-            }
+            base.OnRender(pRenderTarget);
         }
 
         protected override void OnTouchGesture(Reactive.Touch.TouchGesture pTouchGesture)
@@ -692,7 +621,6 @@ namespace CarMp.ViewControls
         private void ExecuteChangeList(DragableListSwitchDirection pDirection, int pNewIndex)
         {
             int directionSign = pDirection == DragableListSwitchDirection.Back ? -1 : 1;
-            m_ignoreMouseEvents = true;
             _touchPreviousPoint = null;
 
             NextList = m_listCollection[pNewIndex];
@@ -718,7 +646,6 @@ namespace CarMp.ViewControls
             CurrentList = m_listNextDisplay;
             m_listHShift_px = 0;
 
-            m_ignoreMouseEvents = false;
         }
 
         public override void OnSizeChanged(object sender, EventArgs e)
@@ -768,88 +695,3 @@ namespace CarMp.ViewControls
     }
 }
 
-
-
-        //protected override void OnMouseMove(MouseEventArgs e)
-        //{
-        //    if (!this.m_mouseDown || m_ignoreMouseEvents)
-        //        return;
-            
-        //    e = FixMouseEventArgs(e);
-
-        //    int x = m_mouseDownLastMove.X - e.X;
-        //    int y = m_mouseDownLastMove.Y - e.Y;
-
-        //    if (Math.Abs(x) > Math.Abs(y))
-        //    {
-        //        m_mouseMoveVelocity = x;
-        //    }
-        //    else
-        //    {
-        //        m_mouseMoveVelocity = y;
-        //    }
-
-        //    this.ShiftList(this.m_mouseDownLastMove.Y - e.Y);
-        //    this.m_mouseDownLastMove = e.Location;
-
-        //    if (m_mouseListLock)
-        //        return;
-
-        //    if (Math.Abs(this.m_mouseDownLastMove.X - e.X) > 5 || Math.Abs(this.m_mouseDownLastMove.Y - e.Y) > 5)
-        //    {
-        //        m_mouseListLock = true;
-        //    }
-        //}
-
-        //protected override void OnMouseUp(MouseEventArgs e)
-        //{
-        //    if (m_ignoreMouseEvents)
-        //        return;
-
-        //    e = FixMouseEventArgs(e);
-        //    this.m_mouseDown = false;
-
-        //    TimeSpan tempDownTimeSpan = (DateTime.Now - this.m_mouseDownTime);
-        //    int downTimeMs = (tempDownTimeSpan.Seconds * 1000) + tempDownTimeSpan.Milliseconds;
-
-        //    if (this.m_mouseDownTimeMsSelectTheshold > downTimeMs
-        //        && Math.Abs(m_mouseDownPoint.Y - e.Y) < m_mouseDownTimePxSelectThreashold)
-        //    {
-        //        SelectItem(e.X, e.Y);
-        //        return;
-        //    }
-
-        //    int horizontalMove =  m_mouseDownPoint.X - e.X;
-
-        //    // Check list change threshold
-        //    if (Math.Abs(horizontalMove) > m_mouseListChangeThreshold)
-        //    {
-        //        ChangeListHorizontalDistance(horizontalMove);
-        //        return;
-        //    }
-
-        //    // Check list move threshold
-        //    if (Math.Abs(m_mouseMoveVelocity) > m_mouseVelocityStartThreshold)
-        //    {
-        //        StartVelocity(m_mouseMoveVelocity);
-        //    }
-            
-        //    base.OnMouseUp(e);
-        //}
-
-        //protected override void OnMouseDown(MouseEventArgs e)
-        //{
-        //    if (m_ignoreMouseEvents)
-        //        return;
-
-        //    e = FixMouseEventArgs(e);
-        //    this.m_mouseDown = true;
-        //    this.m_velocityStop = true;
-        //    this.m_mouseDownPoint = e.Location;
-        //    this.m_mouseDownLastMove = e.Location;
-        //    this.m_mouseMoveVelocity = 0;
-            
-        //    this.m_mouseDownTime = DateTime.Now;
-
-        //    base.OnMouseDown(e);
-        //}

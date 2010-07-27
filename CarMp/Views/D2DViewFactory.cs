@@ -35,9 +35,9 @@ namespace CarMp.Views
                 //case NAVIGATION:
                 //    newView = new ContentNavigation();
                 //    break;
-                //case OPTIONS:
-                //    newView = new ContentOptions();
-                //    break;
+                case OPTIONS:
+                    newView = new OptionsView(_windowSize);
+                    break;
                 default:
                     throw new Exception("Attempt to create an invalid form: " + pViewName);
             }

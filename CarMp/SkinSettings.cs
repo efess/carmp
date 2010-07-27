@@ -17,6 +17,7 @@ namespace CarMp
         private Dictionary<string, XmlNode> viewNodes = new Dictionary<string, XmlNode>();
         private Dictionary<string, XmlNode> overlayNodes = new Dictionary<string, XmlNode>();
 
+        public string CurrentSkinPath { get; private set; }
         public string Name { get; private set; }
 
         public SkinSettings(string pSkinXmlPath)
@@ -24,8 +25,16 @@ namespace CarMp
             LoadXml(pSkinXmlPath);
         }
 
+        public void ReloadCurrent()
+        {
+            LoadXml(CurrentSkinPath);
+        }
         private void LoadXml(string pXmlPath)
         {
+            CurrentSkinPath = pXmlPath;
+            viewNodes.Clear();
+            overlayNodes.Clear();
+
             string xmlFile = Path.Combine(pXmlPath, XML_FILE_NAME);
             XmlDocument xdoc = new XmlDocument();
             xdoc.Load(xmlFile);

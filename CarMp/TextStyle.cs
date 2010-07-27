@@ -43,10 +43,10 @@ namespace CarMp
                         Face = node.InnerText;
                         break;
                     case COLOR_ONE:
-                        Color1 = ConvertColor(node.InnerText);
+                        Color1 = XmlHelper.ConvertColor(node.InnerText);
                         break;
                     case COLOR_TWO:
-                        Color2 = ConvertColor(node.InnerText);
+                        Color2 = XmlHelper.ConvertColor(node.InnerText);
                         break;
                     case WORD_WRAP:
                         WordWrap = Convert.ToBoolean(node.InnerText);
@@ -58,21 +58,7 @@ namespace CarMp
             }
         }
 
-        private float[] ConvertColor(string pValue)
-        {
-            if(pValue.Contains(','))
-                return XmlHelper.GetColorFromCommaRgb(pValue);
-            return XmlHelper.GetColorFromHtmlCode(pValue);
-        }
 
-        private ColorF ConvertToColorF(float[] pFloatArray)
-        {
-            return new ColorF(
-                pFloatArray[0] / 256,
-                pFloatArray[1] / 256,
-                pFloatArray[2] / 256,
-                pFloatArray[3] / 256);
-        }
 
         public Brush GetBrush(CarMp.Direct2D.RenderTargetWrapper pRenderWrapper)
         {
@@ -92,13 +78,13 @@ namespace CarMp
                             pRenderWrapper.Renderer.CreateGradientStopCollection(new GradientStop[] {
                             new GradientStop
                                 {
-                                    Color = ConvertToColorF(Color1),
+                                    Color = Direct2D.ConvertToColorF(Color1),
                                     Position = 0
                                 }
                                 ,
                             new GradientStop
                                 {
-                                    Color = ConvertToColorF(Color2),
+                                    Color = Direct2D.ConvertToColorF(Color2),
                                     Position = 1
                                 }
                             },
@@ -109,7 +95,7 @@ namespace CarMp
                 }
                 else
                 {
-                    _textBrush = pRenderWrapper.Renderer.CreateSolidColorBrush(ConvertToColorF(Color1));
+                    _textBrush = pRenderWrapper.Renderer.CreateSolidColorBrush(Direct2D.ConvertToColorF(Color1));
                 }
             }
             return _textBrush;

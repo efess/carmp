@@ -9,7 +9,14 @@ namespace CarMp
 {
     public static class XmlHelper
     {
-        public static float[] GetColorFromCommaRgb(string pXmlText)
+        public static float[] ConvertColor(string pValue)
+        {
+            if (pValue.Contains(','))
+                return XmlHelper.GetColorFromCommaRgb(pValue);
+            return XmlHelper.GetColorFromHtmlCode(pValue);
+        }
+
+        private static float[] GetColorFromCommaRgb(string pXmlText)
         {
             string[] parsed = pXmlText.Split(new char[] { ',' });
             if (parsed.Length < 3 || parsed.Length > 4)
@@ -33,7 +40,7 @@ namespace CarMp
             }
             return rgb;
         }
-        public static float[] GetColorFromHtmlCode(string pXmlText)
+        private static float[] GetColorFromHtmlCode(string pXmlText)
         {
             string modifiedText = pXmlText;
             if (pXmlText.Length == 7)

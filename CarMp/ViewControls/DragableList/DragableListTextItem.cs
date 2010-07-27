@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
 using Microsoft.WindowsAPICodePack.DirectX;
+using System.Xml;
 
 
 namespace CarMp.ViewControls
@@ -31,6 +32,11 @@ namespace CarMp.ViewControls
                 StringDrawFormat.WordWrapping = WordWrapping.NoWrap;
             }
 
+        }
+
+        public void ApplySkin(XmlNode pXmlNode, string pSkinPath)
+        {
+            base.ApplySkin(pXmlNode, pSkinPath);
         }
 
         /// <summary>

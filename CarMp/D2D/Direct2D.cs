@@ -46,6 +46,14 @@ namespace CarMp
             }
         }
 
+        public static ColorF ConvertToColorF(float[] pFloatArray)
+        {
+            return new ColorF(
+                pFloatArray[0] / 256,
+                pFloatArray[1] / 256,
+                pFloatArray[2] / 256,
+                pFloatArray[3] / 256);
+        }
         public static D2DBitmap GetBitmap(BitmapData pBitmapData, RenderTarget pRenderTarget)
         {
             try

@@ -20,7 +20,7 @@ namespace CarMp.Views
         private CarMp.Direct2D.BitmapData _navigationBarBackgroundBitmapData;
         private D2DBitmap _navigationBarBackgroundBitmap = null;
         
-        public void ApplySkin(XmlNode pSkinNode, string pSkinPath)
+        public virtual void ApplySkin(XmlNode pSkinNode, string pSkinPath)
         {
             _navigationBarBackgroundBitmap = null;
             XmlNode navNode = pSkinNode.SelectSingleNode(XPATH_NAVIGATION_NODE);
@@ -35,11 +35,14 @@ namespace CarMp.Views
                     switch (buttonNode.Name)
                     {
                         case D2DViewFactory.MEDIA:
-                            button.Click += new EventHandler((sender, e) => AppMain.AppFormHost.ShowView(D2DViewFactory.MEDIA));
-                            break;
                         case D2DViewFactory.HOME:
-                            button.Click += new EventHandler((sender, e) => AppMain.AppFormHost.ShowView(D2DViewFactory.HOME));
-                            break;
+                        case D2DViewFactory.OPTIONS:
+                        case D2DViewFactory.NAVIGATION:
+                            {
+                                string localVar = buttonNode.Name;
+                                button.Click += (sender, e) => AppMain.AppFormHost.ShowView(localVar);
+                                break;
+                            }
                     }
                 }
 

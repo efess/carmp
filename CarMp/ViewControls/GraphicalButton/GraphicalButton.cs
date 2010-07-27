@@ -14,29 +14,25 @@ using Microsoft.WindowsAPICodePack.DirectX;
 
 namespace CarMp.ViewControls
 {
-    public partial class GraphicalButton : D2DViewControl, ISkinable
+    public partial class GraphicalButton : D2DViewControl, ISkinable, IDisposable
     {
         public event EventHandler Click;
 
-        private const string XPATH_LAYOUT = "Layout";
         private const string XPATH_BOUNDS = "Bounds";
+        private const string XPATH_TEXT = "Text";
+        private const string XPATH_LAYOUT = "Layout";
         private const string XPATH_BUTTON_UP_IMAGE = "FaceUpImg";
         private const string XPATH_BUTTON_DOWN_IMAGE = "FaceDownImg";
+        private Text _textControl;
 
         // Direct2d Resources
-        private TextLayout StringLayout = null;
-        private TextFormat StringDrawFormat = null;
-        private SolidColorBrush StringBrush = null;
         private D2DBitmap ButtonUpBitmap = null;
         private D2DBitmap ButtonDownBitmap = null;
 
-        ~GraphicalButton()
+        public void Dispose()
         {
-            StringLayout.Dispose();
-            StringDrawFormat.Dispose();
-            StringBrush.Dispose();
-            ButtonUpBitmap.Dispose();
-            ButtonDownBitmap.Dispose();
+            if(ButtonUpBitmap != null) ButtonUpBitmap.Dispose();
+            if(ButtonDownBitmap != null) ButtonDownBitmap.Dispose();
         }
 
         private bool _mouseDown;
@@ -45,34 +41,44 @@ namespace CarMp.ViewControls
         private Direct2D.BitmapData _buttonUpImageData;
 
         private string _buttonString = "";
-
-        /// <summary>
-        /// String that appears centered on the button
-        /// </summary>
-        public string ButtonString
-        {
+        public string ButtonString { 
             get { return _buttonString; }
-            set { 
-                _buttonString = value;
-                StringLayout = null;
+            set { _buttonString = value;
+            if (_textControl != null)
+                _textControl.TextString = value;
             }
         }
 
         public void ApplySkin(XmlNode pXmlNode, string pSkinPath)
         {
+            this.Clear();
+
+            SkinningHelper.XmlRectangleFEntry(XPATH_BOUNDS, pXmlNode, ref _bounds);
             XmlNode xmlNode = pXmlNode.SelectSingleNode(XPATH_BUTTON_DOWN_IMAGE);
-            if(xmlNode != null)
+
+            if (xmlNode != null)
+            {
                 _buttonDownImageData = new Direct2D.BitmapData(System.IO.Path.Combine(pSkinPath, xmlNode.InnerText));
+                ButtonDownBitmap = null;
+            }
 
             xmlNode = pXmlNode.SelectSingleNode(XPATH_BUTTON_UP_IMAGE);
             if (xmlNode != null)
-                _buttonUpImageData = new Direct2D.BitmapData(System.IO.Path.Combine(pSkinPath, xmlNode.InnerText));
-            
-            if(!SkinningHelper.XmlRectangleFEntry(XPATH_BOUNDS, pXmlNode, ref _bounds))
             {
-                throw new Exception("Button " + pXmlNode.Name + " does not contain a Bounds element");
+                _buttonUpImageData = new Direct2D.BitmapData(System.IO.Path.Combine(pSkinPath, xmlNode.InnerText));
+                ButtonUpBitmap = null;
             }
-                   
+            
+            xmlNode = pXmlNode.SelectSingleNode(XPATH_TEXT);
+            if (xmlNode != null)
+            {
+                _textControl = new Text();
+                _textControl.ApplySkin(xmlNode, pSkinPath);
+                _textControl.TextString = _buttonString;
+                AddViewControl(_textControl);
+                _textControl.SendMouseEventsToParent = true;
+                _textControl.StartRender();
+            }
         }
 
         public void SetButtonUpBitmapData(string pImageFile)
@@ -84,36 +90,10 @@ namespace CarMp.ViewControls
             _buttonDownImageData = new Direct2D.BitmapData(pImageFile);
         }
 
-        public GraphicalButton()
-        {
-            
-            if (StringDrawFormat == null)
-            {
-                StringDrawFormat = Direct2D.StringFactory.CreateTextFormat(
-                    "Arial",
-                    20F,
-                    FontWeight.Normal,
-                    FontStyle.Normal,
-                    FontStretch.Normal,
-                    new System.Globalization.CultureInfo("en-us"));
-
-                StringDrawFormat.TextAlignment = TextAlignment.Center;
-                StringDrawFormat.WordWrapping = WordWrapping.Wrap;
-            }
-        }
+        public GraphicalButton() { }
 
         protected override void OnRender(Direct2D.RenderTargetWrapper pRenderer)
         {
-            if (StringLayout == null)
-            {
-                StringLayout = Direct2D.StringFactory.CreateTextLayout(_buttonString, StringDrawFormat, Bounds.Width, Bounds.Height);
-            }
-
-            if(StringBrush == null)
-            {
-                StringBrush = pRenderer.Renderer.CreateSolidColorBrush(new ColorF(Colors.White, 1F));
-            }
-
             if (ButtonUpBitmap == null
                 && _buttonUpImageData.Data != null)
             {
@@ -126,9 +106,6 @@ namespace CarMp.ViewControls
                 ButtonDownBitmap = Direct2D.GetBitmap(_buttonDownImageData, pRenderer.Renderer);
             }
 
-            pRenderer.DrawTextLayout(new Point2F(0, 0), StringLayout, StringBrush);
-            
-            //pRenderTarget.DrawTextring(_buttonString, new Font(FontFamily.GenericSansSerif, 12), new SolidBrush(Color.Blue), new Point(5, 5));
 
             RectF imageLocation = new RectF(
                 0,

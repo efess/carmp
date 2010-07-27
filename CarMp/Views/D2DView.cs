@@ -14,6 +14,5 @@ namespace CarMp.Views
         {
             Bounds = new RectF(0, 0, pWindowSize.Width, pWindowSize.Height);
         }
-
     }
 }

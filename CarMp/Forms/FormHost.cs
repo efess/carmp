@@ -196,6 +196,7 @@ namespace CarMp.Forms
 
         public void ApplySkin()
         {
+            SessionSettings.CurrentSkin.ReloadCurrent();
             foreach (KeyValuePair<string, D2DView> kv in _loadedViews)
             {
                 D2DView view = kv.Value;
@@ -207,6 +208,19 @@ namespace CarMp.Forms
                         (view as ISkinable).ApplySkin(viewSkinNode, SessionSettings.SkinPath);
                 }
             }
+
+            XmlNode infoBarNode = SessionSettings.CurrentSkin.GetOverlayNodeSkin("MediaInfoBar");
+            XmlNode controlBarNode = SessionSettings.CurrentSkin.GetOverlayNodeSkin("MediaControlBar");
+
+            foreach (D2DViewControl control in _overlayViewControls)
+            {
+                if (control is MediaInfoBar)
+                    (control as MediaInfoBar).ApplySkin(infoBarNode, SessionSettings.SkinPath);
+
+                if (control is MediaControlBar)
+                    (control as MediaControlBar).ApplySkin(controlBarNode, SessionSettings.SkinPath);
+            }
+                
         }
 
         // OnPaint implmentation

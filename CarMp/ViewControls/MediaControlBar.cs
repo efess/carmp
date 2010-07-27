@@ -14,7 +14,7 @@ namespace CarMp.ViewControls
         private const string XPATH_PROGRESS_BAR = "ThermometerProgressBar";
         private const string XPATH_ANIMATION_POINT = "AnimationPath/*";
         private const string XPATH_BACKGROUND_IMAGE = "BackgroundImg";
-        private const string XPATH_TEXT = "Text";
+        private const string XPATH_POSITION_TEXT = "PositionText";
 
         private const string XPATH_NODE_PLAY = "Play";
         private const string XPATH_NODE_STOP = "Stop";
@@ -43,7 +43,7 @@ namespace CarMp.ViewControls
                     System.IO.Path.Combine(pSkinPath, node.InnerText));
             }
 
-            node = pSkinViewNode.SelectSingleNode(XPATH_TEXT);
+            node = pSkinViewNode.SelectSingleNode(XPATH_POSITION_TEXT);
             if (node != null)
             {
                 Text text = new Text();

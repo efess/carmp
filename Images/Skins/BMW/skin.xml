@@ -47,6 +47,7 @@
         </Buttons>
       </NavigationBar>
       <MediaList>
+        <BackgroundColor>0,0,0,160</BackgroundColor>
         <Bounds>120,80,435,344</Bounds>
       </MediaList>
       <ShortcutList>
@@ -57,6 +58,55 @@
       </ShortcutList>
     </Media>
     <Options>
+        <BackgroundImg>Jp-Solberg1920x1200.jpg</BackgroundImg>
+        <NavigationBar>
+          <BackgroundImg>NavigationBar.png</BackgroundImg>
+          <Buttons>
+            <Home>
+              <Bounds>4,5,100,80</Bounds>
+              <FaceUpImg>home.png</FaceUpImg>
+              <FaceDownImg>home.png</FaceDownImg>
+            </Home>
+            <Navigation>
+              <Bounds>4,90,100,80</Bounds>
+              <FaceUpImg>world.png</FaceUpImg>
+              <FaceDownImg>world.png</FaceDownImg>
+            </Navigation>
+            <Media>
+              <Bounds>4,175,100,80</Bounds>
+              <FaceUpImg>music.png</FaceUpImg>
+              <FaceDownImg>music.png</FaceDownImg>
+            </Media>
+          </Buttons>
+        </NavigationBar>
+      <OptionsList>
+        <Bounds>120,200,435,344</Bounds>
+        <BackgroundColor>0,0,0,60</BackgroundColor>
+      </OptionsList>
+      <OptionDetails>
+        <Bounds>120,20,435,190</Bounds>
+        <BackgroundColor>0,0,0,60</BackgroundColor>
+      </OptionDetails>
+      <OptionViews>
+        <Skinning>
+          <ApplySkin>
+            <Bounds>50,100,260,150</Bounds>
+            <FaceUpImg>button_depressed.png</FaceUpImg>
+            <FaceDownImg>button_pressed.png</FaceDownImg>
+            <Text>
+              <Bounds>0,5,160,55</Bounds>
+              <TextStyle>
+                <Size>20</Size>
+                <Face>Arial</Face>
+                <ColorOne>#CCCCCC</ColorOne>
+                <ColorTwo>#666666</ColorTwo>
+                <WordWrap>True</WordWrap>
+                <Alignment>Center</Alignment>
+              </TextStyle>
+            </Text>
+          </ApplySkin>
+        </Skinning>
+      </OptionViews>
     </Options>
     <Navigation>
     </Navigation>
@@ -101,9 +151,9 @@
         <BackgroundImg>ProgressBackground.png</BackgroundImg>
         <OverlayMask>ProgressOverlay.png</OverlayMask>
       </ThermometerProgressBar>
-      <Text>
+      <PositionText>
         <Bounds>478,40,75,27</Bounds>
-        <TextPosition>30,1</TextPosition>
+        <TextPosition>-5,1</TextPosition>
         <BackgroundImg>PositionBackground.png</BackgroundImg>
         <TextStyle>
           <Size>20</Size>
@@ -111,9 +161,9 @@
           <ColorOne>#CCCCCC</ColorOne>
           <ColorTwo>#CCCCCC</ColorTwo>
           <WordWrap>False</WordWrap>
-          <Alignment>Leading</Alignment>
+          <Alignment>Trailing</Alignment>
         </TextStyle>
-      </Text>
+      </PositionText>
     </MediaControlBar>
     <MediaInfoBar>
       <Bounds>300,0,340,60</Bounds>

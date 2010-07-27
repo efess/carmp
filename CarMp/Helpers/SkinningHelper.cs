@@ -55,5 +55,29 @@ namespace CarMp
             }
             return false;
         }
+
+        public static bool XmlColorEntry(string pXpath, XmlNode pXmlNode, ref ColorF pColor)
+        {
+            XmlNode xmlNode = pXmlNode.SelectSingleNode(pXpath);
+            if (xmlNode != null)
+            {
+                pColor = Direct2D.ConvertToColorF(XmlHelper.ConvertColor(xmlNode.InnerText));
+                
+                return true;
+            }
+            return false;
+                
+        }
+
+        public static bool ApplySkinNodeIfExists(string pXPath, XmlNode pXmlNode, string pSkinPath, ISkinable pSkinable)
+        {
+            XmlNode node = pXmlNode.SelectSingleNode(pXPath);
+            if (node != null)
+            {
+                pSkinable.ApplySkin(node, pSkinPath);
+                return true;
+            }
+            return false;
+        }
     }
 }

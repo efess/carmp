@@ -166,6 +166,8 @@
     <Compile Include="ViewControls\MediaControlBar.cs" />
     <Compile Include="ViewControls\MediaInfoBar.cs" />
     <Compile Include="ViewControls\MediaShortcut.cs" />
+    <Compile Include="ViewControls\OptionControls\IOptionControl.cs" />
+    <Compile Include="ViewControls\OptionControls\Skinning.cs" />
     <Compile Include="ViewControls\OverlayControls.cs" />
     <Compile Include="ViewControls\ScrollableText\ScrollableText.cs" />
     <Compile Include="ViewControls\Text\Text.cs" />
@@ -202,6 +204,7 @@
     <Compile Include="RootItem.cs" />
     <Compile Include="SessionSettings.cs" />
     <Compile Include="SystemInformation.cs" />
+    <Compile Include="ViewControls\ViewControlCommonBase.cs" />
     <Compile Include="Views\D2DView.cs" />
     <Compile Include="ViewControls\D2DViewControl.cs" />
     <Compile Include="ViewControls\GraphicalProgressBar\GraphicalProgressBar.cs" />
@@ -210,6 +213,7 @@
     <Compile Include="Views\MediaView.cs" />
     <Compile Include="Helpers\Win32Helpers.cs" />
     <Compile Include="Views\NavigationView.cs" />
+    <Compile Include="Views\OptionsView.cs" />
     <Compile Include="WinampController.cs" />
   </ItemGroup>
   <ItemGroup>

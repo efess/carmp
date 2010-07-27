@@ -2,33 +2,36 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using Microsoft.WindowsAPICodePack.DirectX;
+using System.Xml;
 
 namespace CarMp.ViewControls
 {
-    public abstract class DragableListItem : D2DViewControl, IDisposable
+    public abstract class DragableListItem : ViewControlCommonBase, IDisposable, ISkinable
     {
         private const int SELECTION_BORDER_PADDING = 1;
+        private const int BACKGROUND_BOUNDS_PADDING = 2;
 
         private LinearGradientBrush SelectionGradient;
 
         // Private members
         private int m_index;
         private String m_txtLabelString;
-        private Font m_txtLabelFont;
         private Boolean m_selected;
         private System.Drawing.Bitmap m_canvas;
         private bool m_buffered;
-        private Size m_size;
+        private Brush _backgroundBrush;
+
+        public object Tag { get; set; }
 
         // Rectangle used to create selection square
         private RectF m_selectionRectangle;
 
+        private RectF _backgroundRect;
         // Constructors
 
         public DragableListItem()
@@ -42,9 +45,15 @@ namespace CarMp.ViewControls
             m_selectionRectangle = new RectF(
                 SELECTION_BORDER_PADDING,
                 SELECTION_BORDER_PADDING,
-                Width - (SELECTION_BORDER_PADDING * 2),
-                Height - (SELECTION_BORDER_PADDING * 2)
+                Width - SELECTION_BORDER_PADDING,
+                Height - SELECTION_BORDER_PADDING
                 );
+
+        }
+
+        public virtual void ApplySkin(XmlNode pXmlNode, string pSkinPath)
+        {
+            base.ApplySkin(pXmlNode, pSkinPath);
         }
 
         internal Boolean Buffered
@@ -112,6 +121,10 @@ namespace CarMp.ViewControls
         /// <param name="pCanvas"></param>
         protected override void OnRender(CarMp.Direct2D.RenderTargetWrapper pRenderer) 
         {
+            if(_backgroundBrush == null)
+            {
+                _backgroundBrush = pRenderer.Renderer.CreateSolidColorBrush(new ColorF(Colors.Black, .3f));
+            }
             if (m_selected)
             {
                 if (SelectionGradient == null)
@@ -140,6 +153,7 @@ namespace CarMp.ViewControls
 
                 pRenderer.DrawRectangle(SelectionGradient, m_selectionRectangle, 2F);
             }
+            pRenderer.FillRectangle(_backgroundBrush, _backgroundRect);
         }
 
 
@@ -151,11 +165,11 @@ namespace CarMp.ViewControls
         /// </summary>
         public virtual void Dispose()
         {
-            if (m_txtLabelFont != null)
-                m_txtLabelFont.Dispose();
+            if (_backgroundBrush != null)
+                _backgroundBrush.Dispose();
 
-            if (m_canvas != null)
-                m_canvas.Dispose();
+            if (SelectionGradient != null)
+                SelectionGradient.Dispose();
         }
 
         #endregion

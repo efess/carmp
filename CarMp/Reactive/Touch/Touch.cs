@@ -6,7 +6,7 @@ using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace CarMp.Reactive.Touch
 {
-    public class Touch
+    public class Touch : ReactiveUpdate
     {
         public Point2F Location { get; private set;}
         public float X { get { return Location.X;}}

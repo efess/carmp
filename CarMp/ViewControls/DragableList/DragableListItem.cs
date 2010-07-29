@@ -106,13 +106,13 @@ namespace CarMp.ViewControls
         /// Send Touch events to Parent (List)
         /// </summary>
         /// <param name="pTouch"></param>
-        public override void SendTouch(Reactive.Touch.Touch pTouch)
+        public override void SendUpdate(Reactive.ReactiveUpdate pReactiveUpdate)
         {
             if (Parent != null
                 && Parent is DragableList)
-                Parent.SendTouch(pTouch);
+                Parent.SendUpdate(pReactiveUpdate);
 
-            base.SendTouch(pTouch);
+            base.SendUpdate(pReactiveUpdate);
         }
         
         /// <summary>

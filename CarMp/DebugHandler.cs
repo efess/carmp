@@ -12,6 +12,7 @@ namespace CarMp
 
         public static void DebugPrint(String debugString)
         {
+            return;
             if(Ds != null)
             {
                 Ds.Invoke(debugString);

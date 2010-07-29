@@ -5,10 +5,13 @@ using System.Text;
 using System.Windows.Forms;
 using System.Drawing;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMp.Reactive.KeyInput;
+using CarMp.Win32;
+using System.Diagnostics;
 
 namespace CarMp.Reactive.Touch
 {
-    public class EventToTouchBridge
+    public class W32MessageToReactive
     {
         //**** Mouse State Vars
 
@@ -31,14 +34,28 @@ namespace CarMp.Reactive.Touch
         public int TouchSwipeVelocityThreshold { get; set; }
 
         //****
-        private Control _control;
-        public readonly TouchObservables ObservablTouchActions;
 
-        public EventToTouchBridge(Control pControl)
+        //**** Keyboard Bools
+
+        private bool _shift = false;
+        private bool _ctrl = false;
+        private bool _alt = false;
+
+        //*****
+        private IMessageHookable _hookedPump;
+        private Control _control;
+        public readonly Observables ObservableActions;
+
+        public W32MessageToReactive(Control pControl)
         {
             if (pControl == null)
                 throw new ArgumentNullException("pControl");
-            
+
+            if (pControl is IMessageHookable)
+            {
+                (pControl as IMessageHookable).MessagePump +=
+                    new Messenger(ProcessMessage); 
+            }
             _control = pControl;
 
             // Defaults
@@ -50,15 +67,64 @@ namespace CarMp.Reactive.Touch
             _velocityAgg = new VelocityAggregator(3);
 
             CreateEventSubscriptions();
-            ObservablTouchActions = new TouchObservables();
+            ObservableActions = new Observables();
             _velocityTimer = new System.Threading.Timer(new System.Threading.TimerCallback(ProcessVelocity));
+        }
+
+        public void ProcessMessage(ref Message pMessage)
+        {
+            switch (pMessage.Msg)
+            {
+                case WindowsMessages.WM_KEYDOWN:
+                    {
+                        short test = Win32Helpers.GetKeyState((int)Keys.CapsLock);
+                        short TEST2 = Win32Helpers.GetKeyState((int)Keys.ShiftKey);
+                        bool _upper = Win32Helpers.GetKeyState((int)Keys.CapsLock) != 0
+                            ^ Win32Helpers.GetKeyState((int)Keys.ShiftKey) != 0;
+
+                        int iKey =(int) Win32Helpers.MapVirtualKey((uint)pMessage.WParam, 2);
+                        Keys key = (Keys)pMessage.WParam;
+                        Debug.WriteLine("Shift: " + _upper + " KeyDown " + key.ToString() + ", " + iKey.ToString() + ", " + ((int)((Keys)iKey & Keys.KeyCode)).ToString());
+                        switch(key)
+                        {
+                            case Keys.ShiftKey:
+                                _shift = true;
+                                break;;
+                            case Keys.ControlKey:
+                                _ctrl = true;
+                                break;
+                            case Keys.Alt:
+                                _alt = true;
+                                break;
+                            default:
+                                ProcessKeyPress((char)TranslateKey(iKey), key);
+                                break;
+                        }
+                    }
+                    break;
+                
+            }
+        }
+
+        private int TranslateKey(int pChar)
+        {
+            if (pChar >= 65 && pChar <= 90)
+                if (!_shift)
+                    return pChar + 32;
+            return pChar;
         }
 
         public void CreateEventSubscriptions()
         {
+            //_control.KeyPress += (sender, e) => ProcessKeyPress(e);
             _control.MouseUp += (sender, e) => ProcessMouseUp(e);
             _control.MouseDown += (sender, e) => ProcessMouseDown(e);
             _control.MouseMove += (sender, e) => ProcessMouseMove(e);
+        }
+
+        private void ProcessKeyPress(char pChar, Keys pKeyChar)
+        {
+            SendKeyInput(new Key(pChar, pKeyChar));
         }
 
         private void ProcessMouseUp(MouseEventArgs e)
@@ -168,16 +234,20 @@ namespace CarMp.Reactive.Touch
 
         }
 
+        private void SendKeyInput(Key pKeyInput)
+        {
+            ObservableActions.ObsKeyInput.PushKeyInput(pKeyInput);
+        }
 
         private void SendTouchGesture(TouchGesture pTouchGesture)
         {
-            ObservablTouchActions.ObsTouchGesture.PushTouchGesture(pTouchGesture);
+            ObservableActions.ObsTouchGesture.PushTouchGesture(pTouchGesture);
             DebugHandler.DebugPrint("Gesture: " + pTouchGesture.Gesture.ToString() + " at " + pTouchGesture.X.ToString() + "," + pTouchGesture.Y.ToString());
         }
 
         private void SendTouchMove(TouchMove pTouchMove)
         {
-            ObservablTouchActions.ObsTouchMove.PushTouchMove(pTouchMove);
+            ObservableActions.ObsTouchMove.PushTouchMove(pTouchMove);
             DebugHandler.DebugPrint("Velocity: " + pTouchMove.Velocity.VelocityD.ToString() + ", down: " + pTouchMove.TouchDown.ToString() + " at " + pTouchMove.X.ToString() + "," + pTouchMove.Y.ToString());
         }
     }

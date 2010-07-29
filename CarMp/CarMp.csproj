@@ -103,18 +103,22 @@
     <Compile Include="D2D\RectFExt.cs" />
     <Compile Include="EventQueue.cs" />
     <Compile Include="FileSystem\FileMediaInfo.cs" />
+    <Compile Include="IMessageHookable.cs" />
+    <Compile Include="Reactive\KeyInput\KeyboardObservable.cs" />
+    <Compile Include="Reactive\KeyInput\Key.cs" />
+    <Compile Include="Reactive\ReactiveUpdate.cs" />
     <Compile Include="TextStyle.cs" />
     <Compile Include="Helpers\SkinningHelper.cs" />
     <Compile Include="IAudioController.cs" />
     <Compile Include="MediaListItemFactory.cs" />
     <Compile Include="Reactive\DefaultObservable.cs" />
-    <Compile Include="Reactive\Touch\EventToTouchBridge.cs" />
+    <Compile Include="Reactive\Touch\W32MessageToReactive.cs" />
     <Compile Include="Reactive\Touch\TouchGesture.cs" />
     <Compile Include="Reactive\Touch\Touch.cs" />
     <Compile Include="Reactive\Touch\TouchGestureObservable.cs" />
     <Compile Include="Reactive\Touch\TouchMove.cs" />
     <Compile Include="Reactive\Touch\TouchMoveObservable.cs" />
-    <Compile Include="Reactive\Touch\TouchObservable.cs" />
+    <Compile Include="Reactive\Observables.cs" />
     <Compile Include="Reactive\Touch\Velocity.cs" />
     <Compile Include="Reactive\Touch\VelocityAggregator.cs" />
     <Compile Include="Reactive\UnSubscriber.cs" />
@@ -167,9 +171,11 @@
     <Compile Include="ViewControls\MediaInfoBar.cs" />
     <Compile Include="ViewControls\MediaShortcut.cs" />
     <Compile Include="ViewControls\OptionControls\IOptionControl.cs" />
+    <Compile Include="ViewControls\OptionControls\MediaLocation.cs" />
     <Compile Include="ViewControls\OptionControls\Skinning.cs" />
     <Compile Include="ViewControls\OverlayControls.cs" />
     <Compile Include="ViewControls\ScrollableText\ScrollableText.cs" />
+    <Compile Include="ViewControls\TextInput\TextInput.cs" />
     <Compile Include="ViewControls\Text\Text.cs" />
     <Compile Include="ViewControls\ThermometerProgressBar\ThermometerProgressBar.cs" />
     <Compile Include="Helpers\XmlHelper.cs" />
@@ -214,6 +220,7 @@
     <Compile Include="Helpers\Win32Helpers.cs" />
     <Compile Include="Views\NavigationView.cs" />
     <Compile Include="Views\OptionsView.cs" />
+    <Compile Include="Win32\WindowsMessages.cs" />
     <Compile Include="WinampController.cs" />
   </ItemGroup>
   <ItemGroup>

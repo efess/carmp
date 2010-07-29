@@ -15,11 +15,18 @@ namespace CarMp.ViewControls
         private const string XPATH_TEXT_STYLE = "TextStyle";
         private Font _font;
         private Point2F _textPosition = new Point2F(0, 0);
-        private TextStyle _textStyle;
+        
         private TextLayout StringLayout = null;
         private SolidColorBrush ColorBrush = null;
+
+        private object stringLayoutLock = new Object();
         
+        private TextStyle _textStyle;
+        public TextStyle TextStyle { get { return _textStyle; } }
+
         internal bool SendMouseEventsToParent { get; set;}
+
+        private bool _invalidateTextLayout = true;
 
         public void Dispose()
         {
@@ -44,7 +51,7 @@ namespace CarMp.ViewControls
             _textPosition = new Point2F(0, 0);
             SkinningHelper.XmlPointFEntry(XPATH_TEXT_POSITION, pSkinNode,ref _textPosition);
             if (SkinningHelper.XmlTextStyleEntry(XPATH_TEXT_STYLE, pSkinNode, ref _textStyle))
-                StringLayout = null;
+                _invalidateTextLayout = true;
         }
 
         private string _textString;
@@ -54,10 +61,35 @@ namespace CarMp.ViewControls
             set
             {
                 _textString = value;
-                StringLayout = null;
+                _invalidateTextLayout = true;
             }
         }
-        
+
+        public float GetWidthAtCharPosition(int pCharPosition)
+        {
+            float xPixelLocation = 0.0f;
+            if (StringLayout != null)
+            {
+                float yPixelLocation = 0.0f;
+                StringLayout.HitTestTextPosition((uint)pCharPosition, false, out xPixelLocation, out yPixelLocation);
+            }
+            return xPixelLocation;
+        }
+
+        public int GetTextPositionAtPoint(Point2F pPoint)
+        {
+            if (StringLayout != null)
+            {
+                bool isTrailingHit;
+                bool isInside;
+                var metrics = StringLayout.HitTestPoint(pPoint.X, pPoint.Y, out isTrailingHit, out isInside);
+                if (!isInside && TextString.Length == (int)metrics.TextPosition + 1)
+                    return TextString.Length;
+                return (int)metrics.TextPosition;
+            }
+            return 0;
+        }
+
         protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
         {
             base.OnRender(pRenderTarget);
@@ -67,18 +99,19 @@ namespace CarMp.ViewControls
 
             if (_textStyle.Format == null)
                 _textStyle.Initialize(Direct2D.StringFactory);
+
             
-            if (StringLayout == null)
+            if (StringLayout == null || _invalidateTextLayout)
                 StringLayout = Direct2D.StringFactory.CreateTextLayout(_textString, _textStyle.Format, Bounds.Width, Bounds.Height);
 
             pRenderTarget.DrawTextLayout(_textPosition, StringLayout, _textStyle.GetBrush(pRenderTarget));
         }
 
-        public override void SendTouch(Reactive.Touch.Touch pTouch)
+        public override void SendUpdate(Reactive.ReactiveUpdate pReactiveUpdate)
         {
             if (Parent != null
                 && SendMouseEventsToParent)
-                Parent.SendTouch(pTouch);
+                Parent.SendUpdate(pReactiveUpdate);
         }
     }
 }

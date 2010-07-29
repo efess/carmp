@@ -6,6 +6,8 @@ using System.Windows.Forms;
 using CarMp.Views;
 using CarMp.Reactive.Touch;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMp.Reactive;
+using CarMp.Reactive.KeyInput;
 
 namespace CarMp.ViewControls
 {
@@ -14,7 +16,9 @@ namespace CarMp.ViewControls
         public event EventHandler RenderStart;
         public event EventHandler RenderStop;
 
+        internal static D2DViewControl HasInputControl { get;  set; }
         protected D2DViewControl _mouseDownControl;
+
         private List<D2DViewControl> _viewControls;
 
         private bool _renderOk = false;
@@ -112,7 +116,7 @@ namespace CarMp.ViewControls
             if (Parent == null)
                 return pChildBounds;
             
-            return pChildBounds.Intersect(Parent.Bounds); ;
+            return pChildBounds.Intersect(Parent.GetScreenBounds()); ;
         }
 
         internal RectF GetScreenBounds()
@@ -184,22 +188,38 @@ namespace CarMp.ViewControls
             }
         }
 
-        public virtual void SendTouch(Touch pTouch) 
+        public virtual void SendUpdate(ReactiveUpdate pReactiveUpdate) 
         {
-            Point2F newPoint = ConvertScreenToControlPoint(pTouch.Location);
+            if (pReactiveUpdate is Touch)
+            {
+                Point2F newPoint = ConvertScreenToControlPoint((pReactiveUpdate as Touch).Location);
 
-            if (pTouch is TouchMove)
-            {
-                OnTouchMove(new TouchMove(newPoint, (pTouch as TouchMove).TouchDown,(pTouch as TouchMove).Velocity));
+                if (pReactiveUpdate is TouchMove)
+                {
+                    OnTouchMove(new TouchMove(newPoint, (pReactiveUpdate as TouchMove).TouchDown, (pReactiveUpdate as TouchMove).Velocity));
+                }
+                else if (pReactiveUpdate is TouchGesture)
+                {
+                    if((pReactiveUpdate as TouchGesture).Gesture == GestureType.Click)
+                        SetInputControl();
+                    OnTouchGesture(new TouchGesture((pReactiveUpdate as TouchGesture).Gesture, newPoint));
+                }
             }
-            else if (pTouch is TouchGesture)
+            else if (pReactiveUpdate is Key)
             {
-                OnTouchGesture(new TouchGesture((pTouch as TouchGesture).Gesture,newPoint));
+                OnKeyPressed(pReactiveUpdate as Key);
             }
         }
 
+        protected virtual void OnKeyPressed(Key pKey) { }
         protected virtual void OnTouchGesture(TouchGesture pTouchGesture) { }
+
         protected virtual void OnTouchMove(TouchMove pTouchMove) { }
+
+        private void SetInputControl()
+        {
+            HasInputControl = this;
+        }
 
         public virtual void Dispose() { }
 

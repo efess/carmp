@@ -12,10 +12,11 @@ using System.Xml;
 using CarMp.Reactive.Touch;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using Microsoft.WindowsAPICodePack.DirectX;
+using CarMp.Reactive.KeyInput;
 
 namespace CarMp.Forms
 {
-    public partial class FormHost : Form
+    public partial class FormHost : Form, IMessageHookable
     {
         private ManualResetEvent _viewChanging;
 
@@ -27,14 +28,21 @@ namespace CarMp.Forms
 
         private List<D2DViewControl> _overlayViewControls;
 
-        private EventToTouchBridge _mouseEventProcessor;
+        private W32MessageToReactive _mouseEventProcessor;
         private Dictionary<string, D2DView> _loadedViews;
         private D2DView _currentView;
 
         private D2DViewFactory _viewFactory;
 
         private Direct2D.RenderTargetWrapper _renderTarget;
+        protected override void WndProc(ref Message m)
+        {
+            if (MessagePump != null)
+                MessagePump(ref m);
 
+            base.WndProc(ref m);
+        }
+        public Messenger MessagePump { get; set; }
         RenderTargetProperties _renderProps = new RenderTargetProperties
         {
             PixelFormat = new PixelFormat(
@@ -45,12 +53,15 @@ namespace CarMp.Forms
             // sharing between hardware (HwndRenderTarget) 
             // and software (WIC Bitmap render Target).
         };
+        
+
         public FormHost()
         {
             // Initialize & set Touch Observable
-            _mouseEventProcessor = new EventToTouchBridge(this);
-            _mouseEventProcessor.ObservablTouchActions.ObsTouchGesture.Subscribe((tg) => RouteTouchEvents(tg));
-            _mouseEventProcessor.ObservablTouchActions.ObsTouchMove.Subscribe((tm) => RouteTouchEvents(tm));
+            _mouseEventProcessor = new W32MessageToReactive(this);
+            _mouseEventProcessor.ObservableActions.ObsTouchGesture.Subscribe((tg) => RouteTouchEvents(tg));
+            _mouseEventProcessor.ObservableActions.ObsTouchMove.Subscribe((tm) => RouteTouchEvents(tm));
+            _mouseEventProcessor.ObservableActions.ObsKeyInput.Subscribe((ki) => RouteKeyInputEvents(ki));
             //D2DViewControl.SetTouchObservables(_mouseEventProcessor.ObservablTouchActions);
 
             _viewChanging = new ManualResetEvent(false);
@@ -85,6 +96,12 @@ namespace CarMp.Forms
             renderingLoop.BeginInvoke(null, null);
         }
 
+        public void RouteKeyInputEvents(Key pKeyInput)
+        {
+            if (D2DViewControl.HasInputControl != null)
+                D2DViewControl.HasInputControl.SendUpdate(pKeyInput);
+        }
+
         public void RouteTouchEvents(Touch pTouchEvent)
         {
             D2DViewControl currentlySelected = null;
@@ -95,15 +112,14 @@ namespace CarMp.Forms
                 currentlySelected = _overlayViewControls[i].GetViewControlContainingPoint(pTouchEvent.Location);
                 if (currentlySelected != null)
                 {
-                    currentlySelected.SendTouch(pTouchEvent);
+                    currentlySelected.SendUpdate(pTouchEvent);
                     return;
                 }
             }
-
             
             currentlySelected = _currentView.GetViewControlContainingPoint(pTouchEvent.Location);
             if(currentlySelected != null)
-                currentlySelected.SendTouch(pTouchEvent);
+                currentlySelected.SendUpdate(pTouchEvent);
         }
 
         private void InitializeOverlayControls()

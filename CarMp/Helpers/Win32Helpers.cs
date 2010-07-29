@@ -25,6 +25,18 @@ namespace CarMp
         [DllImport("User32.dll", EntryPoint = "SendMessage")]
         public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
 
+        [DllImport("user32.dll")]
+        public static extern int MapVirtualKey(uint uCode, uint uMapType);
+        
+        [DllImport("user32.dll")]
+        public static extern int GetKeyboardState(byte [] lpKeyState);
+
+        [DllImport("user32.dll")]
+        public static extern short GetAsyncKeyState(int pKey);
+
+        [DllImport("user32.dll")]
+        public static extern short GetKeyState(int pKey);
+
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern int SendMessage(
         IntPtr hwnd,

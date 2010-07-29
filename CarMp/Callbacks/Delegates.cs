@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 
 namespace CarMp
 {
+    public delegate void Messenger(ref Message pMessage);
     public delegate void MediaUpdate(List<MediaItem> MInfo);
 
     public delegate bool FileCheck(String FileName, Int32 FileSize);

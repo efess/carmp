@@ -46,6 +46,36 @@ namespace CarMp
             }
         }
 
+        public static LinearGradientBrush GetBasicLinearGradient(
+            RenderTarget pRenderer,
+            RectF pBounds,
+            ColorF pColor1,
+            ColorF pColor2)
+        {
+            return pRenderer.CreateLinearGradientBrush(
+                    new LinearGradientBrushProperties()
+                    {
+                        StartPoint = new Point2F(0, 0),
+                        EndPoint = new Point2F(0, pBounds.Height)
+                    },
+                    pRenderer.CreateGradientStopCollection(new GradientStop[] {
+                        new GradientStop
+                            {
+                                Color = pColor1,
+                                Position = 0
+                            }
+                            ,
+                        new GradientStop
+                            {
+                                Color = pColor2,
+                                Position = 1
+                            }
+                        },
+                        Gamma.Gamma_10,
+                        ExtendMode.Clamp
+                ));
+        }
+
         public static ColorF ConvertToColorF(float[] pFloatArray)
         {
             return new ColorF(
@@ -130,22 +160,36 @@ namespace CarMp
         public class RenderTargetWrapper
         {
             public delegate void WindowResizeHandler(SizeU Size);
-            public HwndRenderTarget Renderer { get; private set; }
+            public RenderTarget Renderer { get; private set; }
             public RectF CurrentBounds { get; set; }
 
-            public void Resize(SizeU pSize) { Renderer.Resize(pSize); }
+            public void Resize(SizeU pSize) { 
+                if(Renderer is HwndRenderTarget)
+                    (Renderer as HwndRenderTarget).Resize(pSize); }
             public void EndDraw() { Renderer.EndDraw(); }
             public void BeginDraw() { Renderer.BeginDraw(); }
             public void Clear(ColorF pColor) { Renderer.Clear(pColor); }
             public Matrix3x2F Transform { get { return Renderer.Transform; } set { Renderer.Transform = value; } }
-            public bool IsOccluded { get { return Renderer.IsOccluded; } }
-            public RenderTargetWrapper(HwndRenderTarget pRenderTarget)
+            public bool IsOccluded
+            {
+                get
+                {
+                    return
+                        (Renderer is HwndRenderTarget) ?
+                        (Renderer as HwndRenderTarget).IsOccluded : true;
+                } 
+            }
+            public RenderTargetWrapper(RenderTarget pRenderTarget)
             {
                 Renderer = pRenderTarget;
             }
             public void DrawRectangle(Brush pBrush, RectF pRectangle, float pStrokeWidth)
             {
                 Renderer.DrawRectangle(TransformRectangle(pRectangle), pBrush, pStrokeWidth);
+            }
+            public void DrawLine(Point2F pPoint1, Point2F pPoint2, Brush pBrush, float pStrokeWidth)
+            {
+                Renderer.DrawLine(TransformPoint(pPoint1), TransformPoint(pPoint2), pBrush, pStrokeWidth);
             }
             public void FillRectangle(Brush pBrush, RectF pRectangle)
             {
@@ -180,7 +224,6 @@ namespace CarMp
             {
                 return new RectU(Convert.ToUInt32(pRectangle.Left + CurrentBounds.Left), Convert.ToUInt32(pRectangle.Top + CurrentBounds.Top), pRectangle.Width, pRectangle.Height);
             }
-
             private RectF TransformRectangle(RectF pRectangle)
             {
                 float left = pRectangle.Left + CurrentBounds.Left;

@@ -47,7 +47,7 @@ namespace CarMp
             AppFormHost = new Forms.FormHost();
             AppFormHost.ShowView(CarMp.Views.D2DViewFactory.HOME);
             AppFormHost.StartPosition = FormStartPosition.Manual;
-
+            
             Application.Run(AppFormHost);
         }
 

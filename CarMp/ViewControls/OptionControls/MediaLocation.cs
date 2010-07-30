@@ -26,6 +26,8 @@ namespace CarMp.ViewControls.OptionControls
                 TextInput ti = new TextInput();
                 ti.ApplySkin(node, pSkinPath);
                 AddViewControl(ti);
+                ti.TextString = SessionSettings.MusicPath;
+                ti.InputLeave += () => { SessionSettings.MusicPath = ti.TextString; SessionSettings.SaveXml(); };
                 ti.StartRender();
             }
         }

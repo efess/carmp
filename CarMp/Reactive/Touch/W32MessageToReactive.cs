@@ -35,13 +35,6 @@ namespace CarMp.Reactive.Touch
 
         //****
 
-        //**** Keyboard Bools
-
-        private bool _shift = false;
-        private bool _ctrl = false;
-        private bool _alt = false;
-
-        //*****
         private IMessageHookable _hookedPump;
         private Control _control;
         public readonly Observables ObservableActions;
@@ -77,39 +70,25 @@ namespace CarMp.Reactive.Touch
             {
                 case WindowsMessages.WM_KEYDOWN:
                     {
-                        short test = Win32Helpers.GetKeyState((int)Keys.CapsLock);
-                        short TEST2 = Win32Helpers.GetKeyState((int)Keys.ShiftKey);
                         bool _upper = Win32Helpers.GetKeyState((int)Keys.CapsLock) != 0
-                            ^ Win32Helpers.GetKeyState((int)Keys.ShiftKey) != 0;
+                            ^ Win32Helpers.GetKeyState((int)Keys.ShiftKey) < 0;
+                        
+                        bool _ctrl = Win32Helpers.GetKeyState((int)Keys.ControlKey) != 0;
 
                         int iKey =(int) Win32Helpers.MapVirtualKey((uint)pMessage.WParam, 2);
                         Keys key = (Keys)pMessage.WParam;
                         Debug.WriteLine("Shift: " + _upper + " KeyDown " + key.ToString() + ", " + iKey.ToString() + ", " + ((int)((Keys)iKey & Keys.KeyCode)).ToString());
-                        switch(key)
-                        {
-                            case Keys.ShiftKey:
-                                _shift = true;
-                                break;;
-                            case Keys.ControlKey:
-                                _ctrl = true;
-                                break;
-                            case Keys.Alt:
-                                _alt = true;
-                                break;
-                            default:
-                                ProcessKeyPress((char)TranslateKey(iKey), key);
-                                break;
-                        }
+                        
+                        ProcessKeyPress((char)TranslateKey(iKey, _ctrl, _upper), key);
                     }
                     break;
-                
             }
         }
 
-        private int TranslateKey(int pChar)
+        private int TranslateKey(int pChar, bool pControl, bool pShift)
         {
             if (pChar >= 65 && pChar <= 90)
-                if (!_shift)
+                if (!pShift)
                     return pChar + 32;
             return pChar;
         }

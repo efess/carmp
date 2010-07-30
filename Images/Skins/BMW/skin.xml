@@ -108,18 +108,35 @@
         </Skinning>
         <MediaLocation>
           <MusicFolder>
-            <Bounds>50,70,200,30</Bounds>
-            <Text>
-              <Bounds>5,4,160,55</Bounds>
-              <TextStyle>
-                <Size>20</Size>
-                <Face>Arial</Face>
-                <ColorOne>#FFFFFF</ColorOne>
-                <WordWrap>False</WordWrap>
-                <Alignment>Leading</Alignment>
-              </TextStyle>
-            </Text>
+            <Bounds>50,10,300,30</Bounds>
+            <TextStyle>
+              <Size>20</Size>
+              <Face>Arial</Face>
+              <ColorOne>#FFFFFF</ColorOne>
+              <WordWrap>False</WordWrap>
+              <Alignment>Leading</Alignment>
+            </TextStyle>
           </MusicFolder>
+          <VideoFolder>
+            <Bounds>50,10,300,30</Bounds>
+            <TextStyle>
+              <Size>20</Size>
+              <Face>Arial</Face>
+              <ColorOne>#FFFFFF</ColorOne>
+              <WordWrap>False</WordWrap>
+              <Alignment>Leading</Alignment>
+            </TextStyle>
+          </VideoFolder>
+          <Picture>
+            <Bounds>50,10,300,30</Bounds>
+            <TextStyle>
+              <Size>20</Size>
+              <Face>Arial</Face>
+              <ColorOne>#FFFFFF</ColorOne>
+              <WordWrap>False</WordWrap>
+              <Alignment>Leading</Alignment>
+            </TextStyle>
+          </Picture>
         </MediaLocation>
       </OptionViews>
     </Options>

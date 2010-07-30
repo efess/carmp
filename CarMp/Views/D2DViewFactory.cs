@@ -32,9 +32,9 @@ namespace CarMp.Views
                 case HOME:
                     newView = new HomeView(_windowSize);
                     break;
-                //case NAVIGATION:
-                //    newView = new ContentNavigation();
-                //    break;
+                case NAVIGATION:
+                    
+                    break;
                 case OPTIONS:
                     newView = new OptionsView(_windowSize);
                     break;

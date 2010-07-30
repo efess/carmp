@@ -213,11 +213,14 @@ namespace CarMp.ViewControls
 
         protected virtual void OnKeyPressed(Key pKey) { }
         protected virtual void OnTouchGesture(TouchGesture pTouchGesture) { }
-
         protected virtual void OnTouchMove(TouchMove pTouchMove) { }
+        protected virtual void OnInputLeave() { }
 
         private void SetInputControl()
         {
+            if (HasInputControl != null)
+                HasInputControl.OnInputLeave();
+
             HasInputControl = this;
         }
 

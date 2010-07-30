@@ -10,89 +10,45 @@ using System.Windows.Forms;
 
 namespace CarMp.ViewControls
 {
-    public class TextInput : ViewControlCommonBase
+    public class TextInput : Text
     {
+        public event Action InputLeave;
         private const string XPATH_TEXT = "Text";
         private const string XPATH_DEFAULT_TEXT = "DefaultText";
 
         private RectF _borderRect;
         private LinearGradientBrush _borderBrush;
-        private SolidColorBrush _cursorLineBrush;
-        private Text _text;
-
-        private int _cursorPosition;
         private Point2F _cursorTopPoint;
         private Point2F _cursorBottomPoint;
+        private SolidColorBrush _cursorLineBrush;
+        private int millisecondWindow = 0;
+        private int _cursorPosition;
 
-        private bool _invalidateCursor;
-        
         public TextInput()
         {
-            _text = new Text();
+            this.TextPosition = new Point2F(2, 2);
         }
 
-        public void ApplySkin(XmlNode pXmlNode, string pSkinPath)
+        private int GetCurrentMillisecondTimer()
         {
-            Clear();
-            
-            _text = new Text();
-            _text.SendMouseEventsToParent = true;
+            return DateTime.Now.AddMilliseconds(-millisecondWindow).Millisecond;
+        }
+        private void ResetMillisecondTimer()
+        {
+            millisecondWindow = DateTime.Now.Millisecond;
+        }
+
+        public override void ApplySkin(XmlNode pXmlNode, string pSkinPath)
+        {
+            base.ApplySkin(pXmlNode, pSkinPath);
+
+            this.TextPosition = new Point2F(5, 4);   
             _borderBrush = null;
-
-            if (!SkinningHelper.ApplySkinNodeIfExists(XPATH_TEXT, pXmlNode, pSkinPath, _text))
-            {
-                throw new Exception("InputText view control doesn't contain a node for Text");
-            }
-
-            AddViewControl(_text);
-            _text.StartRender();
 
             XmlNode node = pXmlNode.SelectSingleNode(XPATH_DEFAULT_TEXT);
             if (node != null)
-                _text.TextString = node.InnerText;
+                TextString = node.InnerText;
 
-            base.ApplySkin(pXmlNode, pSkinPath);
-        }
-
-        protected override void OnKeyPressed(Reactive.KeyInput.Key pKey)
-        {
-            char newChar = pKey.Character;
-            switch(pKey.DotNetKeysValue)
-            {
-                case Keys.Back:
-                    if (!string.IsNullOrEmpty(_text.TextString))
-                        _text.TextString = _text.TextString.Remove(_cursorPosition - 1, 1);
-                    _cursorPosition = _cursorPosition > 0 ? _cursorPosition - 1 : 0;
-                    break;
-                case Keys.Delete:
-                    if (!string.IsNullOrEmpty(_text.TextString)
-                        && _text.TextString.Length > _cursorPosition)
-                        _text.TextString = _text.TextString.Remove(_cursorPosition, 1);
-                    break;
-                case Keys.Left:
-                    _cursorPosition = _cursorPosition > 0 ? _cursorPosition - 1 : 0;
-                    break;
-                case Keys.Right:
-                    _cursorPosition = _text.TextString.Length > _cursorPosition 
-                        ? _cursorPosition + 1 
-                        : _cursorPosition;
-                    break;
-                default:
-                    if((int)pKey.DotNetKeysValue >= 32)
-                    {
-                        if (string.IsNullOrEmpty(_text.TextString))
-                            _text.TextString = pKey.Character.ToString();
-                        else
-                            if(_cursorPosition == _text.TextString.Length)
-                                _text.TextString = _text.TextString + pKey.Character.ToString();
-                            else
-                                _text.TextString = _text.TextString.Insert(_cursorPosition, pKey.Character.ToString());
-                        _cursorPosition++;
-                    }
-                    break;
-            }
-            
-            SetCursorCoordinatesPosition();
         }
 
         public override void OnSizeChanged(object sender, EventArgs e)
@@ -109,38 +65,73 @@ namespace CarMp.ViewControls
                     _borderRect,
                     new ColorF(1f, 1f, 1f, .3f), new ColorF(1f, 1f, 1f, .8f));
             }
-            if(_cursorLineBrush == null)
-            {
-                _cursorLineBrush = pRenderTarget.Renderer.CreateSolidColorBrush(new ColorF(Colors.White, 1));
-            }
 
-            if (true) // if (_invalidateCursor)
-            {
-                SetCursorCoordinatesPosition();
-                _invalidateCursor = false;
-            }
+            pRenderTarget.DrawRectangle(_borderBrush, _borderRect, 2.0f);
+            
+            SetCursorCoordinatesPosition();
+
+            if (_cursorLineBrush == null)
+                _cursorLineBrush = pRenderTarget.Renderer.CreateSolidColorBrush(new ColorF(Colors.White, 1));
+
+            
+            base.OnRender(pRenderTarget);
 
             if (D2DViewControl.HasInputControl == this)
-                pRenderTarget.DrawLine(_cursorTopPoint, _cursorBottomPoint, _cursorLineBrush, 1);
-            pRenderTarget.DrawRectangle(_borderBrush, _borderRect, 2.0f);
+                if (GetCurrentMillisecondTimer() < 500)
+                    pRenderTarget.DrawLine(_cursorTopPoint, _cursorBottomPoint, _cursorLineBrush, 1);
 
         }
 
-        // Code will be changing _cursorPosition itself, change the coords
-        // of cursor here.
-        private void SetCursorCoordinatesPosition()
+        protected override void OnKeyPressed(Reactive.KeyInput.Key pKey)
         {
-            float xPosition = _text.GetWidthAtCharPosition(_cursorPosition);
-            _cursorTopPoint = new Point2F(xPosition + _text.Location.X, 4);
-            _cursorBottomPoint = new Point2F(xPosition + _text.Location.X, this.Height - 6);
-        }
-
-        // From X/Y, change Cursor Position, AND set coords
-        private void SetTextPositionByCoords(Point2F pCursorPreferredLocation)
-        {
-            _cursorPosition = _text.GetTextPositionAtPoint(pCursorPreferredLocation);
+            char newChar = pKey.Character;
+            switch (pKey.DotNetKeysValue)
+            {
+                case Keys.Back:
+                    if (!string.IsNullOrEmpty(TextString)
+                        && _cursorPosition > 0)
+                    {
+                        _cursorPosition = _cursorPosition - 1;
+                        TextString = TextString.Remove(_cursorPosition, 1);
+                    }
+                    break;
+                case Keys.Delete:
+                    if (!string.IsNullOrEmpty(TextString)
+                        && TextString.Length > _cursorPosition)
+                        TextString = TextString.Remove(_cursorPosition, 1);
+                    break;
+                case Keys.Left:
+                    _cursorPosition = _cursorPosition > 0 ? _cursorPosition - 1 : 0;
+                    break;
+                case Keys.Right:
+                    _cursorPosition = TextString.Length > _cursorPosition
+                        ? _cursorPosition + 1
+                        : _cursorPosition;
+                    break;
+                case Keys.Home:
+                    _cursorPosition = 0;
+                    break;
+                case Keys.End:
+                    _cursorPosition = TextString.Length;
+                    break;
+                default:
+                    if ((int)pKey.DotNetKeysValue >= 32)
+                    {
+                        if (string.IsNullOrEmpty(TextString))
+                            TextString = pKey.Character.ToString();
+                        else
+                            if (_cursorPosition == TextString.Length)
+                                TextString = TextString + pKey.Character.ToString();
+                            else
+                                TextString = TextString.Insert(_cursorPosition, pKey.Character.ToString());
+                        _cursorPosition++;
+                    }
+                    break;
+            }
+            ResetMillisecondTimer();
             SetCursorCoordinatesPosition();
         }
+
 
         protected override void OnTouchGesture(Reactive.Touch.TouchGesture pTouchGesture)
         {
@@ -148,6 +139,48 @@ namespace CarMp.ViewControls
             {
                 SetTextPositionByCoords(pTouchGesture.Location);
             }
+        }
+
+        // Code will be changing _cursorPosition itself, change the coords
+        // of cursor here.
+        private void SetCursorCoordinatesPosition()
+        {
+            float xPosition = GetWidthAtCharPosition(_cursorPosition);
+            float maxLength = !string.IsNullOrEmpty(TextString)
+                ? GetWidthAtCharPosition(TextString.Length)
+                : 0;
+
+            // Check for OutOfBounds cursor position
+            if (xPosition + TextPosition.X > (this.Bounds.Width - 5))
+            {
+                TextPosition = new Point2F((Bounds.Width - 20) - xPosition, TextPosition.Y);
+            }
+            else if (TextString != null && maxLength < this.Bounds.Width / 4)
+            {
+                TextPosition = new Point2F(5, 4);
+            }
+            else if (xPosition < Math.Abs(TextPosition.X))
+            {
+                if (xPosition < 5)
+                    TextPosition = new Point2F(5, 4);
+                else
+                    TextPosition = new Point2F(-xPosition + 10, TextPosition.Y);
+            }
+
+            _cursorTopPoint = new Point2F(xPosition + TextPosition.X, 6);
+            _cursorBottomPoint = new Point2F(xPosition + TextPosition.X, this.Height - 6);
+        }
+
+        // From X/Y, change Cursor Position, AND set coords
+        private void SetTextPositionByCoords(Point2F pCursorPreferredLocation)
+        {
+            _cursorPosition = GetTextPositionAtPoint(pCursorPreferredLocation);
+            SetCursorCoordinatesPosition();
+        }
+        protected override void OnInputLeave()
+        {
+            if (InputLeave != null)
+                InputLeave();
         }
     }
 }

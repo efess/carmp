@@ -108,7 +108,7 @@
         </Skinning>
         <MediaLocation>
           <MusicFolder>
-            <Bounds>50,10,300,30</Bounds>
+            <Bounds>10,10,300,30</Bounds>
             <TextStyle>
               <Size>20</Size>
               <Face>Arial</Face>
@@ -116,9 +116,9 @@
               <WordWrap>False</WordWrap>
               <Alignment>Leading</Alignment>
             </TextStyle>
-          </MusicFolder>
+          </MusicFolder>  
           <VideoFolder>
-            <Bounds>50,10,300,30</Bounds>
+            <Bounds>10,50,300,30</Bounds>
             <TextStyle>
               <Size>20</Size>
               <Face>Arial</Face>

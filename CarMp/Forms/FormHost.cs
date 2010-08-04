@@ -83,8 +83,8 @@ namespace CarMp.Forms
             
             InitializeComponent();
 
-            this.Size = SessionSettings.ScreenResolution;
-            this.Location = SessionSettings.WindowLocation;
+            this.Size = new System.Drawing.Size(Convert.ToInt32(SessionSettings.ScreenResolution.Width), Convert.ToInt32(SessionSettings.ScreenResolution.Height));
+            this.Location = new System.Drawing.Point(Convert.ToInt32(SessionSettings.WindowLocation.X), Convert.ToInt32(SessionSettings.WindowLocation.Y)); 
 
             _overlayViewControls = new List<D2DViewControl>();
             _viewFactory = new D2DViewFactory(new SizeF(ClientSize.Width, ClientSize.Height));
@@ -136,7 +136,7 @@ namespace CarMp.Forms
             if (controlBarNode != null)
             {
                 controlBar = new MediaControlBar();
-                controlBar.ApplySkin(controlBarNode, SessionSettings.SkinPath);
+                controlBar.ApplySkin(controlBarNode, SessionSettings.CurrentSkinPath);
                 _overlayViewControls.Add(controlBar);
                 controlBar.StartRender();
             }
@@ -144,7 +144,7 @@ namespace CarMp.Forms
             if (infoBarNode != null)
             {
                 infoBar = new MediaInfoBar();
-                infoBar.ApplySkin(infoBarNode, SessionSettings.SkinPath);
+                infoBar.ApplySkin(infoBarNode, SessionSettings.CurrentSkinPath);
                 _overlayViewControls.Add(infoBar);
                 infoBar.StartRender();
             }
@@ -194,7 +194,7 @@ namespace CarMp.Forms
                         System.Xml.XmlNode viewSkinNode = SessionSettings.CurrentSkin.GetViewNodeSkin(pViewName);
 
                         if (viewSkinNode != null)
-                            (_currentView as ISkinable).ApplySkin(viewSkinNode, SessionSettings.SkinPath);
+                            (_currentView as ISkinable).ApplySkin(viewSkinNode, SessionSettings.CurrentSkinPath);
                     }
 
                 }
@@ -221,7 +221,7 @@ namespace CarMp.Forms
                     System.Xml.XmlNode viewSkinNode = SessionSettings.CurrentSkin.GetViewNodeSkin(view.Name);
 
                     if (viewSkinNode != null)
-                        (view as ISkinable).ApplySkin(viewSkinNode, SessionSettings.SkinPath);
+                        (view as ISkinable).ApplySkin(viewSkinNode, SessionSettings.CurrentSkinPath);
                 }
             }
 
@@ -231,10 +231,10 @@ namespace CarMp.Forms
             foreach (D2DViewControl control in _overlayViewControls)
             {
                 if (control is MediaInfoBar)
-                    (control as MediaInfoBar).ApplySkin(infoBarNode, SessionSettings.SkinPath);
+                    (control as MediaInfoBar).ApplySkin(infoBarNode, SessionSettings.CurrentSkinPath);
 
                 if (control is MediaControlBar)
-                    (control as MediaControlBar).ApplySkin(controlBarNode, SessionSettings.SkinPath);
+                    (control as MediaControlBar).ApplySkin(controlBarNode, SessionSettings.CurrentSkinPath);
             }
                 
         }

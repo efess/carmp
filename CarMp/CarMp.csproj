@@ -104,6 +104,7 @@
     <Compile Include="EventQueue.cs" />
     <Compile Include="FileSystem\FileMediaInfo.cs" />
     <Compile Include="IMessageHookable.cs" />
+    <Compile Include="ISupportsCopyPaste.cs" />
     <Compile Include="Reactive\KeyInput\KeyboardObservable.cs" />
     <Compile Include="Reactive\KeyInput\Key.cs" />
     <Compile Include="Reactive\ReactiveUpdate.cs" />

@@ -19,8 +19,10 @@ namespace CarMp
 
         private const string XML_WINDOW_LOCATION_NODE = "screenstart";
 
-        private const string XML_XCOORD_ATTR = "xcoord";
-        private const string XML_YCOORD_ATTR = "ycoord";
+        private const string XML_XCOORD_ATTR = "X";
+        private const string XML_YCOORD_ATTR = "Y";
+        private const string XML_WIDTH_ATTR = "Width";
+        private const string XML_HEIGHT_ATTR = "Height";
 
         private const string XML_MUSIC_FOLDER = "MusicLocation";
         private const string XML_VIDEO_FOLDER = "VideoLocatin";
@@ -28,54 +30,80 @@ namespace CarMp
         private const string XML_SKINS_FOLDER = "SkinsLocatin";
 
         private const string XML_SKIN_NAME = "CurrentSkin";
-
+        //  Option Properties
         /// <summary>
         /// Indicates if application should run debugging methods
         /// </summary>
-        public static bool Debug = false;
+        public static bool Debug { get; set; }
         /// <summary>
         /// Location of database
         /// </summary>
-        public static string DatabaseLocation = @".\database.db";
+        public static string DatabaseLocation { get;  set; }
         /// <summary>
         /// Location of file containing these settinsg (overridable by the command line)
         /// </summary>
-        public static string SettingsXmlLocation = @".\settings.xml";
+        public static string SettingsXmlLocation { get; set; }
         /// <summary>
         /// Start location of this screen
         /// </summary>
-        public static Point2F WindowLocation = new Point2F(0, 0);
+        public static Point2F WindowLocation {get;set;}
         /// <summary>
         /// Screen resolution (size of this window)
         /// </summary>
-        public static SizeF ScreenResolution = new SizeF(640, 480);
+        public static SizeF ScreenResolution { get;  set; }
 
-        public static ColorF DefaultFontColor = new ColorF(198 / 256, 198 / 256, 198 / 256,1);
-        public static ColorF DefaultFontSpecialColor = new ColorF(205 / 256, 117 / 256, 2 / 256, 1);
+        public static ColorF DefaultFontColor { get;  set; }
+        public static ColorF DefaultFontSpecialColor { get;  set; }
 
-        public static string SkinName = "BMW";
+        public static string SkinName { get;  set; }
         public static SkinSettings CurrentSkin = null;
 
-        public static string SkinPath = @".\";        
-        public static string MusicPath = @"C:\Music";
-        public static string PicturePath = @"C:\Pictures";
-        public static string VideoPath = @"C:\Video";
+        public static string SkinPath { get;  set; }
+        public static string MusicPath { get;  set; }
+        public static string PicturePath { get;  set; }
+        public static string VideoPath { get;  set; }
 
         public static string SettingsPath = @".\";
+
+        private static string settingsFile = null;
 
         public static string CurrentSkinPath
         {
             get { return System.IO.Path.Combine(SkinPath, SkinName); }
         }
+
+        public static void SetDefault()
+        {
+            Debug = false;
+            DatabaseLocation = @".\database.db";
+            SettingsXmlLocation = @".\settings.xml";
+            WindowLocation = new Point2F(0, 0);
+            ScreenResolution = new SizeF(640, 480);
+            DefaultFontColor = new ColorF(198 / 256, 198 / 256, 198 / 256,1);
+            DefaultFontSpecialColor = new ColorF(205 / 256, 117 / 256, 2 / 256, 1);
+            SkinName = "BMW";
+            SkinPath = @".\";        
+            MusicPath = @"C:\Music";
+            PicturePath = @"C:\Pictures";
+            VideoPath = @"C:\Video";
+            
+        }
+
         public static void SaveXml()
         {
+            if(settingsFile == null)
+            {
+                DebugHandler.DebugPrint("Attempt to Save Settings: Load with an Xml File Path must be called before Save");
+                return;
+            }
+
             XDocument doc = new XDocument();
 
-            if (File.Exists(pXmlFile))
+            if (File.Exists(settingsFile))
             {
                 try
                 {
-                    doc = XDocument.Load(pXmlFile);
+                    doc = XDocument.Load(settingsFile);
                 }
                 catch (Exception ex)
                 {
@@ -98,7 +126,7 @@ namespace CarMp
 
             try
             {
-                doc.Save(pXmlFile);
+                doc.Save(settingsFile);
             }
             catch (Exception ex)
             {
@@ -108,6 +136,7 @@ namespace CarMp
 
         public static void LoadFromXml(string pXmlFile)
         {
+            settingsFile = pXmlFile;
             XDocument doc = new XDocument();
             try
             {
@@ -125,7 +154,10 @@ namespace CarMp
                 DebugHandler.DebugPrint("Invalid settings file");
             }
             else
+            {
                 ExtractSettingsData(settings);
+                LoadCurrentSkin();
+            }
         }
 
 
@@ -172,7 +204,7 @@ namespace CarMp
 
         private static void ExtractSettingsData(XElement pXElement)
         {
-            foreach(XElement node in pXElement.DescendantNodes())
+            foreach(XElement node in pXElement.DescendantNodes().Where(e => e is XElement))
             {
                 switch (node.Name.ToString())
                 {
@@ -193,7 +225,7 @@ namespace CarMp
                     case XML_SCREEN_SIZE_NODE:
                         try
                         {
-                            ScreenResolution = new SizeF(Convert.ToInt32(node.Attribute(XML_XCOORD_ATTR).Value), Convert.ToInt32(node.Attribute(XML_YCOORD_ATTR).Value));
+                            ScreenResolution = new SizeF(Convert.ToInt32(node.Attribute(XML_WIDTH_ATTR).Value), Convert.ToInt32(node.Attribute(XML_HEIGHT_ATTR).Value));
                         }
                         catch (Exception ex)
                         {
@@ -220,7 +252,8 @@ namespace CarMp
                 
             }
         }
-        public void LoadCurrentSkin()
+
+        public static void LoadCurrentSkin()
         {
             string path = CurrentSkinPath;
             System.IO.FileAttributes attr = System.IO.File.GetAttributes(path);

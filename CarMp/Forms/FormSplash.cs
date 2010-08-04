@@ -6,14 +6,18 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace CarMp.Forms
 {
     public partial class FormSplash : Form
     {
-        Pen BorderPen = new Pen(new SolidBrush(SessionSettings.DefaultFontColor), 1);
-        Pen ProgressPen = new Pen(new SolidBrush(SessionSettings.DefaultFontSpecialColor), 4);
+        Pen BorderPen;        
+        Pen ProgressPen;
         
+        SolidBrush normalColor = new SolidBrush( Color.FromArgb(198, 198, 198, 255));
+        SolidBrush specialColor = new SolidBrush(Color.FromArgb(205, 117, 2, 255));
+
         Rectangle BorderRect;
         Rectangle BorderLogo;
         Point ProgressPoint;
@@ -39,6 +43,9 @@ namespace CarMp.Forms
         {
             InitializeComponent();
 
+            BorderPen = new Pen(normalColor, 4);
+            ProgressPen = new Pen(specialColor, 4);
+
             Logo = CarMp.Properties.Resources.logo;
 
             BorderRect = new Rectangle(BORDER_PADDING, BORDER_PADDING, this.Width - (BORDER_PADDING * 2), this.Height - (BORDER_PADDING * 2));
@@ -52,7 +59,7 @@ namespace CarMp.Forms
         {
             e.Graphics.DrawRectangle(BorderPen, BorderRect);
             e.Graphics.DrawImage(Logo, BorderLogo);
-            e.Graphics.DrawString(LoadingStatus, new Font(FontFamily.GenericSansSerif, 12), new SolidBrush(SessionSettings.DefaultFontColor), new PointF(10, 70));
+            e.Graphics.DrawString(LoadingStatus, new Font(FontFamily.GenericSansSerif, 12), normalColor, new PointF(10, 70));
             e.Graphics.DrawLine(ProgressPen, ProgressPoint, new Point((int)((double)268 * ((double)_loadingPercent / (double)100)),100));
         }
 

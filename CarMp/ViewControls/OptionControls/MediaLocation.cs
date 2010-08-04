@@ -12,6 +12,8 @@ namespace CarMp.ViewControls.OptionControls
         private const string OPTION_ELEMENT = "MediaLocation";
 
         private const string XPATH_MUSIC_FOLDER = "MusicFolder";
+        private const string XPATH_PICTURE_FOLDER = "PictureFolder";
+        private const string XPATH_VIDEO_FOLDER = "VideoFolder";
 
         public string OptionName { get { return OPTION_NAME; } }
         public string OptionElement { get { return OPTION_ELEMENT; } }
@@ -20,15 +22,51 @@ namespace CarMp.ViewControls.OptionControls
         {
             Clear();
 
-            XmlNode node = pXmlNode.SelectSingleNode(XPATH_MUSIC_FOLDER);
-            if (node != null)
+            var nodeNames = new string[] { XPATH_MUSIC_FOLDER, XPATH_PICTURE_FOLDER, XPATH_VIDEO_FOLDER };
+            foreach (string nodeName in nodeNames)
             {
-                TextInput ti = new TextInput();
-                ti.ApplySkin(node, pSkinPath);
-                AddViewControl(ti);
-                ti.TextString = SessionSettings.MusicPath;
-                ti.InputLeave += () => { SessionSettings.MusicPath = ti.TextString; SessionSettings.SaveXml(); };
-                ti.StartRender();
+                XmlNode node = pXmlNode.SelectSingleNode(nodeName);
+                if (node != null)
+                {
+                    TextInput ti = new TextInput();
+                    ti.ApplySkin(node, pSkinPath);
+                    AddViewControl(ti);
+                    ti.StartRender();
+
+                    switch (nodeName)
+                    {
+                        case XPATH_MUSIC_FOLDER:
+                            ti.InputLeave += () => 
+                                {
+                                    if (SessionSettings.MusicPath != ti.TextString)
+                                    {
+                                        SessionSettings.MusicPath = ti.TextString;
+                                        SessionSettings.SaveXml();
+                                    }
+                                };
+                            ti.TextString = SessionSettings.MusicPath; break;
+                        case XPATH_PICTURE_FOLDER:
+                            ti.InputLeave += () =>
+                            {
+                                if (SessionSettings.PicturePath != ti.TextString)
+                                {
+                                    SessionSettings.PicturePath = ti.TextString;
+                                    SessionSettings.SaveXml();
+                                }
+                            };
+                            ti.TextString = SessionSettings.PicturePath; break;
+                        case XPATH_VIDEO_FOLDER:
+                            ti.InputLeave += () =>
+                            {
+                                if (SessionSettings.VideoPath != ti.TextString)
+                                {
+                                    SessionSettings.VideoPath = ti.TextString;
+                                    SessionSettings.SaveXml();
+                                }
+                            };
+                            ti.TextString = SessionSettings.VideoPath; break;
+                    }
+                }
             }
         }
 

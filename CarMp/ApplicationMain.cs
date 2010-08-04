@@ -59,9 +59,12 @@ namespace CarMp
             Thread splashThread = new Thread(new ThreadStart(formSplash.ShowSplash));
             splashThread.Start();
 
+            SessionSettings.SetDefault();
+            string xmlSettings = SessionSettings.SettingsXmlLocation;
+
             formSplash.IncreaseProgress(0, "Parsing command line args...");
 
-            string xmlSettings = SessionSettings.SettingsXmlLocation;
+
             // Process any command line arguments
             for (int i = 0; i < pCommandLineArgs.Length; i++)
             {

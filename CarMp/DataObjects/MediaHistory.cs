@@ -5,7 +5,7 @@ using System.Text;
 using NHibernate;
 using NHibernate.Criterion;
 
-namespace CarMp
+namespace CarMP
 {
     public class MediaHistory
     {

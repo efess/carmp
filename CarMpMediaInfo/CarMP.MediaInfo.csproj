@@ -8,8 +8,8 @@
     <ProjectGuid>{328BCACA-4652-49CF-96A9-B64DC3EA23AB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>id3Reader</RootNamespace>
-    <AssemblyName>id3Reader</AssemblyName>
+    <RootNamespace>CarMp.MediaInfo</RootNamespace>
+    <AssemblyName>CarMp.MediaInfo</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>

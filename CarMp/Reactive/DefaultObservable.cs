@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CarMp.Reactive
+namespace CarMP.Reactive
 {
     public abstract class DefaultObservable<T> : IObservable<T>
     {

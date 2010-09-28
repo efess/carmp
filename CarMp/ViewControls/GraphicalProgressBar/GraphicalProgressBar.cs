@@ -6,7 +6,7 @@ using System.Xml;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using Microsoft.WindowsAPICodePack.DirectX;
 
-namespace CarMp.ViewControls
+namespace CarMP.ViewControls
 {
     public class GraphicalProgressBar : D2DViewControl, ISkinable
     {
@@ -58,7 +58,7 @@ namespace CarMp.ViewControls
             if (ScrollBarHandle == null
                 && _scrollBarHandleImageData.Data != null)
             {
-                ScrollBarHandle = Direct2D.GetBitmap(_scrollBarHandleImageData, pRenderTarget.Renderer);
+                ScrollBarHandle = D2DStatic.GetBitmap(_scrollBarHandleImageData, pRenderTarget.Renderer);
             }
             float currentPosition = CurrentHandleXPosition();
             _currentHandleBounds = new RectF(currentPosition,

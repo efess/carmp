@@ -8,7 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
-namespace CarMp.Forms
+namespace CarMP.Forms
 {
     public partial class FormSplash : Form
     {
@@ -46,7 +46,7 @@ namespace CarMp.Forms
             BorderPen = new Pen(normalColor, 4);
             ProgressPen = new Pen(specialColor, 4);
 
-            Logo = CarMp.Properties.Resources.logo;
+            Logo = CarMP.Properties.Resources.logo;
 
             BorderRect = new Rectangle(BORDER_PADDING, BORDER_PADDING, this.Width - (BORDER_PADDING * 2), this.Height - (BORDER_PADDING * 2));
             BorderLogo = new Rectangle((this.Width / 2) - (Logo.Width / 2), 10, Logo.Width, Logo.Height);

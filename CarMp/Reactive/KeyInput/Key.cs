@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace CarMp.Reactive.KeyInput
+namespace CarMP.Reactive.KeyInput
 {
     public class Key : ReactiveUpdate
     {

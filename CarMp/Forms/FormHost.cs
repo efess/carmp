@@ -5,16 +5,17 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using CarMp.Views;
+using CarMP.Views;
 using System.Threading;
-using CarMp.ViewControls;
+using CarMP.ViewControls;
 using System.Xml;
-using CarMp.Reactive.Touch;
+using CarMP.Reactive.Touch;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using Microsoft.WindowsAPICodePack.DirectX;
-using CarMp.Reactive.KeyInput;
+using CarMP.Reactive.KeyInput;
+using CarMP.Direct2D;
 
-namespace CarMp.Forms
+namespace CarMP.Forms
 {
     public partial class FormHost : Form, IMessageHookable
     {
@@ -62,6 +63,7 @@ namespace CarMp.Forms
             _mouseEventProcessor.ObservableActions.ObsTouchGesture.Subscribe((tg) => RouteTouchEvents(tg));
             _mouseEventProcessor.ObservableActions.ObsTouchMove.Subscribe((tm) => RouteTouchEvents(tm));
             _mouseEventProcessor.ObservableActions.ObsKeyInput.Subscribe((ki) => RouteKeyInputEvents(ki));
+
             //D2DViewControl.SetTouchObservables(_mouseEventProcessor.ObservablTouchActions);
 
             _viewChanging = new ManualResetEvent(false);
@@ -74,7 +76,7 @@ namespace CarMp.Forms
                 ControlStyles.UserPaint, true);
 
             _renderTarget = new Direct2D.RenderTargetWrapper(
-                Direct2D.D2DFactory.CreateHwndRenderTarget(
+                D2DStatic.D2DFactory.CreateHwndRenderTarget(
                 _renderProps,
                 new HwndRenderTargetProperties(this.Handle, new SizeU(Convert.ToUInt32(ClientSize.Width), Convert.ToUInt32(ClientSize.Height)), PresentOptions.Immediately)));
             
@@ -148,10 +150,10 @@ namespace CarMp.Forms
                 _overlayViewControls.Add(infoBar);
                 infoBar.StartRender();
             }
-
+            
             GraphicalButton toggleAnimation = new GraphicalButton();
             toggleAnimation.Bounds = new RectF(450, 30, 514, 94);
-            toggleAnimation.SetButtonUpBitmapData(@"C:\source\CarMp\trunk\Images\Skins\BMW\Box.bmp");
+            toggleAnimation.SetButtonUpBitmapData(@"C:\source\CarMP\trunk\Images\Skins\BMW\Box.bmp");
             int i = 0;
 
             toggleAnimation.Click += (sender, e) =>

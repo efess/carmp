@@ -8,7 +8,7 @@ using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
 using Microsoft.WindowsAPICodePack.DirectX;
 using System.Windows.Forms;
 
-namespace CarMp.ViewControls
+namespace CarMP.ViewControls
 {
     public class TextInput : Text
     {
@@ -61,7 +61,7 @@ namespace CarMp.ViewControls
             base.OnRender(pRenderTarget);
             if (_borderBrush == null)
             {
-                _borderBrush = Direct2D.GetBasicLinearGradient(pRenderTarget.Renderer,
+                _borderBrush = D2DStatic.GetBasicLinearGradient(pRenderTarget.Renderer,
                     _borderRect,
                     new ColorF(1f, 1f, 1f, .3f), new ColorF(1f, 1f, 1f, .8f));
             }

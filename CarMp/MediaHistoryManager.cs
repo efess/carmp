@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CarMp.ViewControls;
+using CarMP.ViewControls;
 using System.Reflection;
 using NHibernate.Criterion;
 using NHibernate;
 using System.Threading;
+using CarMP.MediaEntities;
 
-namespace CarMp
+namespace CarMP
 {
 
     public class MediaHistoryManager : IEnumerable<MediaHistory>

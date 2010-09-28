@@ -8,7 +8,7 @@ using Microsoft.WindowsAPICodePack.DirectX;
 using System.Xml;
 
 
-namespace CarMp.ViewControls
+namespace CarMP.ViewControls
 {
     public class DragableListTextItem : DragableListItem
     {
@@ -20,7 +20,7 @@ namespace CarMp.ViewControls
         {
             if (StringDrawFormat == null)
             {
-                StringDrawFormat = Direct2D.StringFactory.CreateTextFormat(
+                StringDrawFormat = D2DStatic.StringFactory.CreateTextFormat(
                     "Arial",
                     20F,
                     FontWeight.Normal,
@@ -49,7 +49,7 @@ namespace CarMp.ViewControls
         {
             if(StringLayout == null)
             {
-                StringLayout = Direct2D.StringFactory.CreateTextLayout(DisplayString, StringDrawFormat, _bounds.Width, _bounds.Height);
+                StringLayout = D2DStatic.StringFactory.CreateTextLayout(DisplayString, StringDrawFormat, _bounds.Width, _bounds.Height);
             }
 
             if (LinearGradient == null)

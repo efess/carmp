@@ -8,7 +8,7 @@ using System.IO;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
-namespace CarMp
+namespace CarMP
 {
     public static class SessionSettings
     {

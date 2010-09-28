@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CarMpMediaInfo;
 using System.Collections;
 using NHibernate.Criterion;
 using System.Threading;
 using System.IO;
+using CarMP.MediaEntities;
+using CarMP.IO;
+using CarMP.MediaInfo;
 
-namespace CarMp
+namespace CarMP
 {
     public class MediaManager
     {
@@ -28,7 +30,7 @@ namespace CarMp
         private Timer _progressTimer;
         private bool _timerHit;
         private Dictionary<int, NHibernate.ISession> _DataSessions;
-        private IAudioController _audioController;
+        private IMediaController _audioController;
 
         private MediaListItem _currentPlayingItem;
         private List<MediaListItem> _currentViewedList;
@@ -58,7 +60,7 @@ namespace CarMp
             }
         }
 
-        public MediaManager(IAudioController pAudioController)
+        public MediaManager(IMediaController pAudioController)
         {
             _audioController = pAudioController;
             _DataSessions = new Dictionary<int, NHibernate.ISession>();

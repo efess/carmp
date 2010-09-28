@@ -6,9 +6,9 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Timers;
 
-namespace CarMp
+namespace CarMP.MediaController
 {
-    public class WinampController : IAudioController
+    public class WinampController : IMediaController
     {
         private const string WINAMP_PROCESS = "winamp";
 
@@ -110,7 +110,9 @@ namespace CarMp
 
         public void StopPlayback()
         {
-            SendUserMessageToWinamp(WA_IPC.IPC_SPAWNBUTTONPOPUP, 5);
+            SendUserMessageToWinamp(WA_IPC.IPC_DELETE, 0);
+            SendUserMessageToWinamp(WA_IPC.IPC_STARTPLAY, 4);
+            //SendUserMessageToWinamp(WA_IPC.IPC_SPAWNBUTTONPOPUP, 5);
             //if (DebugIgnoreCommands) { return; }
 
             //int sdj = GetCurrentPos();

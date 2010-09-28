@@ -5,26 +5,27 @@ using System.Text;
 using System.Windows.Forms;
 using System.Drawing;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
-using CarMp.Reactive.KeyInput;
-using CarMp.Win32;
+using CarMP.Reactive.KeyInput;
+using CarMP.Win32;
 using System.Diagnostics;
 
-namespace CarMp.Reactive.Touch
+namespace CarMP.Reactive.Touch
 {
     public class W32MessageToReactive
     {
         //**** Mouse State Vars
 
+        private bool _isDownHolding;
+        private bool _isDown;
         private bool _isInSwipe;
         private Point2F _downPoint;
         private DateTime _downTime;
         private Point2F _previousPoint;
         private Point2F _startHighVelocityPoint;
         private DateTime _previousPointTime;
+        private System.Threading.Timer _waitTimer;
 
         private VelocityAggregator _velocityAgg;
-
-        private System.Threading.Timer _velocityTimer;
 
         //**** Feel Control Properties / Parameters
 
@@ -32,6 +33,7 @@ namespace CarMp.Reactive.Touch
         public int TouchDownClickDistanceTolerance { get; set; }
         public int TouchSwipeDistanceThreshold { get; set; }
         public int TouchSwipeVelocityThreshold { get; set; }
+        public int TouchDownHoldThreshold { get; set; }
 
         //****
 
@@ -52,6 +54,7 @@ namespace CarMp.Reactive.Touch
             _control = pControl;
 
             // Defaults
+            TouchDownHoldThreshold = 1000;
             TouchDownClickThreshold = 200;
             TouchDownClickDistanceTolerance = 5;
             TouchSwipeDistanceThreshold = 50;
@@ -59,9 +62,7 @@ namespace CarMp.Reactive.Touch
 
             _velocityAgg = new VelocityAggregator(3);
 
-            CreateEventSubscriptions();
             ObservableActions = new Observables();
-            _velocityTimer = new System.Threading.Timer(new System.Threading.TimerCallback(ProcessVelocity));
         }
 
         public void ProcessMessage(ref Message pMessage)
@@ -82,6 +83,16 @@ namespace CarMp.Reactive.Touch
                         ProcessKeyPress((char)TranslateKey(iKey, _ctrl, _upper), key);
                     }
                     break;
+                case WindowsMessages.WM_MOUSEMOVE:
+                    ProcessMouseMove(GetMouseCoordFromLParam((int)pMessage.LParam));
+                    break;
+                case WindowsMessages.WM_LBUTTONDOWN:
+                    ProcessMouseDown(GetMouseCoordFromLParam((int)pMessage.LParam));
+                    break;
+                case WindowsMessages.WM_LBUTTONUP:
+                    ProcessMouseUp(GetMouseCoordFromLParam((int)pMessage.LParam));
+                    break;
+                    
             }
         }
 
@@ -92,46 +103,53 @@ namespace CarMp.Reactive.Touch
                     return pChar + 32;
             return pChar;
         }
-
-        public void CreateEventSubscriptions()
-        {
-            //_control.KeyPress += (sender, e) => ProcessKeyPress(e);
-            _control.MouseUp += (sender, e) => ProcessMouseUp(e);
-            _control.MouseDown += (sender, e) => ProcessMouseDown(e);
-            _control.MouseMove += (sender, e) => ProcessMouseMove(e);
-        }
-
+        
         private void ProcessKeyPress(char pChar, Keys pKeyChar)
         {
             SendKeyInput(new Key(pChar, pKeyChar));
         }
 
-        private void ProcessMouseUp(MouseEventArgs e)
+        private void ProcessMouseUp(Point2F pMouseCoordinate)
         {
             // Check for Click
+            _isDown = false;
+
+            _isDownHolding = false;
+            StopWaitTimer();
+
             if (TouchDownClickThreshold > (DateTime.Now - _downTime).TotalMilliseconds
-                && Math.Abs(_downPoint.Y - e.Y) < TouchDownClickDistanceTolerance)
+                && Math.Abs(_downPoint.Y - pMouseCoordinate.Y) < TouchDownClickDistanceTolerance)
             {
-                SendTouchGesture(new TouchGesture(GestureType.Click, new Point2F(e.Location.X, e.Location.Y)));
+                SendTouchGesture(new TouchGesture(GestureType.Click, pMouseCoordinate));
                 return;
-            }            
+            }
         }
 
-        private void ProcessMouseDown(MouseEventArgs e)
+        private void ProcessMouseDown(Point2F pMouseCoordinate)
         {
             _isInSwipe = false;
-            _downPoint = new Point2F(e.X, e.Y);
+            _isDown = true;
+            _isDownHolding = true;
+            _downPoint = pMouseCoordinate;
             _downTime = DateTime.Now;
+            _waitTimer = new System.Threading.Timer((o) =>
+                {
+                    SendTouchGesture(new TouchGesture(GestureType.Hold, pMouseCoordinate));
+                    _isDownHolding = false;
+                },
+                null,
+                TouchDownHoldThreshold, 
+                System.Threading.Timeout.Infinite);
         }
 
-        private void ProcessMouseMove(MouseEventArgs e)
+        private void ProcessMouseMove(Point2F pMouseCoordinate)
         {
             DateTime dt = DateTime.Now;
-            Point2F mousePoint = new Point2F(e.X, e.Y);
+            Point2F mousePoint = pMouseCoordinate;
 
             if (dt == _previousPointTime) return;
 
-            bool mouseDown = e.Button == MouseButtons.Left;
+            bool mouseDown = _isDown;
             float seconds = (float)(dt - _previousPointTime).TotalSeconds;
 
             float xVelocity =Math.Abs((mousePoint.X - _previousPoint.X)
@@ -149,6 +167,13 @@ namespace CarMp.Reactive.Touch
             // WORKS FUCKING SWEET!
             //... Except direction is fucked up. Spoke too soon...
             //System.Diagnostics.Debug.WriteLine("MouseMove- velocity: " + velocityNow + "  now: " + e.X.ToString() + "," + e.Y.ToString() + " previous: " + _previousPoint.X.ToString() + "," + _previousPoint.Y.ToString() + " " + e.Button.ToString());
+            if (_isDownHolding 
+                && (Math.Abs(pMouseCoordinate.X - _downPoint.X) > 3
+                || Math.Abs(pMouseCoordinate.Y - _downPoint.Y) > 3))
+            {
+                _isDownHolding = false;
+                StopWaitTimer();
+            }
 
             SendTouchMove(new TouchMove(mousePoint, mouseDown, velocityNow));
 
@@ -168,8 +193,8 @@ namespace CarMp.Reactive.Touch
                     
                     // TODO: Chewck for angle. 
                     // HACK: the following code.
-                    float x = _startHighVelocityPoint.X - e.X;
-                    float y = _startHighVelocityPoint.Y - e.Y;
+                    float x = _startHighVelocityPoint.X - mousePoint.X;
+                    float y = _startHighVelocityPoint.Y - mousePoint.Y;
                     DebugHandler.DebugPrint("IS IN SWIPE X: " + x.ToString()  + " y: " + y.ToString());
                     if (Math.Abs(x) > Math.Abs(y))
                     {
@@ -204,6 +229,11 @@ namespace CarMp.Reactive.Touch
             _previousPoint = mousePoint;
         }
 
+        private Point2F GetMouseCoordFromLParam(int pLParam)
+        {
+            return new Point2F((pLParam & 0xFFFF), pLParam >> 16);
+        }
+
         private void ProcessVelocity(object pStateObject)
         {
 
@@ -228,6 +258,11 @@ namespace CarMp.Reactive.Touch
         {
             ObservableActions.ObsTouchMove.PushTouchMove(pTouchMove);
             DebugHandler.DebugPrint("Velocity: " + pTouchMove.Velocity.VelocityD.ToString() + ", down: " + pTouchMove.TouchDown.ToString() + " at " + pTouchMove.X.ToString() + "," + pTouchMove.Y.ToString());
+        }
+
+        private void StopWaitTimer()
+        {
+            _waitTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
         }
     }
 }

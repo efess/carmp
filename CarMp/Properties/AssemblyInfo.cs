@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CarMp")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("CarMP")]
+[assembly: AssemblyDescription("Car Media Frontend")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("CarMp")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2009")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("CarMP")]
+[assembly: AssemblyCopyright("Joe Lukacovic")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

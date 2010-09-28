@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
-namespace CarMp.Reactive.Touch
+namespace CarMP.Reactive.Touch
 {
     public enum GestureType
     {
@@ -13,6 +13,7 @@ namespace CarMp.Reactive.Touch
         SwipeLeft,
         SwipeRight,
         Click,
+        Hold
     }
 
     public class TouchGesture : Touch

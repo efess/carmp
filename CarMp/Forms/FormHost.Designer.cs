@@ -1,4 +1,4 @@
-﻿namespace CarMp.Forms
+﻿namespace CarMP.Forms
 {
     partial class FormHost
     {

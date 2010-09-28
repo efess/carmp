@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using System.Xml;
 
-namespace CarMp.ViewControls
+namespace CarMP.ViewControls
 {
     public class ViewControlCommonBase : D2DViewControl, ISkinable, IDisposable
     {
@@ -53,7 +53,7 @@ namespace CarMp.ViewControls
             if (_backGroundBitmap == null
                 && _backGroundBitmapData.Data != null)
             {
-                _backGroundBitmap = Direct2D.GetBitmap(_backGroundBitmapData, pRenderTarget.Renderer);
+                _backGroundBitmap = D2DStatic.GetBitmap(_backGroundBitmapData, pRenderTarget.Renderer);
             }
 
             if (_backGroundBitmap != null)

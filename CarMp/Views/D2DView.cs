@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CarMp.ViewControls;
+using CarMP.ViewControls;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
-namespace CarMp.Views
+namespace CarMP.Views
 {
     public abstract class D2DView : D2DViewControl
     {

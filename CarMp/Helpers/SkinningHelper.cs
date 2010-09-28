@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Xml;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
-namespace CarMp
+namespace CarMP
 {
     public static class SkinningHelper
     {
@@ -61,7 +61,7 @@ namespace CarMp
             XmlNode xmlNode = pXmlNode.SelectSingleNode(pXpath);
             if (xmlNode != null)
             {
-                pColor = Direct2D.ConvertToColorF(XmlHelper.ConvertColor(xmlNode.InnerText));
+                pColor = D2DStatic.ConvertToColorF(XmlHelper.ConvertColor(xmlNode.InnerText));
                 
                 return true;
             }

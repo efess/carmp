@@ -6,54 +6,67 @@ using NHibernate;
 using FluentNHibernate.Cfg.Db;
 using FluentNHibernate.Cfg;
 using System.Threading;
+using CarMP.MediaController;
 
-namespace CarMp
+namespace CarMP
 {
     public class AppMain
     {
         private const int TIMER_GRANULARITY = 10;
+
         public static Forms.FormHost AppFormHost;
         public static MediaManager MediaManager { get; private set; }
+        
+        private static Mutex singleAppMutex;
 
         public const string COMMANDLINE_DEBUG = "-DEBUG";
         public const string COMMANDLINE_XML_SETTINGS_PATH = "-settings";
         private readonly System.Timers.Timer _appTimer = new System.Timers.Timer(TIMER_GRANULARITY);
+        
 
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        [STAThread]
+        [MTAThread]
         static void Main(string[] pArgs)
         {
+            bool isNew = false;
+            singleAppMutex = new Mutex(true, Application.ProductName, out isNew);
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            AppDomain.CurrentDomain.UnhandledException +=
-                new UnhandledExceptionEventHandler(HandleLowLevelException);
-            AppDomain.CurrentDomain.ProcessExit += new EventHandler(ProcessExit);
+            AppDomain.CurrentDomain.UnhandledException += HandleLowLevelException;
+            AppDomain.CurrentDomain.ProcessExit += ProcessExit;
 
             DebugHandler.De += new DebugHandler.DebugException(dr => Console.WriteLine("EXCEPTION> " + dr.Message));
             DebugHandler.Ds += new DebugHandler.DebugString(Console.WriteLine);
 
-            if (CheckDuplicateProcess(Process.GetCurrentProcess().ProcessName))
+            if (!isNew)
             {
-                MessageBox.Show("Only one copy of CarMp can run at a time!");
+                MessageBox.Show("Only one copy of CarMP can run at a time!");
                 return;
             }
 
             InitializeApplication(pArgs);
 
             AppFormHost = new Forms.FormHost();
-            AppFormHost.ShowView(CarMp.Views.D2DViewFactory.HOME);
+            AppFormHost.ShowView(CarMP.Views.D2DViewFactory.HOME);
             AppFormHost.StartPosition = FormStartPosition.Manual;
-            
-            Application.Run(AppFormHost);
+
+            try
+            {
+                Application.Run(AppFormHost);
+            }
+            finally
+            {
+                singleAppMutex.ReleaseMutex();
+            }
         }
 
         private static void InitializeApplication(string[] pCommandLineArgs)
         {
-            Forms.FormSplash formSplash = new CarMp.Forms.FormSplash();
+            Forms.FormSplash formSplash = new CarMP.Forms.FormSplash();
             formSplash.StartPosition = FormStartPosition.CenterScreen;
 
             Thread splashThread = new Thread(new ThreadStart(formSplash.ShowSplash));
@@ -97,7 +110,7 @@ namespace CarMp
 
             formSplash.IncreaseProgress(80, "Initializing Media Manager...");
             System.Threading.Thread.Sleep(100);
-            MediaManager = new CarMp.MediaManager(new WinampController());
+            MediaManager = new CarMP.MediaManager(new WinampController());
 
             formSplash.IncreaseProgress(100, "Done");
             formSplash.CloseSplash();
@@ -116,22 +129,7 @@ namespace CarMp
 
             return sessionFactory.OpenSession();
         }
-
-        public static bool CheckDuplicateProcess(string pProcessName)
-        {
-            // get the list of all processes by that name
-
-            Process[] processes = Process.GetProcessesByName(pProcessName);
-
-            // if there is more than one process...
-
-            if (processes.Length > 1)
-            {
-                return true;
-            }
-            return false;
-        }
-
+        
         private static void HandleLowLevelException(object sender, UnhandledExceptionEventArgs e)
         {
             DebugHandler.HandleException((Exception)e.ExceptionObject);

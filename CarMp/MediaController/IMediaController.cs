@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CarMp
+namespace CarMP
 {
-    public interface IAudioController
+    public interface IMediaController
     {
         void PlayFile(string pFile);
         void AddSongToPlayList(string pFile);

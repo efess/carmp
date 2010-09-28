@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace CarMp.ViewControls.OptionControls
+namespace CarMP.ViewControls.OptionControls
 {
     public class Skinning : ViewControlCommonBase, ISkinable, IOptionControl
     {

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using CarMp.ViewControls;
+using CarMP.ViewControls;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
-namespace CarMp.Views
+namespace CarMP.Views
 {
     public class HomeView : NavigationView, ISkinable
     {
@@ -41,7 +41,7 @@ namespace CarMp.Views
             if (BackgroundImage == null
                 && _backgroundImage.Data != null)
             {
-                BackgroundImage = Direct2D.GetBitmap(_backgroundImage, pRenderTarget.Renderer);
+                BackgroundImage = D2DStatic.GetBitmap(_backgroundImage, pRenderTarget.Renderer);
             }
             if (BackgroundImage != null)
             {

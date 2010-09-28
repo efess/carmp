@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CarMp
+namespace CarMP
 {
-    class ISupportsCopyPaste
+    public interface ISupportsCopyPaste
     {
         void PasteData(object pPasteData);
     }  

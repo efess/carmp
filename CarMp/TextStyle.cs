@@ -7,7 +7,7 @@ using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using Microsoft.WindowsAPICodePack.DirectX;
 
-namespace CarMp
+namespace CarMP
 {
     public class TextStyle : IDisposable
     {
@@ -60,7 +60,7 @@ namespace CarMp
 
 
 
-        public Brush GetBrush(CarMp.Direct2D.RenderTargetWrapper pRenderWrapper)
+        public Brush GetBrush(CarMP.Direct2D.RenderTargetWrapper pRenderWrapper)
         {
             if(pRenderWrapper.CurrentBounds.Height !=
                 _bounds.Height || _textBrush == null)
@@ -78,13 +78,13 @@ namespace CarMp
                             pRenderWrapper.Renderer.CreateGradientStopCollection(new GradientStop[] {
                             new GradientStop
                                 {
-                                    Color = Direct2D.ConvertToColorF(Color1),
+                                    Color = D2DStatic.ConvertToColorF(Color1),
                                     Position = 0
                                 }
                                 ,
                             new GradientStop
                                 {
-                                    Color = Direct2D.ConvertToColorF(Color2),
+                                    Color = D2DStatic.ConvertToColorF(Color2),
                                     Position = 1
                                 }
                             },
@@ -95,7 +95,7 @@ namespace CarMp
                 }
                 else
                 {
-                    _textBrush = pRenderWrapper.Renderer.CreateSolidColorBrush(Direct2D.ConvertToColorF(Color1));
+                    _textBrush = pRenderWrapper.Renderer.CreateSolidColorBrush(D2DStatic.ConvertToColorF(Color1));
                 }
             }
             return _textBrush;

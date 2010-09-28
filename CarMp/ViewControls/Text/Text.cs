@@ -8,7 +8,7 @@ using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using Microsoft.WindowsAPICodePack.DirectX;
 using System.Windows.Forms;
 
-namespace CarMp.ViewControls
+namespace CarMP.ViewControls
 {
     public class Text : ViewControlCommonBase, ISkinable, IDisposable
     {
@@ -101,11 +101,11 @@ namespace CarMp.ViewControls
                 || _textStyle == null) return;
 
             if (_textStyle.Format == null)
-                _textStyle.Initialize(Direct2D.StringFactory);
+                _textStyle.Initialize(D2DStatic.StringFactory);
 
             
             if (StringLayout == null || _invalidateTextLayout)
-                StringLayout = Direct2D.StringFactory.CreateTextLayout(_textString, _textStyle.Format, Bounds.Width, Bounds.Height);
+                StringLayout = D2DStatic.StringFactory.CreateTextLayout(_textString, _textStyle.Format, Bounds.Width, Bounds.Height);
 
             pRenderTarget.DrawTextLayout(TextPosition, StringLayout, _textStyle.GetBrush(pRenderTarget));
 

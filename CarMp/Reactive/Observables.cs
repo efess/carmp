@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using CarMp.Reactive.Touch;
-using CarMp.Reactive.KeyInput;
+using CarMP.Reactive.Touch;
+using CarMP.Reactive.KeyInput;
 
-namespace CarMp.Reactive
+namespace CarMP.Reactive
 {
     public class Observables
     {

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using CarMp.ViewControls;
+using CarMP.ViewControls;
 
-namespace CarMp
+namespace CarMP.MediaEntities
 {
     public enum MediaListItemType
     {

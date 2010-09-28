@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace CarMp
+namespace CarMP
 {
     public interface ISkinable
     {

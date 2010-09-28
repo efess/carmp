@@ -5,7 +5,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 
-namespace CarMp
+namespace CarMP
 {
     public static class Win32Helpers
     {

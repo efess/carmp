@@ -7,12 +7,12 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using System.IO;
-using CarMp.Reactive.Touch;
+using CarMP.Reactive.Touch;
 using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using Microsoft.WindowsAPICodePack.DirectX;
 
-namespace CarMp.ViewControls
+namespace CarMP.ViewControls
 {
     public partial class GraphicalButton : D2DViewControl, ISkinable, IDisposable
     {
@@ -97,13 +97,13 @@ namespace CarMp.ViewControls
             if (ButtonUpBitmap == null
                 && _buttonUpImageData.Data != null)
             {
-                ButtonUpBitmap = Direct2D.GetBitmap(_buttonUpImageData, pRenderer.Renderer);
+                ButtonUpBitmap = D2DStatic.GetBitmap(_buttonUpImageData, pRenderer.Renderer);
             }
 
             if (ButtonDownBitmap == null
                 && _buttonDownImageData.Data != null)
             {
-                ButtonDownBitmap = Direct2D.GetBitmap(_buttonDownImageData, pRenderer.Renderer);
+                ButtonDownBitmap = D2DStatic.GetBitmap(_buttonDownImageData, pRenderer.Renderer);
             }
 
 

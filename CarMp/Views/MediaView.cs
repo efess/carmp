@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CarMp.ViewControls;
+using CarMP.ViewControls;
 using System.Xml;
 using System.Runtime.Remoting.Messaging;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.MediaEntities;
 
-namespace CarMp.Views
+namespace CarMP.Views
 {
     public class MediaView : NavigationView, ISkinable
     {
@@ -89,7 +90,7 @@ namespace CarMp.Views
             if (Background == null
                 && _background.Data != null)
             {
-                Background = Direct2D.GetBitmap(_background, pRenderTarget.Renderer);
+                Background = D2DStatic.GetBitmap(_background, pRenderTarget.Renderer);
             }
             if (Background != null)
             {

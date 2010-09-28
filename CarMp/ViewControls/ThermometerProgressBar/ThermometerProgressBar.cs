@@ -7,7 +7,7 @@ using System.Xml;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using Microsoft.WindowsAPICodePack.DirectX;
 
-namespace CarMp.ViewControls
+namespace CarMP.ViewControls
 {
     public class ThermometerProgressBar : D2DViewControl, ISkinable
     {
@@ -51,13 +51,13 @@ namespace CarMp.ViewControls
             if (Background == null
                 && _background.Data != null)
             {
-                Background = Direct2D.GetBitmap(_background, pRenderTarget.Renderer);
+                Background = D2DStatic.GetBitmap(_background, pRenderTarget.Renderer);
             }
 
             if (OverlayMask == null
                 && _overlayMask.Data != null)
             {
-                OverlayMask = Direct2D.GetBitmap(_overlayMask, pRenderTarget.Renderer);
+                OverlayMask = D2DStatic.GetBitmap(_overlayMask, pRenderTarget.Renderer);
             }
 
 

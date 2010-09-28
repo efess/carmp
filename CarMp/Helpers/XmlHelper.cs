@@ -5,7 +5,7 @@ using System.Text;
 using System.Drawing;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
-namespace CarMp
+namespace CarMP
 {
     public static class XmlHelper
     {
@@ -98,7 +98,7 @@ namespace CarMp
             }
         }
 
-        public static CarMp.ViewControls.AnimationPathPoint GetAnimationPathPoint(string pXmlText)
+        public static CarMP.ViewControls.AnimationPathPoint GetAnimationPathPoint(string pXmlText)
         {
             string[] bounds = pXmlText.Split(new char[] { ',' });
 
@@ -106,8 +106,8 @@ namespace CarMp
             {
                 try
                 {
-                    CarMp.ViewControls.AnimationPathPoint pathPoint
-                        = new CarMp.ViewControls.AnimationPathPoint((float)Convert.ToDouble(bounds[0]), (float)Convert.ToDouble(bounds[1]), Convert.ToInt32(bounds[2]), (float)Convert.ToDouble(bounds[3]));
+                    CarMP.ViewControls.AnimationPathPoint pathPoint
+                        = new CarMP.ViewControls.AnimationPathPoint((float)Convert.ToDouble(bounds[0]), (float)Convert.ToDouble(bounds[1]), Convert.ToInt32(bounds[2]), (float)Convert.ToDouble(bounds[3]));
 
                     return pathPoint;
                 }

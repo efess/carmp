@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CarMp.ViewControls;
+using CarMP.ViewControls;
 
-namespace CarMp
+namespace CarMP.MediaEntities
 {
     public enum FileSystemItemType
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using FluentNHibernate.Mapping;
 
-namespace CarMp
+namespace CarMP
 {
     public class MediaHistoryMapping : ClassMap<MediaHistory>
     {

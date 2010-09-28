@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using CarMp.ViewControls;
+using CarMP.ViewControls;
+using CarMP.Direct2D;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
-namespace CarMp.Views
+namespace CarMP.Views
 {
     public abstract class NavigationView : D2DView, ISkinable
     {
@@ -17,7 +18,7 @@ namespace CarMp.Views
         public NavigationView(SizeF pWindowSize)
             : base(pWindowSize) { }
 
-        private CarMp.Direct2D.BitmapData _navigationBarBackgroundBitmapData;
+        private CarMP.Direct2D.BitmapData _navigationBarBackgroundBitmapData;
         private D2DBitmap _navigationBarBackgroundBitmap = null;
         
         public virtual void ApplySkin(XmlNode pSkinNode, string pSkinPath)
@@ -58,7 +59,7 @@ namespace CarMp.Views
             if (_navigationBarBackgroundBitmap == null
                 && _navigationBarBackgroundBitmapData.Data != null)
             {
-                _navigationBarBackgroundBitmap = Direct2D.GetBitmap(_navigationBarBackgroundBitmapData, pRenderTarget.Renderer);
+                _navigationBarBackgroundBitmap = D2DStatic.GetBitmap(_navigationBarBackgroundBitmapData, pRenderTarget.Renderer);
             }
 
             if(_navigationBarBackgroundBitmap != null)

@@ -5,7 +5,7 @@ using System.Text;
 using System.Drawing;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
-namespace CarMp.ViewControls
+namespace CarMP.ViewControls
 {
     public class AnimationPathPoint
     {

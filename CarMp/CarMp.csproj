@@ -8,8 +8,8 @@
     <ProjectGuid>{A0A6D51B-7760-4D91-9CCA-8CD491AFD56A}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CarMp</RootNamespace>
-    <AssemblyName>CarMp</AssemblyName>
+    <RootNamespace>CarMP</RootNamespace>
+    <AssemblyName>CarMP</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
@@ -54,6 +54,9 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>CarMP.AppMain</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="FluentNHibernate, Version=1.0.0.0, Culture=neutral, PublicKeyToken=8aa435e3cb308880, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -97,12 +100,14 @@
     <Compile Include="Callbacks\ChangeMediaListArgs.cs" />
     <Compile Include="Callbacks\MediaChangedArgs.cs" />
     <Compile Include="Callbacks\MediaProgressChangedArgs.cs" />
-    <Compile Include="DigitalMediaItem.cs" />
-    <Compile Include="D2D\Direct2D.cs" />
-    <Compile Include="D2D\Imaging.cs" />
-    <Compile Include="D2D\RectFExt.cs" />
+    <Compile Include="Direct2D\BitmapData.cs" />
+    <Compile Include="Direct2D\RenderTargetWrapper.cs" />
+    <Compile Include="MediaEntities\DigitalMediaItem.cs" />
+    <Compile Include="Direct2D\Direct2D.cs" />
+    <Compile Include="Direct2D\Imaging.cs" />
+    <Compile Include="Direct2D\RectFExt.cs" />
     <Compile Include="EventQueue.cs" />
-    <Compile Include="FileSystem\FileMediaInfo.cs" />
+    <Compile Include="IO\FileMediaInfo.cs" />
     <Compile Include="IMessageHookable.cs" />
     <Compile Include="ISupportsCopyPaste.cs" />
     <Compile Include="Reactive\KeyInput\KeyboardObservable.cs" />
@@ -110,8 +115,8 @@
     <Compile Include="Reactive\ReactiveUpdate.cs" />
     <Compile Include="TextStyle.cs" />
     <Compile Include="Helpers\SkinningHelper.cs" />
-    <Compile Include="IAudioController.cs" />
-    <Compile Include="MediaListItemFactory.cs" />
+    <Compile Include="MediaController\IMediaController.cs" />
+    <Compile Include="MediaEntities\MediaListItemFactory.cs" />
     <Compile Include="Reactive\DefaultObservable.cs" />
     <Compile Include="Reactive\Touch\W32MessageToReactive.cs" />
     <Compile Include="Reactive\Touch\TouchGesture.cs" />
@@ -124,13 +129,13 @@
     <Compile Include="Reactive\Touch\VelocityAggregator.cs" />
     <Compile Include="Reactive\UnSubscriber.cs" />
     <Compile Include="SkinSettings.cs" />
-    <Compile Include="Static\LinearMath.cs" />
+    <Compile Include="GlobalStatic\LinearMath.cs" />
     <Compile Include="ViewControls\AnimationContainer\AnimationContainer.cs" />
     <Compile Include="ViewControls\AnimationContainer\AnimationPath.cs" />
     <Compile Include="ViewControls\AnimationContainer\AnimationPathPoint.cs" />
     <Compile Include="ViewControls\AnimationContainer\AnimationState.cs" />
     <Compile Include="ViewControls\GraphicalButton\GraphicalButton.cs" />
-    <Compile Include="Static\Database.cs" />
+    <Compile Include="GlobalStatic\Database.cs" />
     <Compile Include="DataObjects\DigitalMediaLibrary.cs" />
     <Compile Include="DataObjects\MediaHistory.cs" />
     <Compile Include="DataObjects\Mappings\DigitalMediaLibraryMapping.cs" />
@@ -147,8 +152,8 @@
     <Compile Include="ViewControls\DragableList\DragableListItem.cs" />
     <Compile Include="ViewControls\DragableList\DragableListTextItem.cs" />
     <Compile Include="Enums.cs" />
-    <Compile Include="FileSystem\FileSystem.cs" />
-    <Compile Include="FileSystemItem.cs" />
+    <Compile Include="IO\FileSystem.cs" />
+    <Compile Include="MediaEntities\FileSystemItem.cs" />
     <Compile Include="Forms\FormHost.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -163,7 +168,7 @@
     </Compile>
     <Compile Include="ISkinable.cs" />
     <Compile Include="MediaGroupCreater.cs" />
-    <Compile Include="MediaListItem.cs" />
+    <Compile Include="MediaEntities\MediaListItem.cs" />
     <Compile Include="ApplicationMain.cs" />
     <Compile Include="MediaManager.cs" />
     <Compile Include="DigitalMediaScanner.cs" />
@@ -198,7 +203,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -208,7 +212,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="RootItem.cs" />
+    <Compile Include="MediaEntities\RootItem.cs" />
     <Compile Include="SessionSettings.cs" />
     <Compile Include="SystemInformation.cs" />
     <Compile Include="ViewControls\ViewControlCommonBase.cs" />
@@ -222,13 +226,7 @@
     <Compile Include="Views\NavigationView.cs" />
     <Compile Include="Views\OptionsView.cs" />
     <Compile Include="Win32\WindowsMessages.cs" />
-    <Compile Include="WinampController.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CarMpMediaInfo\CarMpMediaInfo.csproj">
-      <Project>{328BCACA-4652-49CF-96A9-B64DC3EA23AB}</Project>
-      <Name>CarMpMediaInfo</Name>
-    </ProjectReference>
+    <Compile Include="MediaController\WinampController.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\logo.bmp" />
@@ -259,7 +257,12 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\CarMpMediaInfo\CarMP.MediaInfo.csproj">
+      <Project>{328BCACA-4652-49CF-96A9-B64DC3EA23AB}</Project>
+      <Name>CarMP.MediaInfo</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

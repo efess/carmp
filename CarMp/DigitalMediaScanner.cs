@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using CarMpMediaInfo;
+using System.Threading;
+using System.Diagnostics;
+using System.IO;
+using CarMP.MediaInfo;
+using CarMP.IO;
 
-namespace CarMp
+namespace CarMP
 {
-    using System.Diagnostics;
-    using System.IO;
-    using System.Threading;
-    using System.Collections;
 
     public class DigitalMediaScanner
     {

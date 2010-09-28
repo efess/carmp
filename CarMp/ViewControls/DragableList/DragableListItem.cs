@@ -9,7 +9,7 @@ using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using Microsoft.WindowsAPICodePack.DirectX;
 using System.Xml;
 
-namespace CarMp.ViewControls
+namespace CarMP.ViewControls
 {
     public abstract class DragableListItem : ViewControlCommonBase, IDisposable, ISkinable
     {
@@ -119,7 +119,7 @@ namespace CarMp.ViewControls
         /// Override this
         /// </summary>
         /// <param name="pCanvas"></param>
-        protected override void OnRender(CarMp.Direct2D.RenderTargetWrapper pRenderer) 
+        protected override void OnRender(CarMP.Direct2D.RenderTargetWrapper pRenderer) 
         {
             if(_backgroundBrush == null)
             {

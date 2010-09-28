@@ -5,7 +5,7 @@ using System.Text;
 using System.Xml;
 using System.IO;
 
-namespace CarMp
+namespace CarMP
 {
     public class SkinSettings
     {

@@ -7,7 +7,7 @@ using NHibernate.Criterion;
 using NHibernate;
 using System.Diagnostics;
 
-namespace CarMp
+namespace CarMP
 {
     public class MediaGroupCreater
     {

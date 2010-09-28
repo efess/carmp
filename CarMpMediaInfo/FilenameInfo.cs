@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CarMpMediaInfo
+namespace CarMP.MediaInfo
 {
     public class FilenameInfo
     {

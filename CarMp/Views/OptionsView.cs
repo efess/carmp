@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
-using CarMp.ViewControls;
-using CarMp.ViewControls.OptionControls;
+using CarMP.ViewControls;
+using CarMP.ViewControls.OptionControls;
 
-namespace CarMp.Views
+namespace CarMP.Views
 {
     public class OptionsView : NavigationView
     {

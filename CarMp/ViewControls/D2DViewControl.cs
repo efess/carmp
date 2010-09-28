@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using CarMp.Views;
-using CarMp.Reactive.Touch;
+using CarMP.Views;
+using CarMP.Reactive.Touch;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
-using CarMp.Reactive;
-using CarMp.Reactive.KeyInput;
+using CarMP.Reactive;
+using CarMP.Reactive.KeyInput;
 
-namespace CarMp.ViewControls
+namespace CarMP.ViewControls
 {
     public abstract class D2DViewControl : IDisposable
     {

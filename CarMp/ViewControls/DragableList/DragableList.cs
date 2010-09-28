@@ -4,12 +4,12 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.Threading;
 using System.Xml;
-using CarMp.Reactive.Touch;
+using CarMP.Reactive.Touch;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using Microsoft.WindowsAPICodePack.DirectX;
 
 
-namespace CarMp.ViewControls
+namespace CarMP.ViewControls
 {
     public class DragableList : ViewControlCommonBase, ISkinable
     {

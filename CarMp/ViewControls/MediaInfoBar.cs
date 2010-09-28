@@ -5,7 +5,7 @@ using System.Text;
 using System.Xml;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
-namespace CarMp.ViewControls
+namespace CarMP.ViewControls
 {
     public class MediaInfoBar : AnimationContainer, ISkinable
     {
@@ -79,7 +79,7 @@ namespace CarMp.ViewControls
             if (_backgroundImage == null
                 && _backgroundBitmapData.Data != null)
             {
-                _backgroundImage = Direct2D.GetBitmap(_backgroundBitmapData, pRenderTarget.Renderer);
+                _backgroundImage = D2DStatic.GetBitmap(_backgroundBitmapData, pRenderTarget.Renderer);
             }
             if (_backgroundImage != null)
             {

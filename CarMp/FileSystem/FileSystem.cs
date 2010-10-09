@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
-namespace CarMp
+namespace CarMP.IO
 {
     /// <summary>
     /// Methods for accessing filesystem resources
@@ -132,18 +132,18 @@ namespace CarMp
             return fileList;
         }
 
-        public static void AppendFiles(string pDirectory, List<string> pSupportedExtensions, List<FileInfo> pFiles)
+        public static void AppendFiles(string pDirectory, string[] pSupportedExtensions, List<FileInfo> pFiles)
         {
             foreach (String _file in Directory.GetFiles(pDirectory))
             {
                 FileInfo fFile = new FileInfo(_file);
 
-                if (pSupportedExtensions.Count > 0)
+                if (pSupportedExtensions.Length > 0)
                 {
                     string extension = fFile.Extension.Replace(".", "").ToUpper();
-                    pSupportedExtensions.Exists(delegate(String str) { return str == extension; });
+                    pSupportedExtensions.Contains(extension);
 
-                    if (pSupportedExtensions.Exists(delegate(String str) { return str == extension; }))
+                    if (pSupportedExtensions.Contains(extension))
                     {
                         pFiles.Add(fFile);
                     }

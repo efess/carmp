@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CarMpMediaInfo;
 using System.IO;
+using CarMP.MediaInfo;
 
-namespace CarMp
+namespace CarMP.IO
 {
     public class FileMediaInfo
     {

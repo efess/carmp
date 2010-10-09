@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
-namespace CarMp
+namespace CarMP
 {
     public static class RectFExt
     {

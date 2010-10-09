@@ -6,7 +6,7 @@ using NHibernate;
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
 
-namespace CarMp
+namespace CarMP
 {
     public static class Database
     {

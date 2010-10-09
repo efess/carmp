@@ -97,9 +97,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Background\AlbumArtScanner.cs" />
+    <Compile Include="Background\BackgroundOperationBase.cs" />
+    <Compile Include="Background\BackgroundTasks.cs" />
+    <Compile Include="Background\FileCrawler.cs" />
+    <Compile Include="Background\IBackgroundOperation.cs" />
+    <Compile Include="Background\ScannerBase.cs" />
     <Compile Include="Callbacks\ChangeMediaListArgs.cs" />
+    <Compile Include="Callbacks\FinishEventArgs.cs" />
     <Compile Include="Callbacks\MediaChangedArgs.cs" />
     <Compile Include="Callbacks\MediaProgressChangedArgs.cs" />
+    <Compile Include="Callbacks\ProgressEventArgs.cs" />
+    <Compile Include="DataObjects\DatabaseInterface.cs" />
+    <Compile Include="DataObjects\Table\Art.cs" />
+    <Compile Include="DataObjects\Table\Mappings\ArtMapping.cs" />
+    <Compile Include="DataObjects\View\AlbumArtPath.cs" />
+    <Compile Include="DataObjects\View\Mappings\AlbumArtPathsMapping.cs" />
     <Compile Include="Direct2D\BitmapData.cs" />
     <Compile Include="Direct2D\RenderTargetWrapper.cs" />
     <Compile Include="MediaEntities\DigitalMediaItem.cs" />
@@ -113,12 +126,15 @@
     <Compile Include="Reactive\KeyInput\KeyboardObservable.cs" />
     <Compile Include="Reactive\KeyInput\Key.cs" />
     <Compile Include="Reactive\ReactiveUpdate.cs" />
+    <Compile Include="Settings\IXmlSettings.cs" />
+    <Compile Include="Settings\MediaDisplayFormatSettings.cs" />
+    <Compile Include="Settings\XmlSettingsBase.cs" />
     <Compile Include="TextStyle.cs" />
     <Compile Include="Helpers\SkinningHelper.cs" />
     <Compile Include="MediaController\IMediaController.cs" />
     <Compile Include="MediaEntities\MediaListItemFactory.cs" />
     <Compile Include="Reactive\DefaultObservable.cs" />
-    <Compile Include="Reactive\Touch\W32MessageToReactive.cs" />
+    <Compile Include="Reactive\W32MessageToReactive.cs" />
     <Compile Include="Reactive\Touch\TouchGesture.cs" />
     <Compile Include="Reactive\Touch\Touch.cs" />
     <Compile Include="Reactive\Touch\TouchGestureObservable.cs" />
@@ -128,22 +144,24 @@
     <Compile Include="Reactive\Touch\Velocity.cs" />
     <Compile Include="Reactive\Touch\VelocityAggregator.cs" />
     <Compile Include="Reactive\UnSubscriber.cs" />
-    <Compile Include="SkinSettings.cs" />
+    <Compile Include="Settings\SkinSettings.cs" />
     <Compile Include="GlobalStatic\LinearMath.cs" />
     <Compile Include="ViewControls\AnimationContainer\AnimationContainer.cs" />
     <Compile Include="ViewControls\AnimationContainer\AnimationPath.cs" />
     <Compile Include="ViewControls\AnimationContainer\AnimationPathPoint.cs" />
     <Compile Include="ViewControls\AnimationContainer\AnimationState.cs" />
+    <Compile Include="ViewControls\CheckBox.cs" />
+    <Compile Include="ViewControls\Container\Container.cs" />
     <Compile Include="ViewControls\GraphicalButton\GraphicalButton.cs" />
     <Compile Include="GlobalStatic\Database.cs" />
-    <Compile Include="DataObjects\DigitalMediaLibrary.cs" />
-    <Compile Include="DataObjects\MediaHistory.cs" />
-    <Compile Include="DataObjects\Mappings\DigitalMediaLibraryMapping.cs" />
-    <Compile Include="DataObjects\Mappings\MediaHistoryMapping.cs" />
-    <Compile Include="DataObjects\Mappings\MediaGroupMapping.cs" />
-    <Compile Include="DataObjects\MediaGroup.cs" />
-    <Compile Include="DataObjects\MediaGroupItem.cs" />
-    <Compile Include="DataObjects\Mappings\MediaGroupItemMap.cs" />
+    <Compile Include="DataObjects\Table\DigitalMediaLibrary.cs" />
+    <Compile Include="DataObjects\Table\MediaHistory.cs" />
+    <Compile Include="DataObjects\Table\Mappings\DigitalMediaLibraryMapping.cs" />
+    <Compile Include="DataObjects\Table\Mappings\MediaHistoryMapping.cs" />
+    <Compile Include="DataObjects\Table\Mappings\MediaGroupMapping.cs" />
+    <Compile Include="DataObjects\Table\MediaGroup.cs" />
+    <Compile Include="DataObjects\Table\MediaGroupItem.cs" />
+    <Compile Include="DataObjects\Table\Mappings\MediaGroupItemMap.cs" />
     <Compile Include="DebugHandler.cs" />
     <Compile Include="Callbacks\Delegates.cs" />
     <Compile Include="MediaHistoryManager.cs" />
@@ -167,20 +185,23 @@
       <DependentUpon>FormSplash.cs</DependentUpon>
     </Compile>
     <Compile Include="ISkinable.cs" />
-    <Compile Include="MediaGroupCreater.cs" />
+    <Compile Include="Background\MediaGroupCreater.cs" />
     <Compile Include="MediaEntities\MediaListItem.cs" />
     <Compile Include="ApplicationMain.cs" />
     <Compile Include="MediaManager.cs" />
-    <Compile Include="DigitalMediaScanner.cs" />
+    <Compile Include="Background\DigitalMediaScanner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewControls\MediaControlBar.cs" />
     <Compile Include="ViewControls\MediaInfoBar.cs" />
     <Compile Include="ViewControls\MediaShortcut.cs" />
     <Compile Include="ViewControls\OptionControls\IOptionControl.cs" />
+    <Compile Include="ViewControls\OptionControls\MediaListDisplayFormat.cs" />
+    <Compile Include="ViewControls\OptionControls\MediaListSort.cs" />
     <Compile Include="ViewControls\OptionControls\MediaLocation.cs" />
     <Compile Include="ViewControls\OptionControls\Skinning.cs" />
     <Compile Include="ViewControls\OverlayControls.cs" />
     <Compile Include="ViewControls\ScrollableText\ScrollableText.cs" />
+    <Compile Include="ViewControls\SingleChoiceRadio\SingleOptionRadio.cs" />
     <Compile Include="ViewControls\TextInput\TextInput.cs" />
     <Compile Include="ViewControls\Text\Text.cs" />
     <Compile Include="ViewControls\ThermometerProgressBar\ThermometerProgressBar.cs" />
@@ -213,7 +234,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="MediaEntities\RootItem.cs" />
-    <Compile Include="SessionSettings.cs" />
+    <Compile Include="Settings\SessionSettings.cs" />
     <Compile Include="SystemInformation.cs" />
     <Compile Include="ViewControls\ViewControlCommonBase.cs" />
     <Compile Include="Views\D2DView.cs" />
@@ -263,6 +284,7 @@
       <Name>CarMP.MediaInfo</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

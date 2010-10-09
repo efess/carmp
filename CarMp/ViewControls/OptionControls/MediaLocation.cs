@@ -14,6 +14,7 @@ namespace CarMP.ViewControls.OptionControls
         private const string XPATH_MUSIC_FOLDER = "MusicFolder";
         private const string XPATH_PICTURE_FOLDER = "PictureFolder";
         private const string XPATH_VIDEO_FOLDER = "VideoFolder";
+        private const string XPATH_REBUILD_DATABSE = "RebuildDatabase";
 
         public string OptionName { get { return OPTION_NAME; } }
         public string OptionElement { get { return OPTION_ELEMENT; } }
@@ -21,6 +22,20 @@ namespace CarMP.ViewControls.OptionControls
         public void ApplySkin(XmlNode pXmlNode, string pSkinPath)
         {
             Clear();
+
+
+            XmlNode buttonNode = pXmlNode.SelectSingleNode(XPATH_REBUILD_DATABSE);
+
+            if (buttonNode != null)
+            {
+                var button = new GraphicalButton();
+                button.ButtonString = "Rebuild Database";
+                button.ApplySkin(buttonNode, pSkinPath);
+
+                AddViewControl(button);
+                button.StartRender();
+                button.Click += (sender, e) => { AppMain.BackgroundTasks.ScanMedia(true); };
+            }
 
             var nodeNames = new string[] { XPATH_MUSIC_FOLDER, XPATH_PICTURE_FOLDER, XPATH_VIDEO_FOLDER };
             foreach (string nodeName in nodeNames)
@@ -38,33 +53,33 @@ namespace CarMP.ViewControls.OptionControls
                         case XPATH_MUSIC_FOLDER:
                             ti.InputLeave += () => 
                                 {
-                                    if (SessionSettings.MusicPath != ti.TextString)
+                                    if (AppMain.Settings.MusicPath != ti.TextString)
                                     {
-                                        SessionSettings.MusicPath = ti.TextString;
-                                        SessionSettings.SaveXml();
+                                        AppMain.Settings.MusicPath = ti.TextString;
+                                        AppMain.Settings.SaveXml();
                                     }
                                 };
-                            ti.TextString = SessionSettings.MusicPath; break;
+                            ti.TextString = AppMain.Settings.MusicPath; break;
                         case XPATH_PICTURE_FOLDER:
                             ti.InputLeave += () =>
                             {
-                                if (SessionSettings.PicturePath != ti.TextString)
+                                if (AppMain.Settings.PicturePath != ti.TextString)
                                 {
-                                    SessionSettings.PicturePath = ti.TextString;
-                                    SessionSettings.SaveXml();
+                                    AppMain.Settings.PicturePath = ti.TextString;
+                                    AppMain.Settings.SaveXml();
                                 }
                             };
-                            ti.TextString = SessionSettings.PicturePath; break;
+                            ti.TextString = AppMain.Settings.PicturePath; break;
                         case XPATH_VIDEO_FOLDER:
                             ti.InputLeave += () =>
                             {
-                                if (SessionSettings.VideoPath != ti.TextString)
+                                if (AppMain.Settings.VideoPath != ti.TextString)
                                 {
-                                    SessionSettings.VideoPath = ti.TextString;
-                                    SessionSettings.SaveXml();
+                                    AppMain.Settings.VideoPath = ti.TextString;
+                                    AppMain.Settings.SaveXml();
                                 }
                             };
-                            ti.TextString = SessionSettings.VideoPath; break;
+                            ti.TextString = AppMain.Settings.VideoPath; break;
                     }
                 }
             }

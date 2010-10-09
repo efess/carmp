@@ -24,13 +24,13 @@ namespace CarMP.ViewControls
 
         private object stringLayoutLock = new Object();
         
-        private TextStyle _textStyle;
-        public TextStyle TextStyle { get { return _textStyle; } }
-
         internal bool SendMouseEventsToParent { get; set;}
 
         private bool _invalidateTextLayout = true;
-        
+
+        private TextStyle _textStyle;
+        public TextStyle TextStyle { get { return _textStyle; }  set { _textStyle = value; _invalidateTextLayout = true; }}
+
         public void Dispose()
         {
             if(StringLayout != null) StringLayout.Dispose();
@@ -108,8 +108,6 @@ namespace CarMP.ViewControls
                 StringLayout = D2DStatic.StringFactory.CreateTextLayout(_textString, _textStyle.Format, Bounds.Width, Bounds.Height);
 
             pRenderTarget.DrawTextLayout(TextPosition, StringLayout, _textStyle.GetBrush(pRenderTarget));
-
-
         }
 
         public override void SendUpdate(Reactive.ReactiveUpdate pReactiveUpdate)

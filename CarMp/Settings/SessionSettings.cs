@@ -8,10 +8,22 @@ using System.IO;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
-namespace CarMP
+namespace CarMP.Settings
 {
-    public static class SessionSettings
+    public class SessionSettings : XmlSettingsBase, IXmlSettings
     {
+        // singleton pattern
+        private static SessionSettings instance;
+        private SessionSettings(){}
+
+        internal static SessionSettings GetSettingsObject()
+        {
+            if(instance == null)
+                instance = new SessionSettings();
+            return instance;
+        }
+
+        private List<IXmlSettings> SettingObjects = new List<IXmlSettings>();
         private const string XML_DATABASE_PATH_NODE = "databasepath";
         private const string XML_ROOT_NODE = "settings";
 
@@ -28,51 +40,81 @@ namespace CarMP
         private const string XML_VIDEO_FOLDER = "VideoLocatin";
         private const string XML_PICTURES_FOLDER = "PictureLocation";
         private const string XML_SKINS_FOLDER = "SkinsLocatin";
+        private const string XML_MEDIA_SORT = "MediaListSort";
+        private const string XML_MEDIA_DISPLAY_FORMAT = "MediaDisplayFormat";
 
         private const string XML_SKIN_NAME = "CurrentSkin";
+
         //  Option Properties
         /// <summary>
         /// Indicates if application should run debugging methods
         /// </summary>
-        public static bool Debug { get; set; }
+        public bool Debug { get; set; }
         /// <summary>
         /// Location of database
         /// </summary>
-        public static string DatabaseLocation { get;  set; }
+        public string DatabaseLocation { get;  set; }
         /// <summary>
         /// Location of file containing these settinsg (overridable by the command line)
         /// </summary>
-        public static string SettingsXmlLocation { get; set; }
+        public string SettingsXmlLocation { get; set; }
         /// <summary>
         /// Start location of this screen
         /// </summary>
-        public static Point2F WindowLocation {get;set;}
+        public Point2F WindowLocation {get;set;}
         /// <summary>
         /// Screen resolution (size of this window)
         /// </summary>
-        public static SizeF ScreenResolution { get;  set; }
+        public SizeF ScreenResolution { get;  set; }
 
-        public static ColorF DefaultFontColor { get;  set; }
-        public static ColorF DefaultFontSpecialColor { get;  set; }
+        public ColorF DefaultFontColor { get;  set; }
+        public ColorF DefaultFontSpecialColor { get;  set; }
 
-        public static string SkinName { get;  set; }
-        public static SkinSettings CurrentSkin = null;
+        public string SkinName { get;  set; }
+        public SkinSettings CurrentSkin = null;
 
-        public static string SkinPath { get;  set; }
-        public static string MusicPath { get;  set; }
-        public static string PicturePath { get;  set; }
-        public static string VideoPath { get;  set; }
+        public string SkinPath { get;  set; }
+        public string MusicPath { get;  set; }
+        public string PicturePath { get;  set; }
+        public string VideoPath { get;  set; }
+        public MediaSort SortMedia { get; set; }
 
-        public static string SettingsPath = @".\";
+        public MediaDisplayFormatSettings DisplayFormat
+        {
+            get
+            {
+                var setting =  SettingObjects
+                .OfType<MediaDisplayFormatSettings>()
+                .FirstOrDefault();
+                if (setting == null)
+                {
+                    setting = InstantiateSetting<MediaDisplayFormatSettings>()
+                        as MediaDisplayFormatSettings;
+                }
+                return setting;
+            }
+        }
 
-        private static string settingsFile = null;
+        private IXmlSettings InstantiateSetting<T>() 
+        {
 
-        public static string CurrentSkinPath
+            IXmlSettings setting = Activator.CreateInstance(typeof(T))
+                as IXmlSettings;
+            SettingObjects.Add(setting);
+            setting.SetDefaults();
+            return setting;
+        }
+
+        public string SettingsPath = @".\";
+
+        private string settingsFile = null;
+
+        public string CurrentSkinPath
         {
             get { return System.IO.Path.Combine(SkinPath, SkinName); }
         }
 
-        public static void SetDefault()
+        public void SetDefaults()
         {
             Debug = false;
             DatabaseLocation = @".\database.db";
@@ -82,14 +124,17 @@ namespace CarMP
             DefaultFontColor = new ColorF(198 / 256, 198 / 256, 198 / 256,1);
             DefaultFontSpecialColor = new ColorF(205 / 256, 117 / 256, 2 / 256, 1);
             SkinName = "BMW";
-            SkinPath = @".\";        
+            SkinPath = @"..\..\..\Images\Skins";        
             MusicPath = @"C:\Music";
             PicturePath = @"C:\Pictures";
             VideoPath = @"C:\Video";
-            
+            SortMedia = MediaSort.FileName;
+            SettingObjects.ForEach(so => so.SetDefaults());
         }
 
-        public static void SaveXml()
+        public string ElementName { get { return XML_ROOT_NODE; } }
+
+        public void SaveXml()
         {
             if(settingsFile == null)
             {
@@ -107,6 +152,7 @@ namespace CarMP
                 }
                 catch (Exception ex)
                 {
+                    doc = CreateXmlDocument();
                     DebugHandler.HandleException(ex);
                 }
             }
@@ -134,7 +180,7 @@ namespace CarMP
             }
         }
 
-        public static void LoadFromXml(string pXmlFile)
+        public void LoadFromXml(string pXmlFile)
         {
             settingsFile = pXmlFile;
             XDocument doc = new XDocument();
@@ -152,14 +198,14 @@ namespace CarMP
             if (settings == null)
             {
                 DebugHandler.DebugPrint("Invalid settings file");
+                SetDefaults();
             }
             else
             {
-                ExtractSettingsData(settings);
-                LoadCurrentSkin();
+                ExtractSettings(settings);
             }
+            LoadCurrentSkin();
         }
-
 
         private static XDocument CreateXmlDocument()
         {
@@ -169,7 +215,7 @@ namespace CarMP
             return xDoc;
         }
 
-        private static void PopulateSettings(XElement pXElement)
+        public void PopulateSettings(XElement pXElement)
         {
             SetOrCreateNode(pXElement, XML_DATABASE_PATH_NODE, DatabaseLocation);
             SetOrCreateNode(pXElement, XML_MUSIC_FOLDER, MusicPath);
@@ -185,26 +231,16 @@ namespace CarMP
                 element => element.ReplaceAll(
                     new XAttribute("X", WindowLocation.X),
                     new XAttribute("Y", WindowLocation.Y))));
+            
+            SettingObjects.ForEach(xs => {
+                EnsureNodeExistsOrCreate(pXElement, xs.ElementName);
+                xs.PopulateSettings(pXElement.Element(xs.ElementName));
+            });
         }
 
-        private static void SetOrCreateNode(XElement pXElement, string pNodeName, string pNodeValue)
+        public void ExtractSettings(XElement pXElement)
         {
-            SetOrCreateNode(pXElement, pNodeName, new Action<XElement>(element => element.Value = pNodeValue));
-        }
-
-        private static void SetOrCreateNode(XElement pXElement, string pNodeName, Action<XElement> pCreater)
-        {
-            XElement node = pXElement.XPathSelectElement(pNodeName);
-            if (node == null)
-            {
-                pXElement.Add(node = new XElement(pNodeName));
-            }
-            pCreater(node);
-        }
-
-        private static void ExtractSettingsData(XElement pXElement)
-        {
-            foreach(XElement node in pXElement.DescendantNodes().Where(e => e is XElement))
+            foreach(XElement node in pXElement.Elements().OfType<XElement>())
             {
                 switch (node.Name.ToString())
                 {
@@ -248,12 +284,16 @@ namespace CarMP
                     case XML_PICTURES_FOLDER:
                         PicturePath = node.Value;
                         break;
+                    default:
+                        SettingObjects.Where(xs => xs.ElementName == node.Name)
+                            .ToList()
+                            .ForEach(xs => xs.ExtractSettings(node));
+                        break;
                 }
-                
             }
         }
 
-        public static void LoadCurrentSkin()
+        public void LoadCurrentSkin()
         {
             string path = CurrentSkinPath;
             System.IO.FileAttributes attr = System.IO.File.GetAttributes(path);

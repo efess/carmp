@@ -8,8 +8,10 @@ using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using CarMP.Reactive.KeyInput;
 using CarMP.Win32;
 using System.Diagnostics;
+using CarMP.Reactive.Touch;
+using CarMP.Callbacks;
 
-namespace CarMP.Reactive.Touch
+namespace CarMP.Reactive
 {
     public class W32MessageToReactive
     {
@@ -41,6 +43,10 @@ namespace CarMP.Reactive.Touch
         private Control _control;
         public readonly Observables ObservableActions;
 
+        private Keys[] supportedKeys = new Keys[] {
+            Keys.Left, Keys.Right, Keys.Up, Keys.Down,
+                            Keys.Back, Keys.Delete};
+
         public W32MessageToReactive(Control pControl)
         {
             if (pControl == null)
@@ -69,6 +75,16 @@ namespace CarMP.Reactive.Touch
         {
             switch (pMessage.Msg)
             {
+                case WindowsMessages.WM_CHAR:
+                    {
+                        char iKey = (char)pMessage.WParam;
+                        Keys key = 0;//(Keys)pMessage.WParam;
+
+                        Debug.WriteLine("key: " + key.ToString() + ", " + iKey.ToString() + ", " + ((int)((Keys)iKey & Keys.KeyCode)).ToString());
+                        
+                        ProcessKeyPress(iKey, key);
+                    }
+                    break;
                 case WindowsMessages.WM_KEYDOWN:
                     {
                         bool _upper = Win32Helpers.GetKeyState((int)Keys.CapsLock) != 0
@@ -77,10 +93,14 @@ namespace CarMP.Reactive.Touch
                         bool _ctrl = Win32Helpers.GetKeyState((int)Keys.ControlKey) != 0;
 
                         int iKey =(int) Win32Helpers.MapVirtualKey((uint)pMessage.WParam, 2);
-                        Keys key = (Keys)pMessage.WParam;
-                        Debug.WriteLine("Shift: " + _upper + " KeyDown " + key.ToString() + ", " + iKey.ToString() + ", " + ((int)((Keys)iKey & Keys.KeyCode)).ToString());
                         
-                        ProcessKeyPress((char)TranslateKey(iKey, _ctrl, _upper), key);
+                        Keys key = (Keys)pMessage.WParam;
+                        if (supportedKeys.Contains(key))
+                        {
+                            Debug.WriteLine("Shift: " + _upper + " KeyDown " + key.ToString() + ", " + iKey.ToString() + ", " + ((int)((Keys)iKey & Keys.KeyCode)).ToString());
+
+                            ProcessKeyPress((char)TranslateKey(iKey, _ctrl, _upper), key);
+                        }
                     }
                     break;
                 case WindowsMessages.WM_MOUSEMOVE:
@@ -101,6 +121,15 @@ namespace CarMP.Reactive.Touch
             if (pChar >= 65 && pChar <= 90)
                 if (!pShift)
                     return pChar + 32;
+            if(pShift)
+                switch (pChar)
+                {
+                    case 59:
+                        return 58;
+
+                }
+
+
             return pChar;
         }
         
@@ -264,5 +293,9 @@ namespace CarMP.Reactive.Touch
         {
             _waitTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
         }
+
+    }
+    public enum AsciiChar
+    {
     }
 }

@@ -17,6 +17,13 @@ namespace CarMP
         Playing,
         Paused
     }
+
+    public enum MediaSort
+    {
+        Track,
+        FileName,
+        Title
+    }
 }
 
 

@@ -9,6 +9,8 @@ using System.IO;
 using CarMP.MediaEntities;
 using CarMP.IO;
 using CarMP.MediaInfo;
+using CarMP.Callbacks;
+using CarMP.DataObjects;
 
 namespace CarMP
 {
@@ -29,41 +31,17 @@ namespace CarMP
         private int _lastSongPosition;
         private Timer _progressTimer;
         private bool _timerHit;
-        private Dictionary<int, NHibernate.ISession> _DataSessions;
         private IMediaController _audioController;
 
         private MediaListItem _currentPlayingItem;
         private List<MediaListItem> _currentViewedList;
         private List<MediaListItem> _currentPlayList;
 
-        // This may be dangerous... Throughout the lifetime of the application 
-        // datasessions will be created for each threadid, and never closed.
-        // Will have to see what happens...
-
-        // This started out as bad design, and this is mostly a bandaid.
-
-        private NHibernate.ISession DataSession
-        {
-            get
-            {
-                NHibernate.ISession dataSession;
-                int threadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
-                if (!_DataSessions.ContainsKey(threadId))
-                {
-                    dataSession = Database.GetSession();
-                    _DataSessions.Add(threadId, dataSession);
-                }
-                else
-                    dataSession = _DataSessions[threadId];
-
-                return dataSession;
-            }
-        }
+        
 
         public MediaManager(IMediaController pAudioController)
         {
             _audioController = pAudioController;
-            _DataSessions = new Dictionary<int, NHibernate.ISession>();
             MediaListHistory = new MediaHistoryManager(new MediaListItemFactory());
             GetListHistory();
 
@@ -77,7 +55,7 @@ namespace CarMP
 
         private void ProcessSongPosition()
         {
-            if(_currnetSongLength <= 0)
+            if (_currnetSongLength <= 0)
                 _currnetSongLength = GetSongLength();
 
             int songPosition = GetCurrentPosition();
@@ -106,7 +84,7 @@ namespace CarMP
         }
         private void OnListChangeRequest(int pListIndex)
         {
-            if(ListChangeRequest != null)
+            if (ListChangeRequest != null)
                 ListChangeRequest(this, new ChangeMediaListArgs(pListIndex));
         }
 
@@ -117,7 +95,7 @@ namespace CarMP
 
         private void GetListHistory()
         {
-            IList<MediaHistory> lHistories = DataSession.
+            IList<MediaHistory> lHistories = DatabaseInterface.DataSession.
                 CreateCriteria(typeof(MediaHistory))
                 .AddOrder(new Order("ListIndex", true))
                 .List<MediaHistory>();
@@ -134,16 +112,16 @@ namespace CarMP
             List<MediaListItem> fileSystemItems = new List<MediaListItem>();
             foreach (DriveInfo drives in FileSystem.GetDrives())
             {
-                fileSystemItems.Add(new FileSystemItem(drives.Name , FileSystemItemType.HardDrive, drives.RootDirectory.FullName));
+                fileSystemItems.Add(new FileSystemItem(drives.Name, FileSystemItemType.HardDrive, drives.RootDirectory.FullName));
             }
             return fileSystemItems;
         }
 
         private List<MediaListItem> GetMLRootLevelItems()
         {
-            IList<MediaGroup> groups = DataSession.CreateCriteria(typeof(MediaGroup)).Add(Expression.Eq("GroupType", (int)MediaGroupType.Root)).List<MediaGroup>();
+            IList<MediaGroup> groups = DatabaseInterface.DataSession.CreateCriteria(typeof(MediaGroup)).Add(Expression.Eq("GroupType", (int)MediaGroupType.Root)).List<MediaGroup>();
             List<MediaListItem> items = new List<MediaListItem>();
-            for(int i = 0; i < groups.Count; i++)
+            for (int i = 0; i < groups.Count; i++)
             {
                 items.Add(new DigitalMediaItem(groups[i].GroupName, DigitalMediaItemType.Root, groups[i].GroupId));
             }
@@ -157,12 +135,16 @@ namespace CarMP
 
         public void ClearMediaLibrary()
         {
-            DataSession.CreateSQLQuery("DELETE FROM DigitalMediaLibrary").ExecuteUpdate();
+            NHibernate.ISession dbSession = DatabaseInterface.DataSession;
+
+            dbSession.CreateSQLQuery("DELETE FROM DigitalMediaLibrary").ExecuteUpdate();
+            dbSession.CreateSQLQuery("DELETE FROM MediaGroup").ExecuteUpdate();
+            dbSession.CreateSQLQuery("DELETE FROM MediaGroupItem").ExecuteUpdate();
         }
 
         public void SaveMediaToLibrary(List<MediaItem> pMediaItems)
         {
-            NHibernate.ISession dbSession = DataSession;
+            NHibernate.ISession dbSession = DatabaseInterface.DataSession;
 
             // MediaGroupCreater mediaGroupCreater = new MediaGroupCreater();
 
@@ -186,7 +168,7 @@ namespace CarMP
 
                     try
                     {
-                        DataSession.Save(dml);
+                        dbSession.Save(dml);
                     }
                     catch
                     {
@@ -195,10 +177,10 @@ namespace CarMP
                 }
                 try
                 {
-                    DataSession.Transaction.Commit();
+                    dbSession.Transaction.Commit();
                 }
                 catch (Exception ex) { DebugHandler.HandleException(ex); }
-                
+
                 //{
                 //    DebugHandler.DebugPrint("Cannot save Media list: " + dmls.ErrorString);
                 //}
@@ -219,7 +201,7 @@ namespace CarMP
         /// </summary>
         public void StartPlayback()
         {
-            if(_currentPlayingItem != null)
+            if (_currentPlayingItem != null)
             {
                 _audioController.StartPlayback();
                 _progressTimer.Change(0, TIMER_DEFAULT_INTERVAL);
@@ -273,7 +255,7 @@ namespace CarMP
                 return;
 
             StartPlayback(item.Path);
-            
+
             MediaItem mediaItem = new MediaItem();
             mediaItem.Artist = item.Artist;
             mediaItem.Album = item.Album;
@@ -323,7 +305,7 @@ namespace CarMP
         private List<MediaListItem> GetNewMediaList(int pGroupId)
         {
             List<MediaListItem> listOfItems = new List<MediaListItem>();
-            IList<MediaGroup> mediaGroup = DataSession.CreateCriteria(typeof(MediaGroup)).Add(Expression.Eq("GroupId", pGroupId)).List<MediaGroup>();
+            IList<MediaGroup> mediaGroup = DatabaseInterface.DataSession.CreateCriteria(typeof(MediaGroup)).Add(Expression.Eq("GroupId", pGroupId)).List<MediaGroup>();
             if (mediaGroup.Count == 0)
                 return listOfItems;
             else
@@ -340,7 +322,7 @@ namespace CarMP
 
         private DigitalMediaLibrary GetDigitalMedia(int pLibraryId)
         {
-            IList<DigitalMediaLibrary> digitalMedia = DataSession.CreateCriteria(typeof(DigitalMediaLibrary)).Add(Expression.Eq("LibraryId", pLibraryId)).List<DigitalMediaLibrary>();
+            IList<DigitalMediaLibrary> digitalMedia = DatabaseInterface.DataSession.CreateCriteria(typeof(DigitalMediaLibrary)).Add(Expression.Eq("LibraryId", pLibraryId)).List<DigitalMediaLibrary>();
             if (digitalMedia.Count > 0)
             {
                 return digitalMedia[0] as DigitalMediaLibrary;
@@ -391,6 +373,8 @@ namespace CarMP
                 PlayMediaListItemInternal(_currentPlayList[_currentPlayList.Count - 1]);
         }
 
+        public 
+
         public List<MediaListItem> GetNewList(MediaListItem pGroupItem)
         {
             List<MediaListItem> returnList = new List<MediaListItem>();
@@ -420,7 +404,7 @@ namespace CarMP
             List<MediaListItem> songList = new List<MediaListItem>();
             for (int i = 0; i < returnList.Count; i++)
             {
-                if(returnList[i].MediaType == MediaListItemType.Song)
+                if (returnList[i].MediaType == MediaListItemType.Song)
                     songList.Add(returnList[i]);
             }
             _currentViewedList = songList;
@@ -444,14 +428,14 @@ namespace CarMP
 
         private void OnTimerTick()
         {
-            if(_timerHit)
+            if (_timerHit)
                 return;
 
             if (_audioController != null)
             {
                 _timerHit = true;
                 ProcessSongPosition();
-                
+
                 Thread.Sleep(700);
 
                 _timerHit = false;
@@ -460,75 +444,26 @@ namespace CarMP
 
         private void OnMediaProgressChanged(int pSongPosition)
         {
-            if (MediaProgressChanged != null )
+            if (MediaProgressChanged != null)
             {
                 MediaProgressChanged(null, new MediaProgressChangedArgs(pSongPosition));
-             
+
             }
         }
-        
-        //private List<MediaListItem> GetNewMediaList(int pListHistoryIndex)
-        //{
-        //    if (pListHistoryIndex == 0)
-        //    {
-        //        return RootLevelItems;
-        //    }
-
-
-        //}
-
-        //private DoQuery GetQueryConstraint(MediaListItem pItem)
-        //{
-        //    DoQuery query = new DoQuery();
-        //    DoQueryConstraint constraint = new DoQueryConstraint()
-        //    {
-        //        Predicate = QueryPredicate.Equal
-        //    };
-
-        //    if (pItem.ItemSpecialTarget == MediaItemSpecialTarget.StringDefined)
-        //    {
-        //        switch (pItem.ItemType)
-        //        {
-        //            case MediaItemType.Album:
-        //                constraint.Field = "Album";
-        //                break;
-        //            case MediaItemType.Album:
-        //                constraint.Field = "Album";
-        //                break;
-        //            case MediaItemType.Directory:
-        //                constraint.Field = "Directory";
-        //                break;
-        //            case MediaItemType.Playlist:
-        //                constraint.Field = "Playlist";
-        //                break;
-        //            // This case doesn't exist - Root items have special target types
-        //            //case MediaItemType.Root:
-        //            //    constraint.Field = "Album";
-        //            //    break;
-        //            case MediaItemType.Song:
-        //                constraint.Field = "Album";
-        //                break;
-        //        }
-        //    }
-        //    else
-        //    {
-        //    }
-        //}
     }
-
     public struct MediaItem
     {
-        public string DeviceId;
-        public string Path;
-        public string FileName;
-        public string Title;
-        public string Artist;
-        public string Album;
-        public int Length;
-        public int Kbps;
-        public int Channels;
-        public int Frequency;
-        public string Genre;
-        public string Track;
+        public string DeviceId { get; set;}
+        public string Path { get; set; }
+        public string FileName { get; set; }
+        public string Title { get; set; }
+        public string Artist { get; set; }
+        public string Album { get; set; }
+        public int Length { get; set; }
+        public int Kbps { get; set; }
+        public int Channels { get; set; }
+        public int Frequency { get; set; }
+        public string Genre { get; set; }
+        public string Track { get; set; }
     }
 }

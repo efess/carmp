@@ -6,14 +6,12 @@ using System.Collections;
 using NHibernate.Criterion;
 using NHibernate;
 using System.Diagnostics;
+using CarMP.Callbacks;
 
-namespace CarMP
+namespace CarMP.Background
 {
-    public class MediaGroupCreater
+    public class MediaGroupCreater : BackgroundOperationBase
     {
-        public event ProgressDelegate ProgressChanged;
-        public event FinishHandler CreationFinished;
-
         public void ReCreateArtistAlbumGroupCreation()
         {
             Stopwatch sw = new Stopwatch();
@@ -129,20 +127,6 @@ namespace CarMP
 
             sw.Stop();
             OnFinished(sw.Elapsed);
-        }
-        public void OnFinished(TimeSpan pTotalTime)
-        {
-            if (CreationFinished != null)
-            {
-                CreationFinished(this, new FinishEventArgs(pTotalTime, 0));
-            }
-        }
-        public void OnProgressChanged(int pPercent, string pStatus)
-        {
-            if(ProgressChanged != null)
-            {
-                ProgressChanged(pPercent, new ProgressEventArgs(pPercent, pStatus));
-            }
         }
     }
 

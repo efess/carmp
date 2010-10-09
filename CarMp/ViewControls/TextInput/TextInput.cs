@@ -12,7 +12,6 @@ namespace CarMP.ViewControls
 {
     public class TextInput : Text
     {
-        public event Action InputLeave;
         private const string XPATH_TEXT = "Text";
         private const string XPATH_DEFAULT_TEXT = "DefaultText";
 
@@ -115,7 +114,7 @@ namespace CarMP.ViewControls
                     _cursorPosition = TextString.Length;
                     break;
                 default:
-                    if ((int)pKey.DotNetKeysValue >= 32)
+                    if ((int)pKey.Character >= 32)
                     {
                         if (string.IsNullOrEmpty(TextString))
                             TextString = pKey.Character.ToString();
@@ -176,11 +175,6 @@ namespace CarMP.ViewControls
         {
             _cursorPosition = GetTextPositionAtPoint(pCursorPreferredLocation);
             SetCursorCoordinatesPosition();
-        }
-        protected override void OnInputLeave()
-        {
-            if (InputLeave != null)
-                InputLeave();
         }
     }
 }

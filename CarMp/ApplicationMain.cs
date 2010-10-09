@@ -7,6 +7,8 @@ using FluentNHibernate.Cfg.Db;
 using FluentNHibernate.Cfg;
 using System.Threading;
 using CarMP.MediaController;
+using CarMP.Settings;
+using CarMP.Background;
 
 namespace CarMP
 {
@@ -15,10 +17,10 @@ namespace CarMP
         private const int TIMER_GRANULARITY = 10;
 
         public static Forms.FormHost AppFormHost;
+        public static BackgroundTasks BackgroundTasks { get; private set; }
         public static MediaManager MediaManager { get; private set; }
-        
+        public static SessionSettings Settings { get; private set; }
         private static Mutex singleAppMutex;
-
         public const string COMMANDLINE_DEBUG = "-DEBUG";
         public const string COMMANDLINE_XML_SETTINGS_PATH = "-settings";
         private readonly System.Timers.Timer _appTimer = new System.Timers.Timer(TIMER_GRANULARITY);
@@ -33,6 +35,7 @@ namespace CarMP
             bool isNew = false;
             singleAppMutex = new Mutex(true, Application.ProductName, out isNew);
 
+            BackgroundTasks = new Background.BackgroundTasks();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -72,8 +75,9 @@ namespace CarMP
             Thread splashThread = new Thread(new ThreadStart(formSplash.ShowSplash));
             splashThread.Start();
 
-            SessionSettings.SetDefault();
-            string xmlSettings = SessionSettings.SettingsXmlLocation;
+            Settings = SessionSettings.GetSettingsObject();
+            Settings.SetDefaults();
+            string xmlSettings = Settings.SettingsXmlLocation;
 
             formSplash.IncreaseProgress(0, "Parsing command line args...");
 
@@ -87,7 +91,7 @@ namespace CarMP
                 switch (pCommandLineArgs[i].ToUpper())
                 {
                     case COMMANDLINE_DEBUG:
-                        SessionSettings.Debug = true;
+                        AppMain.Settings.Debug = true;
                         break;
                     case COMMANDLINE_XML_SETTINGS_PATH:
                         if (secondParm)
@@ -102,11 +106,11 @@ namespace CarMP
             System.Threading.Thread.Sleep(100);
             formSplash.IncreaseProgress(10, "Loading settings XML...");
 
-            SessionSettings.LoadFromXml(xmlSettings);
+            AppMain.Settings.LoadFromXml(xmlSettings);
 
             System.Threading.Thread.Sleep(100);
             formSplash.IncreaseProgress(30, "Initializing Database...");
-            Database.InitializeDatabase(SessionSettings.DatabaseLocation);
+            Database.InitializeDatabase(AppMain.Settings.DatabaseLocation);
 
             formSplash.IncreaseProgress(80, "Initializing Media Manager...");
             System.Threading.Thread.Sleep(100);

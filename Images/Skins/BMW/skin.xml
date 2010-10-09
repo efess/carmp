@@ -127,8 +127,8 @@
               <Alignment>Leading</Alignment>
             </TextStyle>
           </VideoFolder>
-          <Picture>
-            <Bounds>50,10,300,30</Bounds>
+          <PictureFolder>
+            <Bounds>10,90,300,30</Bounds>
             <TextStyle>
               <Size>20</Size>
               <Face>Arial</Face>
@@ -136,7 +136,22 @@
               <WordWrap>False</WordWrap>
               <Alignment>Leading</Alignment>
             </TextStyle>
-          </Picture>
+          </PictureFolder>
+          <RebuildDatabase>
+            <Bounds>330,90,160,50</Bounds>
+            <FaceUpImg>button_depressed.png</FaceUpImg>
+            <FaceDownImg>button_pressed.png</FaceDownImg>
+            <Text>
+              <Bounds>0,5,160,55</Bounds>
+              <TextStyle>
+                <Size>20</Size>
+                <Face>Arial</Face>
+                <ColorOne>#EEEEEE</ColorOne>
+                <WordWrap>True</WordWrap>
+                <Alignment>Center</Alignment>
+              </TextStyle>
+            </Text>
+          </RebuildDatabase>
         </MediaLocation>
       </OptionViews>
     </Options>

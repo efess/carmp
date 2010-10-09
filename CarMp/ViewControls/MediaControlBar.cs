@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Callbacks;
 
 namespace CarMP.ViewControls
 {

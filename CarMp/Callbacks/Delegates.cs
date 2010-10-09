@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace CarMP
+namespace CarMP.Callbacks
 {
     public delegate void Messenger(ref Message pMessage);
     public delegate void MediaUpdate(List<MediaItem> MInfo);

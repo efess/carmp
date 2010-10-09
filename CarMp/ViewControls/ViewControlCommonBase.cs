@@ -7,7 +7,7 @@ using System.Xml;
 
 namespace CarMP.ViewControls
 {
-    public class ViewControlCommonBase : D2DViewControl, ISkinable, IDisposable
+    public abstract class ViewControlCommonBase : D2DViewControl, ISkinable, IDisposable
     {
         private const string XPATH_BACKGROUND_IMAGE = "BackgroundImg";
         private const string XPATH_BACKGROUND_COLOR = "BackgroundColor";
@@ -18,7 +18,7 @@ namespace CarMP.ViewControls
         private ColorF _backgroundColor;
         private SolidColorBrush _backgroundColorBrush;
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             if (_backgroundColorBrush != null) _backgroundColorBrush.Dispose();
             if (_backGroundBitmap != null) _backGroundBitmap.Dispose();

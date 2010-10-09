@@ -22,7 +22,7 @@ namespace CarMP.Views
 
         public OptionsView(SizeF pWindowSize) : base(pWindowSize)
         {
-            _currentOptionsView = new ViewControlCommonBase();
+            _currentOptionsView = new Container();
             _optionsViewList = new List<D2DViewControl>();
             _dragableList = new DragableList();
             _dragableList.SelectedItemChanged += (sender, e) =>

@@ -4,16 +4,18 @@ using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Text;
-using System.Windows.Forms;
-using CarMP.Views;
-using System.Threading;
-using CarMP.ViewControls;
 using System.Xml;
+using System.Windows.Forms;
+using System.Threading;
+using CarMP.Views;
+using CarMP.ViewControls;
 using CarMP.Reactive.Touch;
+using CarMP.Reactive.KeyInput;
+using CarMP.Reactive;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using Microsoft.WindowsAPICodePack.DirectX;
-using CarMP.Reactive.KeyInput;
 using CarMP.Direct2D;
+using CarMP.Callbacks;
 
 namespace CarMP.Forms
 {
@@ -85,8 +87,8 @@ namespace CarMP.Forms
             
             InitializeComponent();
 
-            this.Size = new System.Drawing.Size(Convert.ToInt32(SessionSettings.ScreenResolution.Width), Convert.ToInt32(SessionSettings.ScreenResolution.Height));
-            this.Location = new System.Drawing.Point(Convert.ToInt32(SessionSettings.WindowLocation.X), Convert.ToInt32(SessionSettings.WindowLocation.Y)); 
+            this.Size = new System.Drawing.Size(Convert.ToInt32(AppMain.Settings.ScreenResolution.Width), Convert.ToInt32(AppMain.Settings.ScreenResolution.Height));
+            this.Location = new System.Drawing.Point(Convert.ToInt32(AppMain.Settings.WindowLocation.X), Convert.ToInt32(AppMain.Settings.WindowLocation.Y)); 
 
             _overlayViewControls = new List<D2DViewControl>();
             _viewFactory = new D2DViewFactory(new SizeF(ClientSize.Width, ClientSize.Height));
@@ -128,8 +130,8 @@ namespace CarMP.Forms
         {
             MediaControlBar controlBar = null;
             MediaInfoBar infoBar = null;
-            XmlNode infoBarNode = SessionSettings.CurrentSkin.GetOverlayNodeSkin("MediaInfoBar");
-            XmlNode controlBarNode = SessionSettings.CurrentSkin.GetOverlayNodeSkin("MediaControlBar");
+            XmlNode infoBarNode = AppMain.Settings.CurrentSkin.GetOverlayNodeSkin("MediaInfoBar");
+            XmlNode controlBarNode = AppMain.Settings.CurrentSkin.GetOverlayNodeSkin("MediaControlBar");
 
             _fpsControl = new ViewControls.Text();
             _fpsControl.Bounds = new RectF(this.Width - 40, 0, this.Width, 40);
@@ -138,7 +140,7 @@ namespace CarMP.Forms
             if (controlBarNode != null)
             {
                 controlBar = new MediaControlBar();
-                controlBar.ApplySkin(controlBarNode, SessionSettings.CurrentSkinPath);
+                controlBar.ApplySkin(controlBarNode, AppMain.Settings.CurrentSkinPath);
                 _overlayViewControls.Add(controlBar);
                 controlBar.StartRender();
             }
@@ -146,7 +148,7 @@ namespace CarMP.Forms
             if (infoBarNode != null)
             {
                 infoBar = new MediaInfoBar();
-                infoBar.ApplySkin(infoBarNode, SessionSettings.CurrentSkinPath);
+                infoBar.ApplySkin(infoBarNode, AppMain.Settings.CurrentSkinPath);
                 _overlayViewControls.Add(infoBar);
                 infoBar.StartRender();
             }
@@ -193,10 +195,10 @@ namespace CarMP.Forms
                     _loadedViews.Add(pViewName, _currentView);
                     if (_currentView is ISkinable)
                     {
-                        System.Xml.XmlNode viewSkinNode = SessionSettings.CurrentSkin.GetViewNodeSkin(pViewName);
+                        System.Xml.XmlNode viewSkinNode = AppMain.Settings.CurrentSkin.GetViewNodeSkin(pViewName);
 
                         if (viewSkinNode != null)
-                            (_currentView as ISkinable).ApplySkin(viewSkinNode, SessionSettings.CurrentSkinPath);
+                            (_currentView as ISkinable).ApplySkin(viewSkinNode, AppMain.Settings.CurrentSkinPath);
                     }
 
                 }
@@ -214,29 +216,29 @@ namespace CarMP.Forms
 
         public void ApplySkin()
         {
-            SessionSettings.CurrentSkin.ReloadCurrent();
+            AppMain.Settings.CurrentSkin.ReloadCurrent();
             foreach (KeyValuePair<string, D2DView> kv in _loadedViews)
             {
                 D2DView view = kv.Value;
                 if (view is ISkinable)
                 {
-                    System.Xml.XmlNode viewSkinNode = SessionSettings.CurrentSkin.GetViewNodeSkin(view.Name);
+                    System.Xml.XmlNode viewSkinNode = AppMain.Settings.CurrentSkin.GetViewNodeSkin(view.Name);
 
                     if (viewSkinNode != null)
-                        (view as ISkinable).ApplySkin(viewSkinNode, SessionSettings.CurrentSkinPath);
+                        (view as ISkinable).ApplySkin(viewSkinNode, AppMain.Settings.CurrentSkinPath);
                 }
             }
 
-            XmlNode infoBarNode = SessionSettings.CurrentSkin.GetOverlayNodeSkin("MediaInfoBar");
-            XmlNode controlBarNode = SessionSettings.CurrentSkin.GetOverlayNodeSkin("MediaControlBar");
+            XmlNode infoBarNode = AppMain.Settings.CurrentSkin.GetOverlayNodeSkin("MediaInfoBar");
+            XmlNode controlBarNode = AppMain.Settings.CurrentSkin.GetOverlayNodeSkin("MediaControlBar");
 
             foreach (D2DViewControl control in _overlayViewControls)
             {
                 if (control is MediaInfoBar)
-                    (control as MediaInfoBar).ApplySkin(infoBarNode, SessionSettings.CurrentSkinPath);
+                    (control as MediaInfoBar).ApplySkin(infoBarNode, AppMain.Settings.CurrentSkinPath);
 
                 if (control is MediaControlBar)
-                    (control as MediaControlBar).ApplySkin(controlBarNode, SessionSettings.CurrentSkinPath);
+                    (control as MediaControlBar).ApplySkin(controlBarNode, AppMain.Settings.CurrentSkinPath);
             }
                 
         }

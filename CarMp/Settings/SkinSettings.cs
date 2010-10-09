@@ -5,7 +5,7 @@ using System.Text;
 using System.Xml;
 using System.IO;
 
-namespace CarMP
+namespace CarMP.Settings
 {
     public class SkinSettings
     {

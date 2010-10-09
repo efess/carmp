@@ -20,6 +20,7 @@ namespace CarMP.ViewControls
         protected D2DViewControl _mouseDownControl;
 
         private List<D2DViewControl> _viewControls;
+        public List<D2DViewControl> ViewControls { get { lock (_viewControls) return _viewControls; } }
 
         private bool _renderOk = false;
         public void StartRender()
@@ -174,6 +175,7 @@ namespace CarMP.ViewControls
 
         protected abstract void OnRender(Direct2D.RenderTargetWrapper pRenderTarget);
 
+        public event Action InputLeave;
         public SizeF Size { get { return new SizeF(_bounds.Width, _bounds.Height); } }
         public float Width { get { return _bounds.Width; } }
         public float Height { get { return _bounds.Height; } }
@@ -214,8 +216,8 @@ namespace CarMP.ViewControls
         protected virtual void OnKeyPressed(Key pKey) { }
         protected virtual void OnTouchGesture(TouchGesture pTouchGesture) { }
         protected virtual void OnTouchMove(TouchMove pTouchMove) { }
-        protected virtual void OnInputLeave() { }
-
+        protected virtual void OnInputLeave() { if (InputLeave != null) InputLeave(); }
+        
         private void SetInputControl()
         {
             if (HasInputControl != null)

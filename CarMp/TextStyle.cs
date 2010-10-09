@@ -58,6 +58,15 @@ namespace CarMP
             }
         }
 
+        public TextStyle(float pSize, string pFace,  float[] pColor1,  float[] pColor2, bool pWordWrap, TextAlignment pAlignment)
+        {
+            Size = pSize;
+            Face = pFace;
+            Color1 = pColor1;
+            Color2 = pColor2;
+            WordWrap = pWordWrap;
+            Alignment = pAlignment;
+        }
 
 
         public Brush GetBrush(CarMP.Direct2D.RenderTargetWrapper pRenderWrapper)

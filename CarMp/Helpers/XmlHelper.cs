@@ -142,5 +142,11 @@ namespace CarMP
                 throw new Exception("Incorrect AnimationPathPoint format. Correct format is #,#,#,#");
             }
         }
+
+        public static ViewControlFunction GetFunction(string pXmlText)
+        {
+            try { return (ViewControlFunction)Enum.Parse(typeof(ViewControlFunction), pXmlText); }
+            catch { return ViewControlFunction.None; } // ignore, return none
+        }
     }
 }

@@ -24,6 +24,23 @@ namespace CarMP
         FileName,
         Title
     }
+
+    public enum ViewControlFunction
+    {
+        None,
+        MediaProgressBar,
+        MediaProgressText,
+        MediaStop,
+        MediaPlay,
+        MediaPause,
+        MediaNext,
+        MediaPrevious,
+        MediaArt,
+        MediaDisplayName,
+        VolumeUp,
+        VolumeDown
+
+    }
 }
 
 

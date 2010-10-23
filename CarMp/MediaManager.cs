@@ -32,12 +32,56 @@ namespace CarMP
         private Timer _progressTimer;
         private bool _timerHit;
         private IMediaController _audioController;
-
-        private MediaListItem _currentPlayingItem;
-        private List<MediaListItem> _currentViewedList;
-        private List<MediaListItem> _currentPlayList;
-
         
+        private List<MediaListItem> _currentViewedList;
+
+        private int _currentMediaIndex;
+        private List<MediaItem> _currentPlayList;
+
+        public MediaItem? CurrentMediaItem
+        {
+            get{
+                if(_currentMediaIndex >= 0 && _currentMediaIndex < _currentPlayList.Count)
+                    return _currentPlayList[_currentMediaIndex];
+                return null;
+            }
+        }
+
+        public string GetCurrentLargeAlbumArt()
+        {
+            if(CurrentMediaItem != null)
+            {
+                var mediaItem = CurrentMediaItem.Value;
+                var key = mediaItem.Artist + "|" + mediaItem.Album;
+                var listItems = DatabaseInterface.DataSession
+                    .CreateCriteria<Art>()
+                    .Add(Expression.Eq("Key", key))
+                    .Add(Expression.Eq("ArtType", ArtType.AlbumArtLarge))
+                    .List<Art>();
+
+                if( listItems.Count > 0) 
+                    return listItems[0].Path;
+            }
+            return null;
+        }
+
+        public string GetCurrentSmallAlbumArt()
+        {
+            if (CurrentMediaItem != null)
+            {
+                var mediaItem = CurrentMediaItem.Value;
+                var key = mediaItem.Artist + "|" + mediaItem.Album;
+                var listItems = DatabaseInterface.DataSession
+                    .CreateCriteria<Art>()
+                    .Add(Expression.Eq("Key", key))
+                    .List<Art>();
+
+                if (listItems.Count > 0)
+                    return listItems[0].Path;
+            }
+            return null;
+        }
+
 
         public MediaManager(IMediaController pAudioController)
         {
@@ -77,7 +121,7 @@ namespace CarMP
 
             OnMediaProgressChanged(songPosition);
         }
-
+    
         public void SetList(int pListIndex)
         {
             OnListChangeRequest(pListIndex);
@@ -100,11 +144,11 @@ namespace CarMP
                 .AddOrder(new Order("ListIndex", true))
                 .List<MediaHistory>();
 
-            foreach (MediaHistory history in lHistories)
-            {
-                MediaListHistory.AddHistoryItem(history);
-            }
-
+            lock (MediaListHistory)
+                foreach (MediaHistory history in lHistories)
+                {
+                    MediaListHistory.AddHistoryItem(history);
+                }
         }
 
         private List<MediaListItem> GetFSRootLevelItems()
@@ -130,13 +174,15 @@ namespace CarMP
 
         public void SetMediaHistory(int pListIndex, MediaListItem pMediaListItem)
         {
-            MediaListHistory.AddHistoryItem(pMediaListItem, pListIndex);
+            lock(MediaListHistory)
+                MediaListHistory.AddHistoryItem(pMediaListItem, pListIndex);
         }
 
         public void ClearMediaLibrary()
         {
             NHibernate.ISession dbSession = DatabaseInterface.DataSession;
 
+            dbSession.CreateSQLQuery("DELETE FROM Art").ExecuteUpdate();
             dbSession.CreateSQLQuery("DELETE FROM DigitalMediaLibrary").ExecuteUpdate();
             dbSession.CreateSQLQuery("DELETE FROM MediaGroup").ExecuteUpdate();
             dbSession.CreateSQLQuery("DELETE FROM MediaGroupItem").ExecuteUpdate();
@@ -201,7 +247,7 @@ namespace CarMP
         /// </summary>
         public void StartPlayback()
         {
-            if (_currentPlayingItem != null)
+            if (CurrentMediaItem != null)
             {
                 _audioController.StartPlayback();
                 _progressTimer.Change(0, TIMER_DEFAULT_INTERVAL);
@@ -218,32 +264,72 @@ namespace CarMP
             _audioController.PausePlayback();
         }
 
-        public void PlayMediaListItem(MediaListItem pListItem)
-        {
-            PlayMediaListItemInternal(pListItem);
+        public void PlayMediaListItem(int pPlayListIndex)
+            {
             SetPlayList();
+            PlayMediaListItemInternal(pPlayListIndex);
         }
 
-        private void PlayMediaListItemInternal(MediaListItem pListItem)
+        private void PlayMediaListItemInternal(int pPlaylistIndex)
         {
-            _currentPlayingItem = pListItem;
-            if (pListItem is FileSystemItem)
+            _currentMediaIndex = pPlaylistIndex;
+            PlayCurrentMediaItem();
+        }
+
+        private void PlayCurrentMediaItem()
+        {
+            MediaItem? currentItem = CurrentMediaItem;
+            if (currentItem == null)
+                return;
+
+            StartPlayback(currentItem.Value.Path);
+
+            OnMediaChanged(currentItem.Value);
+        }
+
+        private MediaItem GetMediaItem(MediaListItem pMediaListItem)
+        {
+            if (pMediaListItem is FileSystemItem)
             {
-                var fileSystemItem = pListItem as FileSystemItem;
-                PlayFromFile(fileSystemItem.FullPath);
+                return GetMediaItemFromFile(pMediaListItem as FileSystemItem);
             }
-            else if (pListItem is DigitalMediaItem)
+            else if (pMediaListItem is DigitalMediaItem)
             {
-                var mediaItem = pListItem as DigitalMediaItem;
-                PlayFromMediaLibrary(mediaItem.TargetId);
+                return GetMediaItemFromMediaLibrary(pMediaListItem as DigitalMediaItem);
             }
+            
+            throw new Exception("MediaListItem type can not be converted to MediaItem");
+        }
+
+        private MediaItem GetMediaItemFromFile(FileSystemItem pFileItem)
+        {
+            return FileMediaInfo.GetInfo(new System.IO.FileInfo(pFileItem.FullPath));
+        }
+
+        private MediaItem GetMediaItemFromMediaLibrary(DigitalMediaItem pMediaItem)
+        {
+            DigitalMediaLibrary item = null;
+            if (pMediaItem.LibraryItem != null)
+                item = pMediaItem.LibraryItem;
+            else
+                item = GetDigitalMedia(pMediaItem.TargetId);
+            MediaItem mediaItem = new MediaItem();
+            mediaItem.DisplayName = pMediaItem.DisplayString;
+            mediaItem.Artist = item.Artist;
+            mediaItem.Album = item.Album;
+            mediaItem.Title = item.Title;
+            mediaItem.Path = item.Path;
+            mediaItem.Track = item.Track;
+            mediaItem.Genre = item.Genre;
+            
+            return mediaItem;
         }
 
         private void PlayFromFile(string pPath)
         {
+            
             StartPlayback(pPath);
             MediaItem mediaItem = FileMediaInfo.GetInfo(new System.IO.FileInfo(pPath));
-            mediaItem.Length = GetSongLength();
             OnMediaChanged(mediaItem);
         }
 
@@ -253,25 +339,25 @@ namespace CarMP
 
             if (item == null)
                 return;
-
+            
             StartPlayback(item.Path);
 
             MediaItem mediaItem = new MediaItem();
+            mediaItem.DisplayName = item.Title;
             mediaItem.Artist = item.Artist;
             mediaItem.Album = item.Album;
             mediaItem.Title = item.Title;
-            mediaItem.Length = GetSongLength();
 
             OnMediaChanged(mediaItem);
         }
 
         private void SetPlayList()
         {
-            List<MediaListItem> mediaListItems = new List<MediaListItem>();
+            List<MediaItem> mediaListItems = new List<MediaItem>();
 
             for (int i = 0; i < _currentViewedList.Count; i++)
             {
-                mediaListItems.Add(_currentViewedList[i]);
+                mediaListItems.Add(GetMediaItem(_currentViewedList[i]));
             }
             _currentPlayList = mediaListItems;
         }
@@ -302,20 +388,61 @@ namespace CarMP
         {
             _audioController.SetCurrentPos(pos);
         }
+
         private List<MediaListItem> GetNewMediaList(int pGroupId)
         {
             List<MediaListItem> listOfItems = new List<MediaListItem>();
-            IList<MediaGroup> mediaGroup = DatabaseInterface.DataSession.CreateCriteria(typeof(MediaGroup)).Add(Expression.Eq("GroupId", pGroupId)).List<MediaGroup>();
+            
+            // Manually building out "Hql" here to eager load objects in one transaction
+            string hql = @"from MediaGroup mg " +
+                " inner join fetch mg.GroupItem as gi" +
+                " left outer join fetch gi.LibraryEntry as le" +
+                " where mg.GroupId = :groupId";
+
+            //switch (AppMain.Settings.SortMedia)
+            //{
+            //    case MediaSort.FileName:
+            //        hql += " order by le.FileName";
+            //        break;
+            //    case MediaSort.Title:
+            //        hql += " order by le.Title";
+            //        break;
+            //    case MediaSort.Track:
+            //        hql += " order by le.Track";
+            //        break;
+            //}
+        
+            IList<MediaGroup> mediaGroup = DatabaseInterface
+                .DataSession
+                .CreateQuery(hql)
+                .SetParameter("groupId", pGroupId)
+                .List<MediaGroup>();
+            
             if (mediaGroup.Count == 0)
                 return listOfItems;
-            else
+
+            IEnumerable<MediaGroupItem> list = mediaGroup[0].GroupItem;
+
+            switch (AppMain.Settings.SortMedia)
             {
-                foreach (MediaGroupItem item in mediaGroup[0].GroupItem)
-                {
-                    listOfItems.Add(new DigitalMediaItem(item));
-                }
+                case MediaSort.FileName:
+                    list = list.OrderBy(a => a.LibraryEntry != null ? a.LibraryEntry.FileName : string.Empty);
+                    break;
+                case MediaSort.Title:
+                    list = list.OrderBy(a => a.LibraryEntry != null ? a.LibraryEntry.Title : string.Empty);
+                    break;
+                case MediaSort.Track:
+                    list = list.OrderBy(a => a.LibraryEntry != null
+                        && a.LibraryEntry.Track != null 
+                        ? a.LibraryEntry.Track.PadLeft(4, '0') 
+                        : "0000");
+                    break;
             }
 
+            foreach (MediaGroupItem item in list)
+            {
+                listOfItems.Add(new DigitalMediaItem(item));
+            }
 
             return listOfItems;
         }
@@ -352,29 +479,37 @@ namespace CarMP
 
         public void MediaNext()
         {
-            if (_currentPlayingItem == null) return;
+            if (CurrentMediaItem == null) return;
 
-            int i = _currentPlayList.IndexOf(_currentPlayingItem);
-            if (i < _currentPlayList.Count - 1)
-                PlayMediaListItemInternal(_currentPlayList[i + 1]);
+            if (_currentMediaIndex < _currentPlayList.Count - 1)
+            {
+                _currentMediaIndex++;
+                PlayCurrentMediaItem();
+            }
             else
-                PlayMediaListItemInternal(_currentPlayList[0]);
+            {
+                _currentMediaIndex = 0;
+                PlayCurrentMediaItem();
+            }
         }
 
 
         public void MediaPrevious()
         {
-            if (_currentPlayingItem == null) return;
+            if (CurrentMediaItem == null) return;
 
-            int i = _currentPlayList.IndexOf(_currentPlayingItem);
-            if (i > 0)
-                PlayMediaListItemInternal(_currentPlayList[i - 1]);
+            if (_currentMediaIndex > 0)
+            {
+                _currentMediaIndex--;
+                PlayCurrentMediaItem();
+            }
             else
-                PlayMediaListItemInternal(_currentPlayList[_currentPlayList.Count - 1]);
+            {
+                _currentMediaIndex = _currentPlayList.Count - 1;
+                PlayCurrentMediaItem();
+            }
         }
-
-        public 
-
+        
         public List<MediaListItem> GetNewList(MediaListItem pGroupItem)
         {
             List<MediaListItem> returnList = new List<MediaListItem>();
@@ -453,6 +588,7 @@ namespace CarMP
     }
     public struct MediaItem
     {
+        public string DisplayName { get; set; }
         public string DeviceId { get; set;}
         public string Path { get; set; }
         public string FileName { get; set; }

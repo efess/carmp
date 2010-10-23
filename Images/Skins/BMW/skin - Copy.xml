@@ -7,22 +7,22 @@
         <BackgroundImg>NavigationBar.png</BackgroundImg>
 		    <Buttons>
           <Home>
-            <Bounds>4,45,100,80</Bounds>
+            <Bounds>4,5,100,80</Bounds>
             <FaceUpImg>home.png</FaceUpImg>
             <FaceDownImg>home.png</FaceDownImg>
           </Home>
           <Media>
-				    <Bounds>4,130,100,80</Bounds>
+				    <Bounds>4,90,100,80</Bounds>
 				    <FaceUpImg>music.png</FaceUpImg>
 				    <FaceDownImg>music.png</FaceDownImg>
 			    </Media>
           <Navigation>
-            <Bounds>4,215,100,80</Bounds>
+            <Bounds>4,175,100,80</Bounds>
             <FaceUpImg>world.png</FaceUpImg>
             <FaceDownImg>world.png</FaceDownImg>
           </Navigation>
           <Options>
-            <Bounds>4,300,100,80</Bounds>
+            <Bounds>4,260,100,80</Bounds>
             <FaceUpImg>gear.png</FaceUpImg>
             <FaceDownImg>gear.png</FaceDownImg>
           </Options>
@@ -35,22 +35,22 @@
         <BackgroundImg>NavigationBar.png</BackgroundImg>
         <Buttons>
           <Home>
-            <Bounds>4,45,100,80</Bounds>
+            <Bounds>4,5,100,80</Bounds>
             <FaceUpImg>home.png</FaceUpImg>
             <FaceDownImg>home.png</FaceDownImg>
           </Home>
           <Media>
-            <Bounds>4,130,100,80</Bounds>
+            <Bounds>4,90,100,80</Bounds>
             <FaceUpImg>music.png</FaceUpImg>
             <FaceDownImg>music.png</FaceDownImg>
           </Media>
           <Navigation>
-            <Bounds>4,215,100,80</Bounds>
+            <Bounds>4,175,100,80</Bounds>
             <FaceUpImg>world.png</FaceUpImg>
             <FaceDownImg>world.png</FaceDownImg>
           </Navigation>
           <Options>
-            <Bounds>4,300,100,80</Bounds>
+            <Bounds>4,260,100,80</Bounds>
             <FaceUpImg>gear.png</FaceUpImg>
             <FaceDownImg>gear.png</FaceDownImg>
           </Options>
@@ -58,7 +58,7 @@
       </NavigationBar>
       <MediaList>
         <BackgroundColor>0,0,0,160</BackgroundColor>
-        <Bounds>120,80,595,344</Bounds>
+        <Bounds>120,80,435,344</Bounds>
       </MediaList>
       <HistoryBar>
         <Bounds>120,50,300,30</Bounds>
@@ -79,22 +79,22 @@
           <BackgroundImg>NavigationBar.png</BackgroundImg>
           <Buttons>
             <Home>
-              <Bounds>4,45,100,80</Bounds>
+              <Bounds>4,5,100,80</Bounds>
               <FaceUpImg>home.png</FaceUpImg>
               <FaceDownImg>home.png</FaceDownImg>
             </Home>
             <Media>
-              <Bounds>4,130,100,80</Bounds>
+              <Bounds>4,90,100,80</Bounds>
               <FaceUpImg>music.png</FaceUpImg>
               <FaceDownImg>music.png</FaceDownImg>
             </Media>
             <Navigation>
-              <Bounds>4,215,100,80</Bounds>
+              <Bounds>4,175,100,80</Bounds>
               <FaceUpImg>world.png</FaceUpImg>
               <FaceDownImg>world.png</FaceDownImg>
             </Navigation>
             <Options>
-              <Bounds>4,300,100,80</Bounds>
+              <Bounds>4,260,100,80</Bounds>
               <FaceUpImg>gear.png</FaceUpImg>
               <FaceDownImg>gear.png</FaceDownImg>
             </Options>
@@ -180,46 +180,48 @@
     </Navigation>
   </Views>
   <OverlayControls>
-    <MediaControlBar Type="CarMP.ViewControls.AnimationContainer">
-      <Bounds>-88, 399, 934, 75</Bounds>
+    <MediaControlBar>
+      <Bounds>-133, 395, 934, 75</Bounds>
       <BackgroundImg>bottombar.png</BackgroundImg>
       <AnimationPath>
-        <AnimationPathPoint>-88,480,500,1</AnimationPathPoint>
-        <AnimatinoPathPoint>-88,407,500,1</AnimatinoPathPoint>
+        <AnimationPathPoint>-133,480,500,1</AnimationPathPoint>
+        <AnimatinoPathPoint>-133,405,500,1</AnimatinoPathPoint>
       </AnimationPath>
-      <Play Function="MediaPlay" Type="CarMP.ViewControls.GraphicalButton">
-        <Bounds>830,14,50,51</Bounds>
-        <FaceUpImg>play.png</FaceUpImg>
-        <FaceDownImg>play.png</FaceDownImg>
-      </Play>
-      <Stop Function="MediaStop" Type="CarMP.ViewControls.GraphicalButton">
-        <Bounds>772,39,28,28</Bounds>
-        <FaceUpImg>stop.png</FaceUpImg>
-        <FaceDownImg>stop.png</FaceDownImg>
-      </Stop>
-      <Pause Function="MediaPause" Type="CarMP.ViewControls.GraphicalButton">
-        <Bounds>4,5,100,80</Bounds>
-        <FaceUpImg>pause.png</FaceUpImg>
-        <FaceDownImg>pause.png</FaceDownImg>
-      </Pause>
-      <Next Function="MediaNext" Type="CarMP.ViewControls.GraphicalButton">
-        <Bounds>728,39,40,28</Bounds>
-        <FaceUpImg>next.png</FaceUpImg>
-        <FaceDownImg>next.png</FaceDownImg>
-      </Next>
-      <Previous Function="MediaPrevious" Type="CarMP.ViewControls.GraphicalButton">
-        <Bounds>682,39,46,28</Bounds>
-        <FaceUpImg>previous.png</FaceUpImg>
-        <FaceDownImg>previous.png</FaceDownImg>
-      </Previous>
-      <ThermometerProgressBar Function="MediaProgressBar" Type="CarMP.ViewControls.ThermometerProgressBar">
-        <Bounds>263,38,322,27</Bounds>
+      <Buttons>
+        <Play>
+          <Bounds>710,14,50,51</Bounds>
+          <FaceUpImg>play.png</FaceUpImg>
+          <FaceDownImg>play.png</FaceDownImg>
+        </Play>
+        <Stop>
+          <Bounds>662,39,28,28</Bounds>
+          <FaceUpImg>stop.png</FaceUpImg>
+          <FaceDownImg>stop.png</FaceDownImg>
+        </Stop>
+        <Pause>
+          <Bounds>4,5,100,80</Bounds>
+          <FaceUpImg>pause.png</FaceUpImg>
+          <FaceDownImg>pause.png</FaceDownImg>
+        </Pause>
+        <Next>
+          <Bounds>618,39,40,28</Bounds>
+          <FaceUpImg>next.png</FaceUpImg>
+          <FaceDownImg>next.png</FaceDownImg>
+        </Next>
+        <Previous>
+          <Bounds>572,39,46,28</Bounds>
+          <FaceUpImg>previous.png</FaceUpImg>
+          <FaceDownImg>previous.png</FaceDownImg>
+        </Previous>
+      </Buttons>
+      <ThermometerProgressBar>
+        <Bounds>154,40,322,27</Bounds>
         <BackgroundImg>ProgressBackground.png</BackgroundImg>
         <OverlayMask>ProgressOverlay.png</OverlayMask>
       </ThermometerProgressBar>
-      <PositionText Function="MediaProgressText" Type="CarMP.ViewControls.Text">
-        <Bounds>585,38,75,27</Bounds>
-        <TextPosition>-5,2</TextPosition>
+      <PositionText>
+        <Bounds>478,40,75,27</Bounds>
+        <TextPosition>-5,1</TextPosition>
         <BackgroundImg>PositionBackground.png</BackgroundImg>
         <TextStyle>
           <Size>20</Size>
@@ -231,15 +233,26 @@
         </TextStyle>
       </PositionText>
     </MediaControlBar>
-    <MediaInfoBar Type="CarMP.ViewControls.AnimationContainer">
-      <Bounds>0, 0, 806, 35</Bounds>
-      <BackgroundImg>TopBar.png</BackgroundImg>
+    <MediaInfoBar>
+      <Bounds>300,0,340,60</Bounds>
+      <BackgroundImg>toprighttriangle.png</BackgroundImg>
       <AnimationPath>
-        <AnimationPathPoint>0, -35, 500, 1</AnimationPathPoint>
-        <AnimatinoPathPoint>0, 0, 500, 1</AnimatinoPathPoint>
+        <AnimationPathPoint>345,-60,500,1</AnimationPathPoint>
+        <AnimatinoPathPoint>345,0,500,1</AnimatinoPathPoint>
       </AnimationPath>
-      <MediaTitle Function="MediaDisplayName" Type="CarMP.ViewControls.Text">
-        <Bounds>40,3,400,30</Bounds>
+      <MediaCreator>
+        <Bounds>30,0,200,30</Bounds>
+        <TextStyle>
+          <Size>20</Size>
+          <Face>Arial</Face>
+          <ColorOne>#CCCCCC</ColorOne>
+          <ColorTwo>#CCCCCC</ColorTwo>
+          <WordWrap>False</WordWrap>
+          <Alignment>Leading</Alignment>
+        </TextStyle>
+      </MediaCreator>
+      <MediaTitle>
+        <Bounds>50,25,200,30</Bounds>
         <TextStyle>
           <Size>20</Size>
           <Face>Arial</Face>
@@ -249,8 +262,8 @@
           <Alignment>Leading</Alignment>
         </TextStyle>
       </MediaTitle>
-      <MediaArt Function="MediaArt" Type="CarMP.ViewControls.Container">
-        <Bounds>1,1,30,30</Bounds>
+      <MediaArt>
+        <Bounds>235,3,50,50</Bounds>
       </MediaArt>
     </MediaInfoBar>
   </OverlayControls>

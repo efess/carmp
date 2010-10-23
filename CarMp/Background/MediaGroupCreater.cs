@@ -7,6 +7,7 @@ using NHibernate.Criterion;
 using NHibernate;
 using System.Diagnostics;
 using CarMP.Callbacks;
+using CarMP.DataObjects;
 
 namespace CarMP.Background
 {
@@ -17,7 +18,7 @@ namespace CarMP.Background
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
-            ISession dataSession = Database.GetSession();
+            ISession dataSession = DatabaseInterface.DataSession;
 
             OnProgressChanged(0, "Deleting records");
             dataSession.CreateSQLQuery("DELETE FROM MediaGroup").ExecuteUpdate();

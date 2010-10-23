@@ -29,6 +29,7 @@ namespace CarMP.Settings
         {
             LoadXml(CurrentSkinPath);
         }
+
         private void LoadXml(string pXmlPath)
         {
             CurrentSkinPath = pXmlPath;
@@ -60,6 +61,10 @@ namespace CarMP.Settings
         public XmlNode GetOverlayNodeSkin(string pViewName)
         {
             return overlayNodes[pViewName];
+        }
+        public IEnumerable<XmlNode> OverlayNodes
+        {
+            get { return overlayNodes.Select((kv) => kv.Value);}
         }
     }
 }

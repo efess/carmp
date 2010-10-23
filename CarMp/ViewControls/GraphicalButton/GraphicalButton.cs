@@ -11,10 +11,11 @@ using CarMP.Reactive.Touch;
 using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using Microsoft.WindowsAPICodePack.DirectX;
+using CarMP.ViewControls.Interfaces;
 
 namespace CarMP.ViewControls
 {
-    public partial class GraphicalButton : D2DViewControl, ISkinable, IDisposable
+    public partial class GraphicalButton : D2DViewControl, ISkinable, IDisposable, IButton
     {
         public event EventHandler Click;
 

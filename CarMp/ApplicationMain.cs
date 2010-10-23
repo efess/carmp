@@ -9,6 +9,7 @@ using System.Threading;
 using CarMP.MediaController;
 using CarMP.Settings;
 using CarMP.Background;
+using CarMP.DataObjects;
 
 namespace CarMP
 {
@@ -110,7 +111,7 @@ namespace CarMP
 
             System.Threading.Thread.Sleep(100);
             formSplash.IncreaseProgress(30, "Initializing Database...");
-            Database.InitializeDatabase(AppMain.Settings.DatabaseLocation);
+            DatabaseInterface.InitializeDatabase(AppMain.Settings.DatabaseLocation);
 
             formSplash.IncreaseProgress(80, "Initializing Media Manager...");
             System.Threading.Thread.Sleep(100);

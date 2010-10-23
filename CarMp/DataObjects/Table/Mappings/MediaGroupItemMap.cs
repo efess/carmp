@@ -14,9 +14,10 @@ namespace CarMP
             //Map(x => x.GroupId);
             Map(x => x.ItemName);
             Map(x => x.ItemType);
-            Map(x => x.LibraryId);
+            //Map(x => x.LibraryId);
             Map(x => x.NextGroupId);
             References(x => x.Group, "GroupId");
+            References(x => x.LibraryEntry, "LibraryId");
                 
         }
     }

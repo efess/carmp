@@ -14,9 +14,15 @@ namespace CarMP.Forms
     {
         Pen BorderPen;        
         Pen ProgressPen;
-        
-        SolidBrush normalColor = new SolidBrush( Color.FromArgb(198, 198, 198, 255));
-        SolidBrush specialColor = new SolidBrush(Color.FromArgb(205, 117, 2, 255));
+
+        //Pen BorderPen = new Pen(new SolidBrush(SessionSettings.DefaultFontColor), 1);
+        //Pen ProgressPen = new Pen(new SolidBrush(SessionSettings.DefaultFontSpecialColor), 4);
+
+        //public static Color DefaultFontColor = Color.FromArgb(198, 198, 198);
+        //public static Color DefaultFontSpecialColor = Color.FromArgb(205, 117, 2);
+
+        SolidBrush normalColor = new SolidBrush( Color.FromArgb(255,198, 198, 198));
+        SolidBrush specialColor = new SolidBrush(Color.FromArgb(255, 205, 117, 2));
 
         Rectangle BorderRect;
         Rectangle BorderLogo;

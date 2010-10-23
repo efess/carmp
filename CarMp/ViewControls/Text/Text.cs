@@ -7,10 +7,11 @@ using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using Microsoft.WindowsAPICodePack.DirectX;
 using System.Windows.Forms;
+using CarMP.ViewControls.Interfaces;
 
 namespace CarMP.ViewControls
 {
-    public class Text : ViewControlCommonBase, ISkinable, IDisposable
+    public class Text : ViewControlCommonBase, ISkinable, IDisposable, IText
     {
         private const string XPATH_TEXT_POSITION = "TextPosition";
         private const string XPATH_TEXT_STYLE = "TextStyle";

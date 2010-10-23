@@ -41,6 +41,8 @@ namespace CarMP.MediaEntities
         /// </summary>
         public DigitalMediaItemType ItemType;
 
+        public DigitalMediaLibrary LibraryItem { get; private set; }
+
         /// <summary>
         /// Creates a list item from a Group Item object
          /// </summary>
@@ -52,9 +54,14 @@ namespace CarMP.MediaEntities
 
             if (ItemType == DigitalMediaItemType.Song)
             {
-                if (pGroupItem.LibraryId == 0)
+                if (pGroupItem.LibraryEntry.LibraryId == 0)
                     throw new Exception("Library Id must not be 0");
-                TargetId = pGroupItem.LibraryId;
+                
+                LibraryItem = pGroupItem.LibraryEntry;
+                string name = FormatMediaItemName(LibraryItem);
+                if (!string.IsNullOrEmpty(name))
+                    DisplayString = name;
+                TargetId = pGroupItem.LibraryEntry.LibraryId;
             }
             else
             {
@@ -87,6 +94,21 @@ namespace CarMP.MediaEntities
                 default:
                     return MediaListItemType.Group;
             }
+        }
+
+        public static string FormatMediaItemName(DigitalMediaLibrary pDigitalMediaItem)
+        {
+            string template = AppMain.Settings.DisplayFormat.FormatTemplate;
+
+            if (pDigitalMediaItem == null
+                || string.IsNullOrEmpty(pDigitalMediaItem.Artist)
+                || string.IsNullOrEmpty(pDigitalMediaItem.Title))
+                return null;
+
+            return template.Replace("%artist%", pDigitalMediaItem.Artist)
+                .Replace("%title%", pDigitalMediaItem.Title)
+                .Replace("%track%", pDigitalMediaItem.Track)
+                .Replace("%filename%", pDigitalMediaItem.FileName);
         }
     }
 }

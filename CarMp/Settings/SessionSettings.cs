@@ -14,7 +14,10 @@ namespace CarMP.Settings
     {
         // singleton pattern
         private static SessionSettings instance;
-        private SessionSettings(){}
+        private SessionSettings()
+        {
+            InstantiateSetting<MediaDisplayFormatSettings>();
+        }
 
         internal static SessionSettings GetSettingsObject()
         {
@@ -83,15 +86,9 @@ namespace CarMP.Settings
         {
             get
             {
-                var setting =  SettingObjects
+                return SettingObjects
                 .OfType<MediaDisplayFormatSettings>()
                 .FirstOrDefault();
-                if (setting == null)
-                {
-                    setting = InstantiateSetting<MediaDisplayFormatSettings>()
-                        as MediaDisplayFormatSettings;
-                }
-                return setting;
             }
         }
 
@@ -120,7 +117,7 @@ namespace CarMP.Settings
             DatabaseLocation = @".\database.db";
             SettingsXmlLocation = @".\settings.xml";
             WindowLocation = new Point2F(0, 0);
-            ScreenResolution = new SizeF(640, 480);
+            ScreenResolution = new SizeF(800, 480);
             DefaultFontColor = new ColorF(198 / 256, 198 / 256, 198 / 256,1);
             DefaultFontSpecialColor = new ColorF(205 / 256, 117 / 256, 2 / 256, 1);
             SkinName = "BMW";
@@ -223,6 +220,7 @@ namespace CarMP.Settings
             SetOrCreateNode(pXElement, XML_PICTURES_FOLDER, PicturePath);
             SetOrCreateNode(pXElement, XML_SKINS_FOLDER, SkinPath);
             SetOrCreateNode(pXElement, XML_SKIN_NAME, SkinName);
+            SetOrCreateNode(pXElement, XML_MEDIA_SORT, ((int)SortMedia).ToString());
             SetOrCreateNode(pXElement, XML_SCREEN_SIZE_NODE, new Action<XElement>(
                 element => element.ReplaceAll(
                     new XAttribute("Width", ScreenResolution.Width),
@@ -283,6 +281,10 @@ namespace CarMP.Settings
                         break;
                     case XML_PICTURES_FOLDER:
                         PicturePath = node.Value;
+                        break;
+                    case XML_MEDIA_SORT:
+                        try { SortMedia = (MediaSort)Enum.Parse(typeof(MediaSort), node.Value); }
+                        catch { }; // Ignore.
                         break;
                     default:
                         SettingObjects.Where(xs => xs.ElementName == node.Name)

@@ -28,6 +28,7 @@ namespace CarMP.ViewControls
 
         public virtual void ApplySkin(XmlNode pXmlNode, string pSkinPath)
         {
+            Clear();
             if (SkinningHelper.XmlRectangleFEntry(XPATH_BOUNDS, pXmlNode, ref _bounds))
                 OnSizeChanged(null, null);
             if (SkinningHelper.XmlBitmapEntry(XPATH_BACKGROUND_IMAGE, pXmlNode, pSkinPath, ref _backGroundBitmapData))
@@ -36,6 +37,25 @@ namespace CarMP.ViewControls
             _hasColor = SkinningHelper.XmlColorEntry(XPATH_BACKGROUND_COLOR, pXmlNode, ref _backgroundColor);
             if (_hasColor)
                 _backgroundColorBrush = null;
+
+
+            foreach (XmlNode childNode in pXmlNode.ChildNodes)
+            {
+                var viewControl = ViewControlFactory.GetViewControlAndApplySkin(childNode.Name, pSkinPath, childNode);
+                if (viewControl != null)
+                    AddViewControl(viewControl);
+
+                //if (viewControl is ThermometerProgressBar)
+                //{
+                //    _progressBar = viewControl as ThermometerProgressBar; ;
+                //}
+            }
+        }
+
+        public virtual void SetBackground(Direct2D.BitmapData pBitmap)
+        {
+            _backGroundBitmapData = pBitmap;
+            _backGroundBitmap = null;
         }
 
         protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)

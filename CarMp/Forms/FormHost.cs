@@ -82,7 +82,6 @@ namespace CarMP.Forms
                 _renderProps,
                 new HwndRenderTargetProperties(this.Handle, new SizeU(Convert.ToUInt32(ClientSize.Width), Convert.ToUInt32(ClientSize.Height)), PresentOptions.Immediately)));
             
-
             this.ClientSizeChanged += (o, e) => { _renderTarget.Resize(new SizeU(Convert.ToUInt32(ClientSize.Width), Convert.ToUInt32(ClientSize.Height))); };
             
             InitializeComponent();
@@ -95,6 +94,8 @@ namespace CarMP.Forms
             _loadedViews = new Dictionary<string, D2DView>();
 
             InitializeOverlayControls();
+            
+ApplySkin();
 
             Action renderingLoop = new Action(() => RenderingLoop());
             renderingLoop.BeginInvoke(null, null);
@@ -128,50 +129,25 @@ namespace CarMP.Forms
 
         private void InitializeOverlayControls()
         {
-            MediaControlBar controlBar = null;
-            MediaInfoBar infoBar = null;
-            XmlNode infoBarNode = AppMain.Settings.CurrentSkin.GetOverlayNodeSkin("MediaInfoBar");
-            XmlNode controlBarNode = AppMain.Settings.CurrentSkin.GetOverlayNodeSkin("MediaControlBar");
-
             _fpsControl = new ViewControls.Text();
             _fpsControl.Bounds = new RectF(this.Width - 40, 0, this.Width, 40);
             _overlayViewControls.Add(_fpsControl);
+                        
+            //GraphicalButton toggleAnimation = new GraphicalButton();
+            //toggleAnimation.Bounds = new RectF(450, 30, 514, 94);
+            //toggleAnimation.SetButtonUpBitmapData(@"C:\source\CarMP\trunk\Images\Skins\BMW\Box.bmp");
+            //int i = 0;
 
-            if (controlBarNode != null)
-            {
-                controlBar = new MediaControlBar();
-                controlBar.ApplySkin(controlBarNode, AppMain.Settings.CurrentSkinPath);
-                _overlayViewControls.Add(controlBar);
-                controlBar.StartRender();
-            }
-
-            if (infoBarNode != null)
-            {
-                infoBar = new MediaInfoBar();
-                infoBar.ApplySkin(infoBarNode, AppMain.Settings.CurrentSkinPath);
-                _overlayViewControls.Add(infoBar);
-                infoBar.StartRender();
-            }
-            
-            GraphicalButton toggleAnimation = new GraphicalButton();
-            toggleAnimation.Bounds = new RectF(450, 30, 514, 94);
-            toggleAnimation.SetButtonUpBitmapData(@"C:\source\CarMP\trunk\Images\Skins\BMW\Box.bmp");
-            int i = 0;
-
-            toggleAnimation.Click += (sender, e) =>
-                {
-                    controlBar.SetAnimation(i);
-                    controlBar.StartAnimation();
-                    infoBar.SetAnimation(i);
-                    infoBar.StartAnimation();
-                    if(i > 0)
-                        i = -1 ;
-                    else i = 1;
-                };
-            _fpsControl.StartRender();
-
-            toggleAnimation.StartRender();
-            _overlayViewControls.Add(toggleAnimation);
+            //toggleAnimation.Click += (sender, e) =>
+            //    {
+            //        controlBar.SetAnimation(i);
+            //        controlBar.StartAnimation();
+            //        infoBar.SetAnimation(i);
+            //        infoBar.StartAnimation();
+            //        if(i > 0)
+            //            i = -1 ;
+            //        else i = 1;
+            //    };
         }
 
         public D2DView ShowView(string pViewName)
@@ -190,7 +166,15 @@ namespace CarMP.Forms
                 else
                 {
                     // Create view
-                    _currentView = _viewFactory.CreateView(pViewName);
+                    var view = _viewFactory.CreateView(pViewName);
+
+                    if (view == null)
+                    {
+                        DebugHandler.DebugPrint("Tried to create view, but view not found " + pViewName);
+                        return null;
+                    }
+
+                    _currentView = view;
 
                     _loadedViews.Add(pViewName, _currentView);
                     if (_currentView is ISkinable)
@@ -202,7 +186,7 @@ namespace CarMP.Forms
                     }
 
                 }
-                _currentView.StartRender();
+                //_currentView.StartRender();
 
             }
             finally
@@ -217,6 +201,7 @@ namespace CarMP.Forms
         public void ApplySkin()
         {
             AppMain.Settings.CurrentSkin.ReloadCurrent();
+
             foreach (KeyValuePair<string, D2DView> kv in _loadedViews)
             {
                 D2DView view = kv.Value;
@@ -229,17 +214,31 @@ namespace CarMP.Forms
                 }
             }
 
-            XmlNode infoBarNode = AppMain.Settings.CurrentSkin.GetOverlayNodeSkin("MediaInfoBar");
-            XmlNode controlBarNode = AppMain.Settings.CurrentSkin.GetOverlayNodeSkin("MediaControlBar");
+            _overlayViewControls.ForEach((vc) => vc.Dispose());
+            _overlayViewControls.Clear();
 
-            foreach (D2DViewControl control in _overlayViewControls)
+            foreach (XmlNode node in
+                AppMain.Settings.CurrentSkin.OverlayNodes)
             {
-                if (control is MediaInfoBar)
-                    (control as MediaInfoBar).ApplySkin(infoBarNode, AppMain.Settings.CurrentSkinPath);
-
-                if (control is MediaControlBar)
-                    (control as MediaControlBar).ApplySkin(controlBarNode, AppMain.Settings.CurrentSkinPath);
+                var viewControl = ViewControlFactory.GetViewControlAndApplySkin(
+                    node.Name,
+                    AppMain.Settings.CurrentSkinPath,
+                    node);
+                if(viewControl != null)
+                    _overlayViewControls.Add(viewControl);
             }
+
+            //XmlNode infoBarNode = AppMain.Settings.CurrentSkin.GetOverlayNodeSkin("MediaInfoBar");
+            //XmlNode controlBarNode = AppMain.Settings.CurrentSkin.GetOverlayNodeSkin("MediaControlBar");
+
+            //foreach (D2DViewControl control in _overlayViewControls)
+            //{
+            //    if (control is MediaInfoBar)
+            //        (control as MediaInfoBar).ApplySkin(infoBarNode, AppMain.Settings.CurrentSkinPath);
+
+                //if (control is MediaControlBar)
+                //    (control as MediaControlBar).ApplySkin(controlBarNode, AppMain.Settings.CurrentSkinPath);
+            //}
                 
         }
 
@@ -274,25 +273,33 @@ namespace CarMP.Forms
 
         private void DrawDirect2D()
         {
-             if (!_renderTarget.IsOccluded)
-             {
-                 _renderTarget.BeginDraw();
-                 _renderTarget.Transform = Matrix3x2F.Identity;
-                 _renderTarget.Clear(new ColorF(Colors.Black, 1f));
+            try
+            {
+                if (!_renderTarget.IsOccluded)
+                {
+                    _renderTarget.BeginDraw();
+                    _renderTarget.Transform = Matrix3x2F.Identity;
+                    _renderTarget.Clear(new ColorF(Colors.Black, 1f));
 
-                 _currentView.Render(_renderTarget);
-                 
-                 for (int i = _overlayViewControls.Count - 1;
-                     i >= 0;
-                     i--)
-                 {
-                     _overlayViewControls[i].Render(_renderTarget);
-                 }
+                    _currentView.Render(_renderTarget);
 
-                 _renderTarget.EndDraw();
+                    for (int i = _overlayViewControls.Count - 1;
+                        i >= 0;
+                        i--)
+                    {
+                        _overlayViewControls[i].Render(_renderTarget);
+                    }
 
-                 this.Invalidate();
-             }
+                    _renderTarget.EndDraw();
+
+                    this.Invalidate();
+                }
+            }
+            catch (Exception ex)
+            {
+                DebugHandler.HandleException(ex);
+                _renderTarget.Renderer.Flush();
+            }
         }
 
         protected override void OnPaintBackground(PaintEventArgs pevent)

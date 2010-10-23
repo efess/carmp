@@ -7,6 +7,7 @@ using System.Xml;
 using CarMP.Reactive.Touch;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using Microsoft.WindowsAPICodePack.DirectX;
+using System.Runtime.Remoting.Messaging;
 
 
 namespace CarMP.ViewControls
@@ -413,7 +414,12 @@ namespace CarMP.ViewControls
                 // Execute Event
                 if (SelectedItemChanged != null)
                 {
-                    SelectedItemChanged.BeginInvoke(this, new SelectedItemChangedEventArgs(this.m_listCurrentDisplay.SelectedItem), null, null);
+                    SelectedItemChanged.BeginInvoke(this, 
+                        new SelectedItemChangedEventArgs(
+                            this.m_listCurrentDisplay.SelectedItem, 
+                            this.m_listCurrentDisplay.SelectedIndex),
+                        null, 
+                        null);
                 }
             }
         }
@@ -594,7 +600,7 @@ namespace CarMP.ViewControls
             m_velocityDelegate = (i, d) =>
             {
                 Velocity(i, d);
-                System.Threading.Thread.CurrentThread.Name = "Velocity";
+                //System.Threading.Thread.CurrentThread.Name = "Velocity";
             };
             m_velocityDelegate.BeginInvoke(pVelocity, pDirection, null, null);
         }
@@ -653,7 +659,7 @@ namespace CarMP.ViewControls
             this.m_listDisplayCount = Convert.ToInt32(this.Size.Height / m_listItemSize + 1);
         }
     }
-
+    
     public class ListChangeEventArgs : EventArgs
     {
         public ListChangeEventArgs(DragableListSwitchDirection pSwitchDirection, int pNewIndex)
@@ -679,19 +685,15 @@ namespace CarMP.ViewControls
     
     public class SelectedItemChangedEventArgs : EventArgs
     {
-        public SelectedItemChangedEventArgs(DragableListItem pDragableListItem)
+        public SelectedItemChangedEventArgs(DragableListItem pDragableListItem,
+                                            int pSelectedIndex)
         {
-            m_selectedItem = pDragableListItem;
+            SelectedItem = pDragableListItem;
+            SelectedIndex = pSelectedIndex;
         }
-
-        private DragableListItem m_selectedItem;
-        public DragableListItem SelectedItem
-        {
-            get
-            {
-                return m_selectedItem;
-            }
-        }
+        public int SelectedIndex { get; private set; }
+        public DragableListItem SelectedItem { get; private set; }
+        
     }
 }
 

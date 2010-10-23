@@ -156,7 +156,7 @@ namespace CarMP.MediaController
                 return -1;
             }
             int returnInt = Win32Helpers.SendMessage(WinampApp.MainWindowHandle, (int)WA_MSGTYPE.WM_USER, pParameter, (int)pMessageType);
-            DebugHandler.DebugPrint("Winamp = " + pMessageType.ToString() + "(" + pParameter.ToString() + ") returned " + returnInt.ToString());
+            //DebugHandler.DebugPrint("Winamp = " + pMessageType.ToString() + "(" + pParameter.ToString() + ") returned " + returnInt.ToString());
             return returnInt;
         }
 

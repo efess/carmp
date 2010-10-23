@@ -22,15 +22,16 @@ namespace CarMP.ViewControls
         private List<D2DViewControl> _viewControls;
         public List<D2DViewControl> ViewControls { get { lock (_viewControls) return _viewControls; } }
 
-        private bool _renderOk = false;
+        private bool _canRender = false;
         public void StartRender()
         {
-            _renderOk = true;
+            return;
+            _canRender = true;
             OnRenderStart();
         }
         public void StopRenderer()
         {
-            _renderOk = false;
+            _canRender = false;
             OnRenderStop();
         }
 
@@ -86,6 +87,7 @@ namespace CarMP.ViewControls
 
         public D2DViewControl()
         {
+            _canRender = true;
             _mouseDownControl = null;
             _viewControls = new List<D2DViewControl>();
         }
@@ -94,7 +96,7 @@ namespace CarMP.ViewControls
 
         public void Render(Direct2D.RenderTargetWrapper pRenderTarget)
         {
-            if (_renderOk)
+            if (_canRender)
             {
                 PreRender();
 
@@ -143,23 +145,6 @@ namespace CarMP.ViewControls
                 new Point2F(
                     pPointToAdd.X + Parent.Bounds.Left, 
                     pPointToAdd.Y + Parent.Bounds.Top));
-        }
-
-        internal Point2F GetControlPointFromScreen(Point2F pPointToSubtract)
-        {
-            if (Parent != null)
-            {
-                return Parent.GetControlPointFromScreen(new Point2F(pPointToSubtract.X - Parent.Bounds.Left, pPointToSubtract.Y - Parent.Bounds.Top));
-            }
-            return pPointToSubtract;
-        }
-
-        internal Point2F GetControlPointFromScreen()
-        {
-            if (Parent == null)
-                return new Point2F(Bounds.Left, Bounds.Height);
-
-            return GetControlPointFromScreen(new Point2F(Bounds.Left, Bounds.Top));
         }
 
         internal Point2F ConvertScreenToControlPoint(Point2F pPointToConvert)

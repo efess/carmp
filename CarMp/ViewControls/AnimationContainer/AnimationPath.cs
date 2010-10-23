@@ -121,11 +121,11 @@ namespace CarMP.ViewControls
 
             float curAngle = LinearMath.AngleOfTwoPoints(point, _currentEndPoint.Location);
 
-            //DebugHandler.DebugPrint("New AnimationPoint: " + _lastPoint.X.ToString() + ", " + _lastPoint.Y.ToString()
-            //    + " AdditionalDistance: " + additionalDistance.ToString() + " angle: " + curAngle.ToString());
+//            DebugHandler.DebugPrint("New AnimationPoint: " + _lastPoint.X.ToString() + ", " + _lastPoint.Y.ToString()
+ //               + " AdditionalDistance: " + additionalDistance.ToString() + " angle: " + curAngle.ToString());
 
             // are we there yet?
-            if(angleStartToEnd != curAngle)
+            if (Math.Round(angleStartToEnd, 2) != Math.Round(curAngle, 2))
             {
                 CurrentState = AnimationState.Stopped;
 

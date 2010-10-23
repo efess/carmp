@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using System.Xml;
 
 namespace CarMP.ViewControls
 {
-    public class AnimationContainer : D2DViewControl
+    public class AnimationContainer : Container, ISkinable
     {
+        private const string XPATH_ANIMATION_POINT = "AnimationPath/*";
         private readonly List<AnimationPath> AnimationPaths;
 
         private AnimationPath _currentPath;
@@ -16,6 +18,21 @@ namespace CarMP.ViewControls
         {
             AnimationPaths = new List<AnimationPath>();
             _currentPath = null;
+        }
+
+        public void ApplySkin(XmlNode pSkinNode, string pSkinPath)
+        {
+            base.ApplySkin(pSkinNode, pSkinPath);
+            ClearAnimations();
+            AnimationPath path = this.CreateAnimationPath();
+            foreach (XmlNode pointNode in pSkinNode.SelectNodes(XPATH_ANIMATION_POINT))
+            {
+                AnimationPathPoint point = XmlHelper.GetAnimationPathPoint(pointNode.InnerText);
+                if (path.AnimationPointCount == 0)
+                    SetLocation(point.Location);
+                path.AddAnimationPoint(point);
+            }
+            this.SetAnimation(-1);
         }
 
         public AnimationPath CreateAnimationPath()
@@ -31,6 +48,12 @@ namespace CarMP.ViewControls
                 _currentPath = AnimationPaths[0];
             
             return AnimationPaths[pInsertionIndex];
+        }
+
+        public void ClearAnimations()
+        {
+            _currentPath = null;
+            AnimationPaths.Clear();
         }
 
         public void StartAnimation()
@@ -53,6 +76,7 @@ namespace CarMP.ViewControls
 
         protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
         {
+            base.OnRender(pRenderTarget);
         }
 
         protected override void PreRender()

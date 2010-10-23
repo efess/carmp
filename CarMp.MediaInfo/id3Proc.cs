@@ -191,7 +191,12 @@ namespace CarMP.MediaInfo
            
             try
             {
-                FileStream fs = File.OpenRead(pFile);
+                FileStream fs = null;
+                try
+                {
+                    fs = new FileStream(pFile, FileMode.Open, FileAccess.Read);//File.OpenRead(pFile);
+                }
+                catch { return; }///ignore
                 br = new BinaryReader(fs);
                 //Check for ID3v2
                 if (ASCIIByteArrayToStr(br.ReadBytes(3)) == "ID3")

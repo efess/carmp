@@ -153,7 +153,15 @@ namespace CarMP.ViewControls
 
                 pRenderer.DrawRectangle(SelectionGradient, m_selectionRectangle, 2F);
             }
-            pRenderer.FillRectangle(_backgroundBrush, _backgroundRect);
+            else
+            {
+                if (SelectionGradient != null)
+                {
+                    SelectionGradient.Dispose();
+                    SelectionGradient = null;
+                }
+            }
+           // pRenderer.FillRectangle(_backgroundBrush, _backgroundRect);
         }
 
 

@@ -4,10 +4,20 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarMP", "CarMp\CarMP.csproj", "{A0A6D51B-7760-4D91-9CCA-8CD491AFD56A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{93AF9592-4C1B-4C20-87B5-4F82B9F529F4}"
+	ProjectSection(SolutionItems) = preProject
+		CarMp.vsmdi = CarMp.vsmdi
+		Local.testsettings = Local.testsettings
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarMP.MediaInfo", "CarMp.MediaInfo\CarMP.MediaInfo.csproj", "{328BCACA-4652-49CF-96A9-B64DC3EA23AB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarMP.Tests", "CarMP.Tests\CarMP.Tests.csproj", "{3AFE84ED-16BD-45E0-8E75-0901044C924B}"
+EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = CarMp.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -21,6 +31,10 @@ Global
 		{328BCACA-4652-49CF-96A9-B64DC3EA23AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{328BCACA-4652-49CF-96A9-B64DC3EA23AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{328BCACA-4652-49CF-96A9-B64DC3EA23AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AFE84ED-16BD-45E0-8E75-0901044C924B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AFE84ED-16BD-45E0-8E75-0901044C924B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AFE84ED-16BD-45E0-8E75-0901044C924B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AFE84ED-16BD-45E0-8E75-0901044C924B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

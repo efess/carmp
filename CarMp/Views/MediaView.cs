@@ -14,6 +14,7 @@ namespace CarMP.Views
     {
         DragableList MediaList;
         GraphicalProgressBar ProgressBar;
+        HistoryBar HistoryBar;
 
         private Direct2D.BitmapData _background;
         private D2DBitmap Background = null;
@@ -24,6 +25,7 @@ namespace CarMP.Views
         private const string XPATH_PROGRESSBAR = "GraphicalProgressBar";
         private const string XPATH_MEDIALIST = "MediaList";
         private const string XPATH_SHORTCUT_LIST = "ShortcutList";
+        private const string XPATH_HISTORY_BAR = "HistoryBar";
 
         internal MediaView(SizeF pWindowSize)
             : base(pWindowSize)
@@ -32,15 +34,8 @@ namespace CarMP.Views
             MediaList.Bounds = new RectF(20, 40, this.Width - 80, this.Height - 120);
             MediaList.SelectedItemChanged += new DragableList.SelectedItemChangedEventHandler(MediaList_SelectedItemChanged);
 
-            AppMain.MediaManager.ListChangeRequest += (sender, e) =>
-                {
-                    MediaList.ChangeList(e.ListIndex);
-                };
-
-            MediaList.AfterListChanged += (sender, e) =>
-                {
-                    AppMain.MediaManager.ExecuteListChanged(e.NewIndex);
-                };
+            AppMain.MediaManager.ListChangeRequest += (sender, e) => MediaList.ChangeList(e.ListIndex);
+            MediaList.AfterListChanged += (sender, e) => AppMain.MediaManager.ExecuteListChanged(e.NewIndex);
 
             AddViewControl(MediaList);
 
@@ -52,6 +47,10 @@ namespace CarMP.Views
             get { return D2DViewFactory.MEDIA; }
         }
 
+        private void HookUpEvents()
+        {
+        }
+
         public new void ApplySkin(XmlNode pSkinNode, string pSkinPath)
         {
             SkinningHelper.XmlBitmapEntry(XPATH_BACKGROUND_IMAGE, pSkinNode, pSkinPath, ref _background);
@@ -61,13 +60,25 @@ namespace CarMP.Views
                 ProgressBar.ApplySkin(xmlNode, pSkinPath);
             }
 
-            xmlNode = pSkinNode.SelectSingleNode(XPATH_SHORTCUT_LIST);
-            if (xmlNode != null)
+            xmlNode = pSkinNode.SelectSingleNode(XPATH_HISTORY_BAR);
+            if(xmlNode != null)
             {
-                MediaShortcut shortcut = new MediaShortcut();
-                shortcut.ApplySkin(xmlNode, pSkinPath);
-                AddViewControl(shortcut);
-                shortcut.StartRender();
+                if (HistoryBar == null)
+                {
+                    HistoryBar = new HistoryBar();
+                    MediaList.AfterListChanged += (sender, e) =>
+                    {
+                        HistoryBar.ClearHistory();
+                        foreach (MediaHistory item in AppMain.MediaManager.MediaListHistory.Reverse())
+                        {
+                            HistoryBar.Push(item.DisplayString, item.ListIndex);
+                        }
+                    };
+                    HistoryBar.HistoryClick = AppMain.MediaManager.SetList;
+                    AddViewControl(HistoryBar);
+                    HistoryBar.StartRender();
+                }
+                HistoryBar.ApplySkin(xmlNode, pSkinPath);
             }
 
             xmlNode = pSkinNode.SelectSingleNode(XPATH_MEDIALIST);
@@ -77,10 +88,10 @@ namespace CarMP.Views
                 MediaList.StartRender();
             }
 
-            MediaList.AfterListChanged += (sender, e) =>
-                {
-                    AppMain.MediaManager.ExecuteListChanged(e.NewIndex);
-                };
+            //MediaList.AfterListChanged += (sender, e) =>
+            //    {
+            //        AppMain.MediaManager.ExecuteListChanged(e.NewIndex);
+            //    };
 
             base.ApplySkin(pSkinNode, pSkinPath);
         }
@@ -141,7 +152,7 @@ namespace CarMP.Views
                     MediaList.ChangeListForward();
                     break;
                 case MediaListItemType.Song:
-                    AppMain.MediaManager.PlayMediaListItem(selectedItem);
+                    AppMain.MediaManager.PlayMediaListItem(e.SelectedIndex);
                     break;
             }
         }

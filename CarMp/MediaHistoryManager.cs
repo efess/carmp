@@ -8,6 +8,7 @@ using NHibernate.Criterion;
 using NHibernate;
 using System.Threading;
 using CarMP.MediaEntities;
+using CarMP.DataObjects;
 
 namespace CarMP
 {
@@ -50,7 +51,7 @@ namespace CarMP
 
                 _mediaHistoryStack.Push(newHistoryItem);
 
-                using (ISession dataSession = Database.GetSession())
+                using (ISession dataSession = DatabaseInterface.DataSession)
                 using (ITransaction transaction = dataSession.BeginTransaction())
                 {
                     try

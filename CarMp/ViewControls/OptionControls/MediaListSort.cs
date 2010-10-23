@@ -16,10 +16,13 @@ namespace CarMP.ViewControls.OptionControls
 
         public MediaListSort()
         {
+            MediaSort currentSort = AppMain.Settings.SortMedia;
+
             var option = new SingleOptionRadio();
             option.Bounds = new Microsoft.WindowsAPICodePack.DirectX.Direct2D1.RectF(5, 5, 200, 30);
             AddViewControl(option);
             option.TextString = "Track";
+            option.Checked = currentSort == MediaSort.Track;
             option.StartRender();
             option.InputLeave += () => SetFormat(MediaSort.Track);
 
@@ -28,12 +31,14 @@ namespace CarMP.ViewControls.OptionControls
             AddViewControl(option);
             option.TextString = "FileName";
             option.StartRender();
+            option.Checked = currentSort == MediaSort.FileName;
             option.InputLeave += () => SetFormat(MediaSort.FileName);
 
             option = new SingleOptionRadio();
             option.Bounds = new Microsoft.WindowsAPICodePack.DirectX.Direct2D1.RectF(5, 75, 200, 100);
             AddViewControl(option);
             option.TextString = "Title";
+            option.Checked = currentSort == MediaSort.Title;
             option.InputLeave += () => SetFormat(MediaSort.Title);
             option.StartRender();
         }

@@ -4,15 +4,17 @@ using System.Linq;
 using System.Text;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using System.Xml;
+using CarMP.Reactive.Messaging;
 
 namespace CarMP.ViewControls
 {
-    public class AnimationContainer : Container, ISkinable
+    public class AnimationContainer : Container, ISkinable, IMessageObserver
     {
         private const string XPATH_ANIMATION_POINT = "AnimationPath/*";
         private readonly List<AnimationPath> AnimationPaths;
 
         private AnimationPath _currentPath;
+        private int direction = 0;
 
         public AnimationContainer()
         {
@@ -83,6 +85,20 @@ namespace CarMP.ViewControls
         {
             Point2F currentPoint = _currentPath.GetCurrentPoint();
             SetLocation(currentPoint);
+        }
+
+        public virtual void ProcessMessage(Message pMessage)
+        {
+            if (pMessage.Type == MessageType.SwitchState)
+            {
+                SetAnimation(direction);
+                StartAnimation();
+                //infoBar.SetAnimation(i);
+                //infoBar.StartAnimation();
+                if (direction > 0)
+                    direction = -1;
+                else direction = 1;
+            }
         }
     }
 }

@@ -26,7 +26,7 @@ namespace CarMP.Reactive
                 copyArray[i].OnNext(pData);
         }
 
-        public IDisposable Subscribe(IObserver<T> observer)
+        public virtual IDisposable Subscribe(IObserver<T> observer)
         {
             lock (_listLockObject)
             {

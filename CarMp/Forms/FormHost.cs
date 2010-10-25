@@ -30,11 +30,9 @@ namespace CarMP.Forms
         private D2DViewControl _mouseDownViewControl;
 
         private List<D2DViewControl> _overlayViewControls;
-
         private W32MessageToReactive _mouseEventProcessor;
         private Dictionary<string, D2DView> _loadedViews;
         private D2DView _currentView;
-
         private D2DViewFactory _viewFactory;
 
         private Direct2D.RenderTargetWrapper _renderTarget;
@@ -95,7 +93,7 @@ namespace CarMP.Forms
 
             InitializeOverlayControls();
             
-ApplySkin();
+            ApplySkin();
 
             Action renderingLoop = new Action(() => RenderingLoop());
             renderingLoop.BeginInvoke(null, null);
@@ -226,28 +224,8 @@ ApplySkin();
                     node);
                 if(viewControl != null)
                     _overlayViewControls.Add(viewControl);
-            }
-
-            //XmlNode infoBarNode = AppMain.Settings.CurrentSkin.GetOverlayNodeSkin("MediaInfoBar");
-            //XmlNode controlBarNode = AppMain.Settings.CurrentSkin.GetOverlayNodeSkin("MediaControlBar");
-
-            //foreach (D2DViewControl control in _overlayViewControls)
-            //{
-            //    if (control is MediaInfoBar)
-            //        (control as MediaInfoBar).ApplySkin(infoBarNode, AppMain.Settings.CurrentSkinPath);
-
-                //if (control is MediaControlBar)
-                //    (control as MediaControlBar).ApplySkin(controlBarNode, AppMain.Settings.CurrentSkinPath);
-            //}
-                
+            }    
         }
-
-        // OnPaint implmentation
-        //protected override void OnPaint(PaintEventArgs e)
-        //{
-        //    DrawDirect2D();
-        //    base.OnPaint(e);
-        //}
 
         private void RenderingLoop()
         {
@@ -305,95 +283,6 @@ ApplySkin();
         protected override void OnPaintBackground(PaintEventArgs pevent)
         {
         }
-
-        //protected override void OnMouseDown(MouseEventArgs e)
-        //{
-        //    for (int i = _overlayViewControls.Count - 1;
-        //        i >= 0;
-        //        i--)
-        //    {
-        //        _mouseDownViewControl = _overlayViewControls[i].GetViewControlContainingPoint(e.Location);
-        //        if (_mouseDownViewControl != null)
-        //        {
-        //            _mouseDownViewControl.MouseDown(e);
-        //            return;
-        //        }
-        //    }
-        //    if (_currentView is D2DView)
-        //    {
-        //        _mouseDownViewControl = _currentView.GetViewControlContainingPoint(e.Location);
-        //        if(_mouseDownViewControl != null)
-        //            _mouseDownViewControl.MouseDown(e);
-        //    }
-        //}
-
-        //protected override void OnMouseMove(MouseEventArgs e)
-        //{
-        //    return;
-        //    EventQueue eventQueue = new EventQueue();
-
-        //    if (_mouseDownViewControl != null)
-        //        eventQueue.AddToQueue(new EventQueueEntry(new EventQueueDelegate<MouseEventArgs>(_mouseDownViewControl.MouseMove), e));
-
-        //    for (int i = _overlayViewControls.Count - 1;
-        //        i >= 0;
-        //        i--)
-        //    {
-        //        if (_mouseDownViewControl != null &&
-        //            _overlayViewControls[i] == _mouseDownViewControl)
-        //            continue;
-
-        //        if (_overlayViewControls[i].Bounds.Contains(e.Location))
-        //        {
-        //            eventQueue.AddToQueue(new EventQueueEntry(new EventQueueDelegate<MouseEventArgs>(_overlayViewControls[i].MouseMove), e));
-        //            return;
-        //        }
-        //    }
-        //    if (_currentView is D2DView)
-        //    {
-        //        D2DViewControl control = _currentView.GetViewControlContainingPoint(e.Location);
-        //        if (control != null && _mouseDownViewControl != control)
-        //            eventQueue.AddToQueue(new EventQueueEntry(new EventQueueDelegate<MouseEventArgs>(control.MouseMove), e));
-        //    }
-
-        //    eventQueue.ProcessQueue();
-        //}
-
-        //protected override void OnMouseUp(MouseEventArgs e)
-        //{
-        //    EventQueue queue = new EventQueue();
-
-        //    if (_mouseDownViewControl != null)
-        //        queue.AddToQueue(new EventQueueEntry(new EventQueueDelegate<MouseEventArgs>(_mouseDownViewControl.MouseUp), e));
-            
-        //    for (int i = _overlayViewControls.Count - 1;
-        //        i >= 0;
-        //        i--)
-        //    {
-
-        //        if (_overlayViewControls[i].Bounds.Contains(e.Location))
-        //        {
-        //            if (_mouseDownViewControl != null
-        //                && _overlayViewControls[i] == _mouseDownViewControl)
-        //            {
-        //                continue;
-        //            }
-
-        //            int j = i;
-        //            queue.AddToQueue(new EventQueueEntry(new EventQueueDelegate<MouseEventArgs>(_overlayViewControls[j].MouseUp), e));
-        //            break;
-        //        }
-        //    }
-        //    if (_currentView is D2DView)
-        //    {
-        //        D2DViewControl control = _currentView.GetViewControlContainingPoint(e.Location);
-        //        if (control != null && _mouseDownViewControl != control)
-        //            queue.AddToQueue(new EventQueueEntry(new EventQueueDelegate<MouseEventArgs>(control.MouseUp), e));
-        //    }
-        //    _mouseDownViewControl = null;
-
-        //    queue.ProcessQueue();
-        //}
 
         protected override void OnSizeChanged(EventArgs e)
         {

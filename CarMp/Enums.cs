@@ -38,7 +38,8 @@ namespace CarMP
         MediaArt,
         MediaDisplayName,
         VolumeUp,
-        VolumeDown
+        VolumeDown,
+        ToggleState
 
     }
 }

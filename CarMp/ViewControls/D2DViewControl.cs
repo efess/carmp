@@ -8,6 +8,7 @@ using CarMP.Reactive.Touch;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using CarMP.Reactive;
 using CarMP.Reactive.KeyInput;
+using CarMP.Reactive.Messaging;
 
 namespace CarMP.ViewControls
 {
@@ -219,6 +220,8 @@ namespace CarMP.ViewControls
             {
                 pViewControl.Parent = this;
                 _viewControls.Add(pViewControl);
+                if (pViewControl is IMessageObserver)
+                    AppMain.Messanger.AddMessageObserver(pViewControl as IMessageObserver);
             }
         }
 

@@ -130,6 +130,10 @@
     <Compile Include="ISupportsCopyPaste.cs" />
     <Compile Include="Reactive\KeyInput\KeyboardObservable.cs" />
     <Compile Include="Reactive\KeyInput\Key.cs" />
+    <Compile Include="Reactive\Messaging\IMessageObserver.cs" />
+    <Compile Include="Reactive\Messaging\Message.cs" />
+    <Compile Include="Reactive\Messaging\MessageDispatcher.cs" />
+    <Compile Include="Reactive\Messaging\MessageType.cs" />
     <Compile Include="Reactive\ReactiveUpdate.cs" />
     <Compile Include="Settings\IXmlSettings.cs" />
     <Compile Include="Settings\MediaDisplayFormatSettings.cs" />

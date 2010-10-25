@@ -3,25 +3,25 @@
   <Views>
 	  <Home>
 		  <BackgroundImg>BMWBackground.bmp</BackgroundImg>
-      <NavigationBar>
+      <NavigationBar Type="CarMP.ViewControls.Container">
         <BackgroundImg>NavigationBar.png</BackgroundImg>
 		    <Buttons>
-          <Home>
+          <Home Type="CarMP.ViewControls.GraphicalButton">
             <Bounds>4,45,100,80</Bounds>
             <FaceUpImg>home.png</FaceUpImg>
             <FaceDownImg>home.png</FaceDownImg>
           </Home>
-          <Media>
+          <Media Type="CarMP.ViewControls.GraphicalButton">
 				    <Bounds>4,130,100,80</Bounds>
 				    <FaceUpImg>music.png</FaceUpImg>
 				    <FaceDownImg>music.png</FaceDownImg>
 			    </Media>
-          <Navigation>
+          <Navigation Type="CarMP.ViewControls.GraphicalButton">
             <Bounds>4,215,100,80</Bounds>
             <FaceUpImg>world.png</FaceUpImg>
             <FaceDownImg>world.png</FaceDownImg>
           </Navigation>
-          <Options>
+          <Options Type="CarMP.ViewControls.GraphicalButton">
             <Bounds>4,300,100,80</Bounds>
             <FaceUpImg>gear.png</FaceUpImg>
             <FaceDownImg>gear.png</FaceDownImg>
@@ -34,33 +34,33 @@
       <NavigationBar>
         <BackgroundImg>NavigationBar.png</BackgroundImg>
         <Buttons>
-          <Home>
+          <Home Type="CarMP.ViewControls.GraphicalButton">
             <Bounds>4,45,100,80</Bounds>
             <FaceUpImg>home.png</FaceUpImg>
             <FaceDownImg>home.png</FaceDownImg>
           </Home>
-          <Media>
+          <Media Type="CarMP.ViewControls.GraphicalButton">
             <Bounds>4,130,100,80</Bounds>
             <FaceUpImg>music.png</FaceUpImg>
             <FaceDownImg>music.png</FaceDownImg>
           </Media>
-          <Navigation>
+          <Navigation Type="CarMP.ViewControls.GraphicalButton">
             <Bounds>4,215,100,80</Bounds>
             <FaceUpImg>world.png</FaceUpImg>
             <FaceDownImg>world.png</FaceDownImg>
           </Navigation>
-          <Options>
+          <Options Type="CarMP.ViewControls.GraphicalButton">
             <Bounds>4,300,100,80</Bounds>
             <FaceUpImg>gear.png</FaceUpImg>
             <FaceDownImg>gear.png</FaceDownImg>
           </Options>
         </Buttons>
       </NavigationBar>
-      <MediaList>
+      <MediaList Type="CarMP.ViewControls.DragableList">
         <BackgroundColor>0,0,0,160</BackgroundColor>
         <Bounds>120,80,595,344</Bounds>
       </MediaList>
-      <HistoryBar>
+      <HistoryBar Type="CarMP.HistoryBar">
         <Bounds>120,50,300,30</Bounds>
         <SeparatorImg>backslash.png</SeparatorImg>
         <TextStyle>
@@ -78,29 +78,29 @@
         <NavigationBar>
           <BackgroundImg>NavigationBar.png</BackgroundImg>
           <Buttons>
-            <Home>
+            <Home Type="CarMP.ViewControls.GraphicalButton">
               <Bounds>4,45,100,80</Bounds>
               <FaceUpImg>home.png</FaceUpImg>
               <FaceDownImg>home.png</FaceDownImg>
             </Home>
-            <Media>
+            <Media Type="CarMP.ViewControls.GraphicalButton">
               <Bounds>4,130,100,80</Bounds>
               <FaceUpImg>music.png</FaceUpImg>
               <FaceDownImg>music.png</FaceDownImg>
             </Media>
-            <Navigation>
+            <Navigation Type="CarMP.ViewControls.GraphicalButton">
               <Bounds>4,215,100,80</Bounds>
               <FaceUpImg>world.png</FaceUpImg>
               <FaceDownImg>world.png</FaceDownImg>
             </Navigation>
-            <Options>
+            <Options Type="CarMP.ViewControls.GraphicalButton">
               <Bounds>4,300,100,80</Bounds>
               <FaceUpImg>gear.png</FaceUpImg>
               <FaceDownImg>gear.png</FaceDownImg>
             </Options>
           </Buttons>
         </NavigationBar>
-      <OptionsList>
+      <OptionsList Type="CarMP.ViewControls.DragableList">
         <Bounds>120,200,435,344</Bounds>
         <BackgroundColor>0,0,0,60</BackgroundColor>
       </OptionsList>

@@ -45,6 +45,9 @@
     <Reference Include="Microsoft.WindowsAPICodePack.DirectX">
       <HintPath>..\Libraries\Microsoft.WindowsAPICodePack.DirectX.dll</HintPath>
     </Reference>
+    <Reference Include="Moq">
+      <HintPath>..\Libraries\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="NHibernate">
       <HintPath>..\Libraries\NHibernate.dll</HintPath>
     </Reference>
@@ -63,6 +66,10 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="wmppia, Version=9.0.0.3095, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDependentAssemblyPaths Condition=" '$(VS100COMNTOOLS)' != '' " Include="$(VS100COMNTOOLS)..\IDE\PrivateAssemblies">
@@ -71,6 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AlbumArtScannerTest.cs" />
+    <Compile Include="MessageDispatcherTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -193,8 +193,6 @@ namespace CarMP.Reactive
             _velocityAgg.VelocityNow = new Velocity(xVelocity, yVelocity, directionalVelocity);
             Velocity velocityNow = _velocityAgg.GetVelocity;
 
-            // WORKS FUCKING SWEET!
-            //... Except direction is fucked up. Spoke too soon...
             //System.Diagnostics.Debug.WriteLine("MouseMove- velocity: " + velocityNow + "  now: " + e.X.ToString() + "," + e.Y.ToString() + " previous: " + _previousPoint.X.ToString() + "," + _previousPoint.Y.ToString() + " " + e.Button.ToString());
             if (_isDownHolding 
                 && (Math.Abs(pMouseCoordinate.X - _downPoint.X) > 3

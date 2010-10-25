@@ -40,6 +40,7 @@ namespace CarMP.ViewControls
                 case ViewControlFunction.MediaArt:
                     ApplyMediaArt(pViewControl);
                     break;
+                
             }
         }
 

@@ -24,11 +24,16 @@ namespace CarMP.ViewControls
             if (_backGroundBitmap != null) _backGroundBitmap.Dispose();
         }
 
+        public virtual string Name { get; private set; }
+
         private bool _hasColor = false;
 
         public virtual void ApplySkin(XmlNode pXmlNode, string pSkinPath)
         {
             Clear();
+            
+            Name = pXmlNode.Name;
+
             if (SkinningHelper.XmlRectangleFEntry(XPATH_BOUNDS, pXmlNode, ref _bounds))
                 OnSizeChanged(null, null);
             if (SkinningHelper.XmlBitmapEntry(XPATH_BACKGROUND_IMAGE, pXmlNode, pSkinPath, ref _backGroundBitmapData))

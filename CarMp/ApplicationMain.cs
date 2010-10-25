@@ -10,6 +10,7 @@ using CarMP.MediaController;
 using CarMP.Settings;
 using CarMP.Background;
 using CarMP.DataObjects;
+using CarMP.Reactive.Messaging;
 
 namespace CarMP
 {
@@ -21,6 +22,7 @@ namespace CarMP
         public static BackgroundTasks BackgroundTasks { get; private set; }
         public static MediaManager MediaManager { get; private set; }
         public static SessionSettings Settings { get; private set; }
+        public static MessageDispatcher Messanger { get; private set; }
         private static Mutex singleAppMutex;
         public const string COMMANDLINE_DEBUG = "-DEBUG";
         public const string COMMANDLINE_XML_SETTINGS_PATH = "-settings";
@@ -103,6 +105,8 @@ namespace CarMP
                         break;
                 }
             }
+
+            Messanger = new MessageDispatcher();
 
             System.Threading.Thread.Sleep(100);
             formSplash.IncreaseProgress(10, "Loading settings XML...");

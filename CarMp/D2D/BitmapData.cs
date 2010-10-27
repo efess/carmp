@@ -17,7 +17,6 @@ namespace CarMP.Direct2D
         public BitmapData(string pBmpFilePath)
             : this()
         {
-
             using (System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(pBmpFilePath))
             {
                 System.Drawing.Imaging.BitmapData bmpData =

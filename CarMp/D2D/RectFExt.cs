@@ -32,5 +32,10 @@ namespace CarMP
                 return rectF;
             return new RectF();
         }
+
+        public static bool IsEmpty(this RectF pRect)
+        {
+            return pRect.Bottom < pRect.Top || pRect.Left > pRect.Right;
+        }
     }
 }

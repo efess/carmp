@@ -44,6 +44,16 @@ namespace CarMP
             }
         }
 
+        public static SizeF GetTextPixelSize(string pText, TextStyle pTextStyle)
+        {
+            if(pTextStyle.Format == null)
+                pTextStyle.Initialize(D2DStatic.StringFactory);
+            using (TextLayout layout = StringFactory.CreateTextLayout(pText, pTextStyle.Format, 9999, 9999))
+            {
+                return new SizeF(layout.Metrics.Width, layout.Metrics.Height);
+            }
+        }
+
         public static LinearGradientBrush GetBasicLinearGradient(
             RenderTarget pRenderer,
             RectF pBounds,

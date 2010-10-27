@@ -11,6 +11,7 @@ using CarMP.IO;
 using CarMP.MediaInfo;
 using CarMP.Callbacks;
 using CarMP.DataObjects;
+using CarMP.Reactive.Messaging;
 
 namespace CarMP
 {
@@ -176,6 +177,8 @@ namespace CarMP
         {
             lock(MediaListHistory)
                 MediaListHistory.AddHistoryItem(pMediaListItem, pListIndex);
+            
+            OnHistoryChanged();
         }
 
         public void ClearMediaLibrary()
@@ -555,10 +558,16 @@ namespace CarMP
 
         private void OnMediaChanged(MediaItem pMediaItem)
         {
+            AppMain.Messanger.SendMessage(new Message(null, MessageType.MediaChange, pMediaItem));
             if (MediaChanged != null)
             {
                 MediaChanged(null, new MediaChangedArgs(pMediaItem));
             }
+        }
+
+        private void OnHistoryChanged()
+        {
+            AppMain.Messanger.SendMessage(new Message(null, MessageType.MediaHistoryChange, null));
         }
 
         private void OnTimerTick()
@@ -579,13 +588,14 @@ namespace CarMP
 
         private void OnMediaProgressChanged(int pSongPosition)
         {
+            AppMain.Messanger.SendMessage(new Message(null, MessageType.MediaProgress, pSongPosition));
             if (MediaProgressChanged != null)
             {
                 MediaProgressChanged(null, new MediaProgressChangedArgs(pSongPosition));
-
             }
         }
     }
+
     public struct MediaItem
     {
         public string DisplayName { get; set; }

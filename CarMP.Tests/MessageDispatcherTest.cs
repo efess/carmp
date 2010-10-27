@@ -14,8 +14,6 @@ namespace CarMP.Tests
     [TestClass()]
     public class MessageDispatcherTest
     {
-
-
         private TestContext testContextInstance;
 
         /// <summary>
@@ -71,15 +69,13 @@ namespace CarMP.Tests
         [TestMethod()]
         public void AddMessageObserverTest()
         {
-            var observer = new IMessageObserver_Impl(null);
 
             MessageDispatcher dispatcher = new MessageDispatcher(); // TODO: Initialize to an appropriate value
-            IMessageObserver pObserver = null; // TODO: Initialize to an appropriate value
-            dispatcher.AddMessageObserver(pObserver);
+            IMessageObserver observer = new MessageObserverStub(string.Empty);
+            dispatcher.AddMessageObserver(observer);
             var observerList = MessageDispatcher_Accessor.AttachShadow(dispatcher)._observerList;
 
             Assert.AreEqual(observerList.Count, 1);
-            Assert.AreEqual(observerList[0], observer);
         }
 
         /// <summary>
@@ -89,18 +85,15 @@ namespace CarMP.Tests
         public void SendMessageWithNameEmptyTest()
         {
             MessageDispatcher target = new MessageDispatcher(); // TODO: Initialize to an appropriate value
-            Message pMessage = null; // TODO: Initialize to an appropriate value
+            Message pMessage = new Message(new string[]{}, MessageType.Trigger, null);
 
-            bool test = false;
-            var observer = new Mock<IMessageObserver_Impl>();
-            observer.Setup(c => c.ProcessMessage(It.IsAny<Message>()))
-                .Callback(() => test = true);
-            
-            target.AddMessageObserver(observer.Object as IMessageObserver);
-            
-            Assert.IsFalse(test);
-            target.SendMessage(pMessage); 
-            Assert.IsTrue(test);
+            var observer = new MessageObserverStub("foo");
+
+            target.AddMessageObserver(observer);
+
+            Assert.IsNull(observer.LastMessage);
+            target.SendMessage(pMessage);
+            Assert.AreSame(pMessage, observer.LastMessage);
         }
 
         /// <summary>
@@ -110,15 +103,35 @@ namespace CarMP.Tests
         public void SendMessageWithSpecificNameTest()
         {
             MessageDispatcher target = new MessageDispatcher(); // TODO: Initialize to an appropriate value
-            Message pMessage = null; // TODO: Initialize to an appropriate value
+            Message pMessage = new Message(new string[] { "baz","foo" }, MessageType.Trigger, null);
 
             bool test = false;
-            var observer = new Mock<IMessageObserver_Impl>();
-            observer.Setup(c => c.ProcessMessage(It.IsAny<Message>()))
-                .Callback(() => test = true);
+            var observer = new MessageObserverStub("foo");
 
+            target.AddMessageObserver(observer);
+
+            Assert.IsNull(observer.LastMessage);
             target.SendMessage(pMessage);
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+            Assert.AreSame(pMessage, observer.LastMessage);
+        }
+
+        /// <summary>
+        ///A test for SendMessage
+        ///</summary>
+        [TestMethod()]
+        public void SendMessageWithSpecificNameNotMatchingObserverTest()
+        {
+            MessageDispatcher target = new MessageDispatcher(); // TODO: Initialize to an appropriate value
+            Message pMessage = new Message(new string[] { "baz","foo" }, MessageType.Trigger, null);
+
+            bool test = false;
+            var observer = new MessageObserverStub("bar");
+
+            target.AddMessageObserver(observer);
+
+            Assert.IsNull(observer.LastMessage);
+            target.SendMessage(pMessage);
+            Assert.IsNull(observer.LastMessage);
         }
 
         /// <summary>
@@ -138,6 +151,23 @@ namespace CarMP.Tests
                 Assert.IsInstanceOfType(ex, typeof(NotSupportedException));
             }
 
+        }
+
+        private class MessageObserverStub : IMessageObserver
+        {
+            public Message LastMessage { get; private set; }
+            public string Name { get; private set; }
+
+            public MessageObserverStub(string pName)
+            {
+                Name = pName;
+            }
+
+            public void ProcessMessage(Message pMessage)
+            {
+                LastMessage = pMessage;
+            }
+            public IDisposable DisposeUnsubscriber { get; set; }
         }
     }
 }

@@ -57,6 +57,8 @@ namespace CarMP
             InitializeApplication(pArgs);
 
             AppFormHost = new Forms.FormHost();
+            Messanger.AddMessageObserver(AppFormHost);
+
             AppFormHost.ShowView(CarMP.Views.D2DViewFactory.HOME);
             AppFormHost.StartPosition = FormStartPosition.Manual;
 

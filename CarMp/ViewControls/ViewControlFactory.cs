@@ -9,15 +9,20 @@ namespace CarMP.ViewControls
 {
     public static class ViewControlFactory
     {
-        private const string XML_ATTR_FUNCTION = "Function";
+        private const string XML_NODE_FUNCTION = "Function";
+        private const string XML_FUNCTION_ATTR_PARAMETER = "Parameter";
+
         private const string XML_ATTR_TYPE = "Type";
 
         private static readonly FunctionalProperties functionalProperties = new FunctionalProperties();
         public static D2DViewControl GetViewControlAndApplySkin(string pName, string pSkinPath, XmlNode pNode)
         {
 
-            var functionAttr = pNode.Attributes[XML_ATTR_FUNCTION];
+            var functionNode = pNode.SelectSingleNode(XML_NODE_FUNCTION);
             var typeAttr = pNode.Attributes[XML_ATTR_TYPE];
+            var parameterAttr = functionNode != null 
+                ? functionNode.Attributes[XML_FUNCTION_ATTR_PARAMETER]
+                : null;
 
             if (typeAttr == null)
                 return null;
@@ -27,8 +32,9 @@ namespace CarMP.ViewControls
             if (viewControl is ISkinable)
                 (viewControl as ISkinable).ApplySkin(pNode, pSkinPath);
 
-            if (functionAttr != null) functionalProperties.ApplyFunction(
-                 XmlHelper.GetFunction(functionAttr.InnerText),
+            if (functionNode != null) functionalProperties.ApplyFunction(
+                 XmlHelper.GetFunction(functionNode.InnerText),
+                 parameterAttr != null ? parameterAttr.Value : null,
                  viewControl);
 
             return viewControl;

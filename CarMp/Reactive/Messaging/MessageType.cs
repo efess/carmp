@@ -7,7 +7,11 @@ namespace CarMP.Reactive.Messaging
 {
     public enum MessageType
     {
-        Media,
-        SwitchState
+        Trigger,
+        SwitchView, 
+        MediaChange,
+        MediaProgress,
+        MediaStateChange,
+        MediaHistoryChange
     }
 }

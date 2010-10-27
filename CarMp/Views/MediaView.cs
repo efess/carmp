@@ -10,16 +10,9 @@ using CarMP.MediaEntities;
 
 namespace CarMP.Views
 {
-    public class MediaView : NavigationView, ISkinable
+    public class MediaView : D2DView
     {
         DragableList MediaList;
-        GraphicalProgressBar ProgressBar;
-        HistoryBar HistoryBar;
-
-        private Direct2D.BitmapData _background;
-        private D2DBitmap Background = null;
-
-        System.Timers.Timer ProgressBarTimer;
 
         private const string XPATH_BACKGROUND_IMAGE = "BackgroundImg";
         private const string XPATH_PROGRESSBAR = "GraphicalProgressBar";
@@ -37,7 +30,6 @@ namespace CarMP.Views
             AppMain.MediaManager.ListChangeRequest += (sender, e) => MediaList.ChangeList(e.ListIndex);
             MediaList.AfterListChanged += (sender, e) => AppMain.MediaManager.ExecuteListChanged(e.NewIndex);
 
-            AddViewControl(MediaList);
 
             InitializeInitialListState();
         }
@@ -47,45 +39,32 @@ namespace CarMP.Views
             get { return D2DViewFactory.MEDIA; }
         }
 
-        private void HookUpEvents()
+        public override void ApplySkin(XmlNode pSkinNode, string pSkinPath)
         {
-        }
+            base.ApplySkin(pSkinNode, pSkinPath);
 
-        public new void ApplySkin(XmlNode pSkinNode, string pSkinPath)
-        {
-            SkinningHelper.XmlBitmapEntry(XPATH_BACKGROUND_IMAGE, pSkinNode, pSkinPath, ref _background);
-            XmlNode xmlNode = pSkinNode.SelectSingleNode(XPATH_PROGRESSBAR);
-            if (xmlNode != null)
-            {
-                ProgressBar.ApplySkin(xmlNode, pSkinPath);
-            }
+            //var xmlNode = pSkinNode.SelectSingleNode(XPATH_HISTORY_BAR);
+            //if(xmlNode != null)
+            //{
+            //    var historyBar = new HistoryBar();
+            //    historyBar.ApplySkin(xmlNode, pSkinPath);
+            //    MediaList.AfterListChanged += (sender, e) =>
+            //    {
+            //        historyBar.ClearHistory();
+            //        foreach (MediaHistory item in AppMain.MediaManager.MediaListHistory.Reverse())
+            //        {
+            //            historyBar.Push(item.DisplayString, item.ListIndex);
+            //        }
+            //    };
+            //    historyBar.HistoryClick += AppMain.MediaManager.SetList;
+            //    AddViewControl(historyBar);
+            //}
 
-            xmlNode = pSkinNode.SelectSingleNode(XPATH_HISTORY_BAR);
-            if(xmlNode != null)
-            {
-                if (HistoryBar == null)
-                {
-                    HistoryBar = new HistoryBar();
-                    MediaList.AfterListChanged += (sender, e) =>
-                    {
-                        HistoryBar.ClearHistory();
-                        foreach (MediaHistory item in AppMain.MediaManager.MediaListHistory.Reverse())
-                        {
-                            HistoryBar.Push(item.DisplayString, item.ListIndex);
-                        }
-                    };
-                    HistoryBar.HistoryClick = AppMain.MediaManager.SetList;
-                    AddViewControl(HistoryBar);
-                    HistoryBar.StartRender();
-                }
-                HistoryBar.ApplySkin(xmlNode, pSkinPath);
-            }
-
-            xmlNode = pSkinNode.SelectSingleNode(XPATH_MEDIALIST);
+            var xmlNode = pSkinNode.SelectSingleNode(XPATH_MEDIALIST);
             if (xmlNode != null)
             {
                 MediaList.ApplySkin(xmlNode, pSkinPath);
-                MediaList.StartRender();
+                AddViewControl(MediaList);
             }
 
             //MediaList.AfterListChanged += (sender, e) =>
@@ -93,22 +72,6 @@ namespace CarMP.Views
             //        AppMain.MediaManager.ExecuteListChanged(e.NewIndex);
             //    };
 
-            base.ApplySkin(pSkinNode, pSkinPath);
-        }
-
-        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
-        {
-            if (Background == null
-                && _background.Data != null)
-            {
-                Background = D2DStatic.GetBitmap(_background, pRenderTarget.Renderer);
-            }
-            if (Background != null)
-            {
-                pRenderTarget.DrawBitmap(Background, new RectF(0, 0, Bounds.Width, Bounds.Height));
-            }
-
-            base.OnRender(pRenderTarget);
         }
 
         private void InitializeInitialListState()

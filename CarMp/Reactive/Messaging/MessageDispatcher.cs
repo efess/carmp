@@ -9,7 +9,8 @@ namespace CarMP.Reactive.Messaging
     {
         public void AddMessageObserver(IMessageObserver pObserver)
         {
-            Subscribe(new IntermalMessageObserver(pObserver));
+            pObserver.DisposeUnsubscriber =
+                base.Subscribe(new InternalMessageObserver(pObserver));
         }
 
         public override IDisposable Subscribe(IObserver<Message> observer)
@@ -19,22 +20,33 @@ namespace CarMP.Reactive.Messaging
 
         public void SendMessage(Message pMessage)
         {
-            foreach (var observer in _observerList.OfType<IntermalMessageObserver>()
-                .Where((m) => string.IsNullOrEmpty(pMessage.Recipient) || pMessage.Recipient == m.Name))
-            {
-                observer.OnNext(pMessage);
-            }
+            if (pMessage == null) return;
+
+            new Action<Message>((m) => InternalSendMessage(m)).BeginInvoke(pMessage, null, null);
+        }
+
+        private void InternalSendMessage(Message pMessage)
+        {
+            DebugHandler.DebugPrint("Sending Message " + pMessage.Type.ToString() + " with data " + pMessage.Data ?? "null");
+            lock(_observerList)
+                foreach (var observer in _observerList.OfType<InternalMessageObserver>()
+                    .Where((m) => pMessage.Recipient == null
+                        || pMessage.Recipient.Count() <= 0
+                        || pMessage.Recipient.Contains(m.Name, StringComparer.InvariantCultureIgnoreCase)))
+                {
+                    observer.OnNext(pMessage);
+                }
         }
 
         /// <summary>
         /// Wrapper class for IMessageObservers
         /// </summary>
-        private class IntermalMessageObserver : IObserver<Message>
+        private class InternalMessageObserver : IObserver<Message>
         {
             private readonly IMessageObserver messageObserver;
             public string Name { get { return messageObserver.Name; } }
 
-            public IntermalMessageObserver(IMessageObserver pMessageObserver)
+            public InternalMessageObserver(IMessageObserver pMessageObserver)
             {
                 messageObserver = pMessageObserver;
             }

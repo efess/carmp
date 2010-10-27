@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using CarMP.Callbacks;
 using CarMP.ViewControls.Interfaces;
+using CarMP.Reactive.Messaging;
 
 namespace CarMP.ViewControls
 {
     public class FunctionalProperties
     {
-        public void ApplyFunction(ViewControlFunction pFuncion, D2DViewControl pViewControl)
+        public void ApplyFunction(ViewControlFunction pFuncion, string pParameter, D2DViewControl pViewControl)
         {
             switch(pFuncion)
             {
@@ -40,8 +41,52 @@ namespace CarMP.ViewControls
                 case ViewControlFunction.MediaArt:
                     ApplyMediaArt(pViewControl);
                     break;
+                case ViewControlFunction.TriggerToggle:
+                    ApplyTriggerToggle(pViewControl, pParameter);
+                    break;
+                case ViewControlFunction.SwitchView:
+                    ApplySwitchView(pViewControl, pParameter);
+                    break;
+                case ViewControlFunction.MediaGroupHistory:
+                    ApplyMediaGroupHistory(pViewControl);
+                    break;
                 
             }
+        }
+
+        private void ApplyMediaGroupHistory(D2DViewControl pViewControl)
+        {
+            var navigationHistory = pViewControl as INavigationHistory;
+            if (navigationHistory == null) return;
+
+            navigationHistory.GetHistorySource = () =>
+                {
+                    return AppMain.MediaManager.MediaListHistory.Select<MediaHistory, KeyValuePair<int, string>>(
+                        (mh) => new KeyValuePair<int, string>(mh.ListIndex, mh.DisplayString));
+                };
+            navigationHistory.HistoryClick += AppMain.MediaManager.SetList;
+        }
+
+        private void ApplySwitchView(D2DViewControl pViewControl, string pParameter)
+        {
+            var trigger = pViewControl as ITrigger;
+            if (trigger == null) return;
+
+            trigger.Trigger += (obj) => AppMain.Messanger.SendMessage(
+                new Message(null,
+                    MessageType.SwitchView,
+                    pParameter));
+        }
+
+        private void ApplyTriggerToggle(D2DViewControl pViewControl, string pParameter)
+        {
+            var trigger = pViewControl as ITrigger;
+            if (trigger == null || pParameter == null) return;
+
+            trigger.Trigger += (obj) => AppMain.Messanger.SendMessage(
+                new Message(XmlHelper.GetSeparatedList(pParameter),
+                    MessageType.Trigger,
+                    obj));
         }
 
         private void ApplyProgressBarFunction(D2DViewControl pViewControl)

@@ -87,9 +87,12 @@ namespace CarMP.ViewControls
             SetLocation(currentPoint);
         }
 
+        public IDisposable DisposeUnsubscriber { get; set; }
+
         public virtual void ProcessMessage(Message pMessage)
         {
-            if (pMessage.Type == MessageType.SwitchState)
+            if (pMessage.Type == MessageType.Trigger
+                && pMessage.Recipient.Contains(Name))
             {
                 SetAnimation(direction);
                 StartAnimation();

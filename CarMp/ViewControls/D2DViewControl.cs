@@ -107,11 +107,12 @@ namespace CarMP.ViewControls
                 OnRender(pRenderTarget);
 
                 pRenderTarget.Renderer.PopAxisAlignedClip();
-                
-                for(int i = _viewControls.Count-1; i >= 0; i--)
-                {
-                    _viewControls[i].Render(pRenderTarget);
-                }
+
+                lock(_viewControls)
+                    for(int i = _viewControls.Count-1; i >= 0; i--)
+                    {
+                        _viewControls[i].Render(pRenderTarget);
+                    }
             }
         }
 
@@ -171,9 +172,14 @@ namespace CarMP.ViewControls
         public void Clear()
         {
             lock (_viewControls)
-            {
-                _viewControls.Clear();
-            }
+                foreach (D2DViewControl viewControl in _viewControls)
+                {
+                    viewControl.Clear();
+                    if (viewControl is IMessageObserver)
+                        (viewControl as IMessageObserver).DisposeUnsubscriber.Dispose();
+                    viewControl.Dispose();
+                }
+            _viewControls.Clear();
         }
 
         public virtual void SendUpdate(ReactiveUpdate pReactiveUpdate) 
@@ -212,7 +218,9 @@ namespace CarMP.ViewControls
             HasInputControl = this;
         }
 
-        public virtual void Dispose() { }
+        public virtual void Dispose()
+        {
+        }
 
         public void AddViewControl(D2DViewControl pViewControl)
         {

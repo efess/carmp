@@ -18,7 +18,7 @@ namespace CarMP.ViewControls.OptionControls
 
         public void ApplySkin(XmlNode pXmlNode, string pSkinPath)
         {
-            Clear();
+            base.ApplySkin(pXmlNode, pSkinPath);
 
             XmlNode node = pXmlNode.SelectSingleNode(XPATH_APPLY_SKIN);
             if(node != null)
@@ -31,7 +31,6 @@ namespace CarMP.ViewControls.OptionControls
                 button.StartRender();
                 button.Click += (sender, e) => { AppMain.AppFormHost.ApplySkin(); };
             }
-            base.ApplySkin(pXmlNode, pSkinPath);
         }
 
         protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)

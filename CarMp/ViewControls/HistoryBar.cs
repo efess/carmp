@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Reactive.Messaging;
 
 namespace CarMP.ViewControls
 {
-    public class HistoryBar : ViewControlCommonBase, ISkinable
+    public class HistoryBar : NavigationHistoryBase
     {
         private const string XPATH_TEXT_STYLE = "TextStyle";
         private const string XPATH_MAX_ENTRY_WIDTH = "MaxEntryWidth";
@@ -41,7 +42,7 @@ namespace CarMP.ViewControls
             SkinningHelper.XmlBitmapEntry(XPATH_SEPARATOR_IMAGE, pSkinNode, pSkinPath, ref separatorImageData);
         }
 
-        public void Push(string pDisplayString, int pListIndex)
+        protected override void Push(string pDisplayString, int pListIndex)
         {
             float left = 0.0f;
             foreach (HistoryText text in currentHistory)
@@ -51,17 +52,16 @@ namespace CarMP.ViewControls
             var historyItem = new HistoryText(pListIndex, MaxItemPixelLength, pDisplayString, TextStyle, left);
             currentHistory.Add(historyItem);
             AddViewControl(historyItem);
-            historyItem.StartRender();
             historyItem.Click = OnHistoryClick;
         }
 
-        public void ClearHistory()
+        protected override void ClearHistory()
         {
             currentHistory.Clear();
             Clear();
         }
 
-        public Action<int> HistoryClick { get; set; }
+        public event Action<int> HistoryClick;
         private void OnHistoryClick(int pListIndex)
         {
             if (HistoryClick != null)

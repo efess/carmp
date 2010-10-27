@@ -9,5 +9,6 @@ namespace CarMP.Reactive.Messaging
     {
         string Name { get; }
         void ProcessMessage(Message pMessage);
+        IDisposable DisposeUnsubscriber { get; set; }
     }
 }

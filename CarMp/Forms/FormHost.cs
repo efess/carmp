@@ -16,10 +16,11 @@ using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using Microsoft.WindowsAPICodePack.DirectX;
 using CarMP.Direct2D;
 using CarMP.Callbacks;
+using CarMP.Reactive.Messaging;
 
 namespace CarMP.Forms
 {
-    public partial class FormHost : Form, IMessageHookable
+    public partial class FormHost : Form, IMessageHookable, IMessageObserver
     {
         private ManualResetEvent _viewChanging;
 
@@ -29,14 +30,14 @@ namespace CarMP.Forms
         private Text _fpsControl;
         private D2DViewControl _mouseDownViewControl;
 
-        private List<D2DViewControl> _overlayViewControls;
+        private D2DView _overlayViewControls;
         private W32MessageToReactive _mouseEventProcessor;
         private Dictionary<string, D2DView> _loadedViews;
         private D2DView _currentView;
         private D2DViewFactory _viewFactory;
 
         private Direct2D.RenderTargetWrapper _renderTarget;
-        protected override void WndProc(ref Message m)
+        protected override void WndProc(ref System.Windows.Forms.Message m)
         {
             if (MessagePump != null)
                 MessagePump(ref m);
@@ -85,11 +86,12 @@ namespace CarMP.Forms
             InitializeComponent();
 
             this.Size = new System.Drawing.Size(Convert.ToInt32(AppMain.Settings.ScreenResolution.Width), Convert.ToInt32(AppMain.Settings.ScreenResolution.Height));
-            this.Location = new System.Drawing.Point(Convert.ToInt32(AppMain.Settings.WindowLocation.X), Convert.ToInt32(AppMain.Settings.WindowLocation.Y)); 
+            this.Location = new System.Drawing.Point(Convert.ToInt32(AppMain.Settings.WindowLocation.X), Convert.ToInt32(AppMain.Settings.WindowLocation.Y));
 
-            _overlayViewControls = new List<D2DViewControl>();
             _viewFactory = new D2DViewFactory(new SizeF(ClientSize.Width, ClientSize.Height));
             _loadedViews = new Dictionary<string, D2DView>();
+
+            _overlayViewControls = _viewFactory.CreateView(D2DViewFactory.OVERLAY);
 
             InitializeOverlayControls();
             
@@ -108,17 +110,18 @@ namespace CarMP.Forms
         public void RouteTouchEvents(Touch pTouchEvent)
         {
             D2DViewControl currentlySelected = null;
-            for (int i = _overlayViewControls.Count - 1;
-                i >= 0;
-                i--)
-            {
-                currentlySelected = _overlayViewControls[i].GetViewControlContainingPoint(pTouchEvent.Location);
-                if (currentlySelected != null)
+            //for (int i = _overlayViewControls.Count - 1;
+            //    i >= 0;
+            //    i--)
+            //{
+                currentlySelected = _overlayViewControls.GetViewControlContainingPoint(pTouchEvent.Location);
+                if (currentlySelected != null
+                    && currentlySelected != _overlayViewControls)
                 {
                     currentlySelected.SendUpdate(pTouchEvent);
                     return;
                 }
-            }
+            //}
             
             currentlySelected = _currentView.GetViewControlContainingPoint(pTouchEvent.Location);
             if(currentlySelected != null)
@@ -127,9 +130,9 @@ namespace CarMP.Forms
 
         private void InitializeOverlayControls()
         {
-            _fpsControl = new ViewControls.Text();
-            _fpsControl.Bounds = new RectF(this.Width - 40, 0, this.Width, 40);
-            _overlayViewControls.Add(_fpsControl);
+            //_fpsControl = new ViewControls.Text();
+            //_fpsControl.Bounds = new RectF(this.Width - 40, 0, this.Width, 40);
+            //_overlayViewControls.Add(_fpsControl);
                         
             //GraphicalButton toggleAnimation = new GraphicalButton();
             //toggleAnimation.Bounds = new RectF(450, 30, 514, 94);
@@ -212,7 +215,7 @@ namespace CarMP.Forms
                 }
             }
 
-            _overlayViewControls.ForEach((vc) => vc.Dispose());
+            //_overlayViewControls.ForEach((vc) => vc.Dispose());
             _overlayViewControls.Clear();
 
             foreach (XmlNode node in
@@ -222,8 +225,10 @@ namespace CarMP.Forms
                     node.Name,
                     AppMain.Settings.CurrentSkinPath,
                     node);
+                //if (viewControl is IMessageObserver)
+                //    AppMain.Messanger.AddMessageObserver(viewControl as IMessageObserver);
                 if(viewControl != null)
-                    _overlayViewControls.Add(viewControl);
+                    _overlayViewControls.AddViewControl(viewControl);
             }    
         }
 
@@ -240,7 +245,7 @@ namespace CarMP.Forms
                 _fpsCalcFramesTotal++;
                 if ( DateTime.Now.AddSeconds(-1) > _fpsCalcDate)
                 {
-                    _fpsControl.TextString = (_fpsCalcFramesTotal - _fpsCalcFramesCurrent).ToString(); ;
+                    //_fpsControl.TextString = (_fpsCalcFramesTotal - _fpsCalcFramesCurrent).ToString(); ;
                     _fpsCalcFramesCurrent = _fpsCalcFramesTotal;
                     _fpsCalcDate = DateTime.Now;
                 }
@@ -260,13 +265,14 @@ namespace CarMP.Forms
                     _renderTarget.Clear(new ColorF(Colors.Black, 1f));
 
                     _currentView.Render(_renderTarget);
+                    _overlayViewControls.Render(_renderTarget);
 
-                    for (int i = _overlayViewControls.Count - 1;
-                        i >= 0;
-                        i--)
-                    {
-                        _overlayViewControls[i].Render(_renderTarget);
-                    }
+                    //for (int i = _overlayViewControls.Count - 1;
+                    //    i >= 0;
+                    //    i--)
+                    //{
+                    //    _overlayViewControls[i].Render(_renderTarget);
+                    //}
 
                     _renderTarget.EndDraw();
 
@@ -291,5 +297,21 @@ namespace CarMP.Forms
                 (_currentView as D2DView).OnSizeChanged(this, e);
             }
         }
+
+        #region IMessageObserver Members
+
+        public void ProcessMessage(Reactive.Messaging.Message pMessage)
+        {
+            switch (pMessage.Type)
+            {
+                case MessageType.SwitchView:
+                    ShowView(pMessage.Data as String);
+                    break;
+            }
+        }
+
+        public IDisposable DisposeUnsubscriber { get; set; }
+
+        #endregion
     }
 }

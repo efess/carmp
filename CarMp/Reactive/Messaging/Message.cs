@@ -7,11 +7,11 @@ namespace CarMP.Reactive.Messaging
 {
     public class Message
     {
-        public string Recipient { get; private set; }
+        public IEnumerable<string> Recipient { get; private set; }
         public MessageType Type { get; private set; }
         public object Data { get; private set; }
 
-        public Message(string pRecipient,MessageType pType, object pData)
+        public Message(IEnumerable<string> pRecipient, MessageType pType, object pData)
         {
             Recipient = pRecipient;
             Type = pType;

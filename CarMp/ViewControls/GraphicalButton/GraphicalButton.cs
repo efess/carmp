@@ -15,7 +15,7 @@ using CarMP.ViewControls.Interfaces;
 
 namespace CarMP.ViewControls
 {
-    public partial class GraphicalButton : D2DViewControl, ISkinable, IDisposable, IButton
+    public partial class GraphicalButton : D2DViewControl, ISkinable, IDisposable, IButton, ITrigger
     {
         public event EventHandler Click;
 
@@ -128,11 +128,16 @@ namespace CarMP.ViewControls
 
         protected override void OnTouchGesture(TouchGesture pTouchGesture)
         {
-            if (pTouchGesture.Gesture == GestureType.Click
-                && Click != null)
+            if (pTouchGesture.Gesture == GestureType.Click)
             {
-                Click(this, new EventArgs());
+                if(Click != null)
+                    Click(this, new EventArgs());
+
+                if (Trigger != null)
+                    Trigger(null);
             }       
         }
+
+        public Action<object> Trigger { get; set; }
     }
 }

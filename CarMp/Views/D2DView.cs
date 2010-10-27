@@ -7,7 +7,7 @@ using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace CarMP.Views
 {
-    public abstract class D2DView : D2DViewControl
+    public abstract class D2DView : ViewControlCommonBase
     {
         public abstract string Name { get; }
         protected D2DView(SizeF pWindowSize)

@@ -9,7 +9,7 @@ using CarMP.ViewControls.OptionControls;
 
 namespace CarMP.Views
 {
-    public class OptionsView : NavigationView
+    public class OptionsView : D2DView
     {
         private const string OPTION_DETAILS = "OptionDetails";
         private const string OPTIONS_LIST = "OptionsList";
@@ -30,9 +30,6 @@ namespace CarMP.Views
                     SetOptionsControl(_optionsViewList[e.SelectedItem.Index]);
                 };
 
-            this.AddViewControl(_currentOptionsView);
-            this.AddViewControl(_dragableList);
-
             PopulateOptions();
             _currentOptionsView.StartRender();
             _dragableList.StartRender();
@@ -45,6 +42,11 @@ namespace CarMP.Views
 
         public override void ApplySkin(XmlNode pSkinNode, string pSkinPath)
         {
+            base.ApplySkin(pSkinNode, pSkinPath);
+
+            this.AddViewControl(_currentOptionsView);
+            this.AddViewControl(_dragableList);
+
             SkinningHelper.ApplySkinNodeIfExists(OPTIONS_LIST, pSkinNode, pSkinPath, _dragableList);
             SkinningHelper.ApplySkinNodeIfExists(OPTION_DETAILS, pSkinNode, pSkinPath, _currentOptionsView);
             XmlNode node = pSkinNode.SelectSingleNode(OPTION_VIEWS);
@@ -54,12 +56,6 @@ namespace CarMP.Views
                     if(control is ISkinable)
                         SkinningHelper.ApplySkinNodeIfExists((control as IOptionControl).OptionElement, node, pSkinPath, (control as ISkinable));
 
-            base.ApplySkin(pSkinNode, pSkinPath);
-        }
-
-        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
-        {
-            base.OnRender(pRenderTarget);
         }
 
         private void SetOptionsControl(D2DViewControl pControl)

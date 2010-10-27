@@ -18,7 +18,7 @@ namespace CarMP
 
         private static float[] GetColorFromCommaRgb(string pXmlText)
         {
-            string[] parsed = pXmlText.Split(new char[] { ',' });
+            string[] parsed = GetSeparatedList(pXmlText);
             if (parsed.Length < 3 || parsed.Length > 4)
                 throw new FormatException("Invalid number of comma separated values");
 
@@ -74,7 +74,7 @@ namespace CarMP
         }
         public static RectF GetBoundsRectangle(string pXmlText)
         {
-            string[] bounds = pXmlText.Split(new char[] { ',' });
+            string[] bounds = GetSeparatedList(pXmlText);
 
             if (bounds.Length == 4)
             {
@@ -100,7 +100,7 @@ namespace CarMP
 
         public static CarMP.ViewControls.AnimationPathPoint GetAnimationPathPoint(string pXmlText)
         {
-            string[] bounds = pXmlText.Split(new char[] { ',' });
+            string[] bounds = GetSeparatedList(pXmlText);
 
             if (bounds.Length == 4)
             {
@@ -124,23 +124,37 @@ namespace CarMP
 
         public static Point2F GetPoint(string pXmlText)
         {
-            string[] bounds = pXmlText.Split(new char[] { ',' });
+            string[] point = GetSeparatedList(pXmlText);
 
-            if (bounds.Length == 2)
+            if (point != null && point.Length == 2)
             {
                 try
                 {
-                    return new Point2F((float)Convert.ToDouble(bounds[0]), (float)Convert.ToDouble(bounds[1]));
+                    return new Point2F((float)Convert.ToDouble(point[0]), (float)Convert.ToDouble(point[1]));
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception("Error parsing AnimationPathPoint: " + ex.Message);
+                    throw new Exception("Error parsing Point from Xml: " + ex.Message);
                 }
             }
             else
             {
-                throw new Exception("Incorrect AnimationPathPoint format. Correct format is #,#,#,#");
+                throw new Exception("Incorrect Point format. Correct format is #,#");
             }
+        }
+
+        public static string[] GetSeparatedList(string pXmlText)
+        {
+            if(pXmlText != null)
+            {
+                var split = pXmlText.Split(Constants.SeparatorCharArray, StringSplitOptions.RemoveEmptyEntries);
+                for(int i = 0; i < split.Length; i++)
+                {
+                    split[i] = split[i].Trim();
+                }
+                return split;
+            }
+            return null;
         }
 
         public static ViewControlFunction GetFunction(string pXmlText)

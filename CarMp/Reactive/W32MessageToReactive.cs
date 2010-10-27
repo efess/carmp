@@ -80,7 +80,7 @@ namespace CarMP.Reactive
                         char iKey = (char)pMessage.WParam;
                         Keys key = 0;//(Keys)pMessage.WParam;
 
-                        Debug.WriteLine("key: " + key.ToString() + ", " + iKey.ToString() + ", " + ((int)((Keys)iKey & Keys.KeyCode)).ToString());
+                        //Debug.WriteLine("key: " + key.ToString() + ", " + iKey.ToString() + ", " + ((int)((Keys)iKey & Keys.KeyCode)).ToString());
                         
                         ProcessKeyPress(iKey, key);
                     }
@@ -97,7 +97,7 @@ namespace CarMP.Reactive
                         Keys key = (Keys)pMessage.WParam;
                         if (supportedKeys.Contains(key))
                         {
-                            Debug.WriteLine("Shift: " + _upper + " KeyDown " + key.ToString() + ", " + iKey.ToString() + ", " + ((int)((Keys)iKey & Keys.KeyCode)).ToString());
+                            //Debug.WriteLine("Shift: " + _upper + " KeyDown " + key.ToString() + ", " + iKey.ToString() + ", " + ((int)((Keys)iKey & Keys.KeyCode)).ToString());
 
                             ProcessKeyPress((char)TranslateKey(iKey, _ctrl, _upper), key);
                         }
@@ -222,7 +222,7 @@ namespace CarMP.Reactive
                     // HACK: the following code.
                     float x = _startHighVelocityPoint.X - mousePoint.X;
                     float y = _startHighVelocityPoint.Y - mousePoint.Y;
-                    DebugHandler.DebugPrint("IS IN SWIPE X: " + x.ToString()  + " y: " + y.ToString());
+                    //DebugHandler.DebugPrint("IS IN SWIPE X: " + x.ToString()  + " y: " + y.ToString());
                     if (Math.Abs(x) > Math.Abs(y))
                     {
                         if (Math.Abs(x) > TouchSwipeDistanceThreshold)
@@ -278,13 +278,13 @@ namespace CarMP.Reactive
         private void SendTouchGesture(TouchGesture pTouchGesture)
         {
             ObservableActions.ObsTouchGesture.PushTouchGesture(pTouchGesture);
-            DebugHandler.DebugPrint("Gesture: " + pTouchGesture.Gesture.ToString() + " at " + pTouchGesture.X.ToString() + "," + pTouchGesture.Y.ToString());
+            //DebugHandler.DebugPrint("Gesture: " + pTouchGesture.Gesture.ToString() + " at " + pTouchGesture.X.ToString() + "," + pTouchGesture.Y.ToString());
         }
 
         private void SendTouchMove(TouchMove pTouchMove)
         {
             ObservableActions.ObsTouchMove.PushTouchMove(pTouchMove);
-            DebugHandler.DebugPrint("Velocity: " + pTouchMove.Velocity.VelocityD.ToString() + ", down: " + pTouchMove.TouchDown.ToString() + " at " + pTouchMove.X.ToString() + "," + pTouchMove.Y.ToString());
+            //DebugHandler.DebugPrint("Velocity: " + pTouchMove.Velocity.VelocityD.ToString() + ", down: " + pTouchMove.TouchDown.ToString() + " at " + pTouchMove.X.ToString() + "," + pTouchMove.Y.ToString());
         }
 
         private void StopWaitTimer()

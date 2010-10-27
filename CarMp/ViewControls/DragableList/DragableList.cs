@@ -73,13 +73,7 @@ namespace CarMP.ViewControls
         // Velocity Delegate
         private Action<int,int> m_velocityDelegate;
         private bool m_velocityStop;
-
-        public void ApplySkin(XmlNode pXmlNode, string pSkinPath)
-        {
-            base.ApplySkin(pXmlNode, pSkinPath);
-            this.OnSizeChanged(null, null);
-        }
-
+        
         // Constructors
         public DragableList()
         {

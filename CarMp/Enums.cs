@@ -39,8 +39,9 @@ namespace CarMP
         MediaDisplayName,
         VolumeUp,
         VolumeDown,
-        ToggleState
-
+        TriggerToggle,
+        SwitchView,
+        MediaGroupHistory
     }
 }
 

@@ -37,18 +37,35 @@ namespace CarMP
         /// </summary>
         public static float AngleOfTwoPoints(Point2F pPoint1, Point2F pPoint2)
         {
-            float slope = 0;
-            if (pPoint1.X != pPoint2.X)
-            {
-                slope = (pPoint2.Y - pPoint1.Y) /
-                 (pPoint2.X - pPoint1.X);
-            }
-            else if (pPoint1.Y < pPoint2.Y)
-                return (float)Math.PI / 2;
-            else
-                return (float)Math.PI * 1.5f;
+            float angle;
+            float xDiff = pPoint2.X - pPoint1.X;
+            float yDiff = pPoint2.Y - pPoint1.Y;
 
-            return (float)Math.Atan(slope);
+            if (xDiff == 0.0)
+            {
+                if (yDiff == 0.0)
+                    angle = 0.0f;
+                else if (yDiff > 0.0) angle = (float)System.Math.PI / 2.0f;
+                else
+                    angle = (float)System.Math.PI * 3.0f / 2.0f;
+            }
+            else if (yDiff == 0.0)
+            {
+                if (xDiff > 0.0)
+                    angle = 0.0f;
+                else
+                    angle = (float)System.Math.PI;
+            }
+            else
+            {
+                if (xDiff < 0.0)
+                    angle = (float)System.Math.Atan(yDiff / xDiff) + (float)System.Math.PI;
+                else if (yDiff < 0.0) angle = (float)System.Math.Atan(yDiff / xDiff) + (2 * (float)System.Math.PI);
+                else
+                    angle = (float)System.Math.Atan(yDiff / xDiff);
+            }
+
+            return angle;
 
         }
     }

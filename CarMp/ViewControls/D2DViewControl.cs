@@ -26,7 +26,6 @@ namespace CarMP.ViewControls
         private bool _canRender = false;
         public void StartRender()
         {
-            return;
             _canRender = true;
             OnRenderStart();
         }
@@ -102,7 +101,7 @@ namespace CarMP.ViewControls
                 PreRender();
 
                 pRenderTarget.CurrentBounds = GetScreenBounds();
-                pRenderTarget.Renderer.PushAxisAlignedClip(GetAllowedRenderingArea(pRenderTarget.CurrentBounds) , AntialiasMode.PerPrimitive);
+                pRenderTarget.Renderer.PushAxisAlignedClip(GetAllowedScreenRenderingArea() , AntialiasMode.PerPrimitive);
 
                 OnRender(pRenderTarget);
 
@@ -111,23 +110,36 @@ namespace CarMP.ViewControls
                 lock(_viewControls)
                     for(int i = _viewControls.Count-1; i >= 0; i--)
                     {
-                        _viewControls[i].Render(pRenderTarget);
+                        if(!Bounds.Intersect(_viewControls[i].Bounds).IsEmpty())
+                            _viewControls[i].Render(pRenderTarget);
                     }
             }
         }
 
-        internal RectF GetAllowedRenderingArea(RectF pChildBounds)
-            {
+        internal RectF GetAllowedScreenRenderingArea()
+        {
+            return GetAllowedScreenRenderingArea(GetScreenBounds());
+        }
+
+        private RectF GetAllowedScreenRenderingArea(RectF pOtherBounds)
+        {
             if (Parent == null)
-                return pChildBounds;
-            
-            return pChildBounds.Intersect(Parent.GetScreenBounds()); ;
+                return pOtherBounds;
+
+            RectF newRectf = Parent.GetScreenBounds().Intersect(pOtherBounds);
+
+            return newRectf.IsEmpty() ? newRectf : Parent.GetAllowedScreenRenderingArea(newRectf);
         }
 
         internal RectF GetScreenBounds()
         {
+            return GetScreenBounds(Bounds);
+        }
+
+        private RectF GetScreenBounds(RectF pBounds)
+        {
             Point2F screenPoint = GetScreenPoint();
-            return new RectF(screenPoint.X, screenPoint.Y, screenPoint.X + Bounds.Width, screenPoint.Y + Bounds.Height);
+            return new RectF(screenPoint.X, screenPoint.Y, screenPoint.X + pBounds.Width, screenPoint.Y + pBounds.Height);
         }
 
         internal Point2F GetScreenPoint()
@@ -171,15 +183,22 @@ namespace CarMP.ViewControls
 
         public void Clear()
         {
+            //lock (_viewControls)
+            //    foreach (D2DViewControl viewControl in _viewControls)
+            //    {
+            //        viewControl.Clear();
+            //        if (viewControl is IMessageObserver)
+            //            (viewControl as IMessageObserver).DisposeUnsubscriber.Dispose();
+            //        viewControl.Dispose();
+            //    }
+            lock(_viewControls)
+                _viewControls.Clear();
+        }
+
+        public void Remove(D2DViewControl pViewControl)
+        {
             lock (_viewControls)
-                foreach (D2DViewControl viewControl in _viewControls)
-                {
-                    viewControl.Clear();
-                    if (viewControl is IMessageObserver)
-                        (viewControl as IMessageObserver).DisposeUnsubscriber.Dispose();
-                    viewControl.Dispose();
-                }
-            _viewControls.Clear();
+                _viewControls.Remove(pViewControl);
         }
 
         public virtual void SendUpdate(ReactiveUpdate pReactiveUpdate) 

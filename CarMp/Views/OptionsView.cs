@@ -83,11 +83,7 @@ namespace CarMP.Views
                 var optionControl = Activator.CreateInstance(ctrl)
                     as IOptionControl;
 
-                _dragableList.InsertNextIntoCurrent(new DragableListTextItem()
-                {
-                    DisplayString = optionControl.OptionName
-                });
-
+                _dragableList.InsertNext(new DragableListTextItem(optionControl.OptionName));
                 _optionsViewList.Add(optionControl as D2DViewControl);
             }
         }

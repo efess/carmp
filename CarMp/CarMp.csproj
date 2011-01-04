@@ -125,10 +125,12 @@
     <Compile Include="Direct2D\Direct2D.cs" />
     <Compile Include="Direct2D\Imaging.cs" />
     <Compile Include="Direct2D\RectFExt.cs" />
-    <Compile Include="EventQueue.cs" />
     <Compile Include="IO\FileMediaInfo.cs" />
-    <Compile Include="IMessageHookable.cs" />
-    <Compile Include="ISupportsCopyPaste.cs" />
+    <Compile Include="Skinning\Skin.cs" />
+    <Compile Include="Skinning\SkinManager.cs" />
+    <Compile Include="ViewControls\Interfaces\IViewList.cs" />
+    <Compile Include="ViewControls\SwapableDragableList\SwapableDragableList.cs" />
+    <Compile Include="Win32\IWin32MessageHookable.cs" />
     <Compile Include="Reactive\KeyInput\KeyboardObservable.cs" />
     <Compile Include="Reactive\KeyInput\Key.cs" />
     <Compile Include="Reactive\Messaging\IMessageObserver.cs" />
@@ -154,7 +156,6 @@
     <Compile Include="Reactive\Touch\Velocity.cs" />
     <Compile Include="Reactive\Touch\VelocityAggregator.cs" />
     <Compile Include="Reactive\UnSubscriber.cs" />
-    <Compile Include="Settings\SkinSettings.cs" />
     <Compile Include="GlobalStatic\LinearMath.cs" />
     <Compile Include="ViewControls\AnimationContainer\AnimationContainer.cs" />
     <Compile Include="ViewControls\AnimationContainer\AnimationPath.cs" />
@@ -162,6 +163,7 @@
     <Compile Include="ViewControls\AnimationContainer\AnimationState.cs" />
     <Compile Include="ViewControls\CheckBox.cs" />
     <Compile Include="ViewControls\Container\Container.cs" />
+    <Compile Include="ViewControls\DragableList\DragableListImageAndCaptionItem.cs" />
     <Compile Include="ViewControls\FunctionalProperties.cs" />
     <Compile Include="ViewControls\GraphicalButton\GraphicalButton.cs" />
     <Compile Include="DataObjects\Table\DigitalMediaLibrary.cs" />
@@ -301,9 +303,7 @@
       <Name>CarMP.MediaInfo</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Functions\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

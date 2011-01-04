@@ -16,7 +16,9 @@ namespace CarMP.ViewControls.OptionControls
         public string OptionName { get { return OPTION_NAME; } }
         public string OptionElement { get { return OPTION_ELEMENT; } }
 
-        public void ApplySkin(XmlNode pXmlNode, string pSkinPath)
+        private DragableList skinList;
+
+        public override void ApplySkin(XmlNode pXmlNode, string pSkinPath)
         {
             base.ApplySkin(pXmlNode, pSkinPath);
 
@@ -31,11 +33,14 @@ namespace CarMP.ViewControls.OptionControls
                 button.StartRender();
                 button.Click += (sender, e) => { AppMain.AppFormHost.ApplySkin(); };
             }
+
+
         }
 
         protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
         {
             base.OnRender(pRenderTarget);
         }
+
     }
 }

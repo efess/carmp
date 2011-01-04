@@ -150,6 +150,7 @@ namespace CarMP.MediaController
 
         private int SendUserMessageToWinamp(WA_IPC pMessageType, int pParameter)
         {
+            return 0;
             if (!Initialized)
             {
                 DebugHandler.DebugPrint("Winamp not initialized, cannot send message");
@@ -162,6 +163,7 @@ namespace CarMP.MediaController
 
         private int SendCopyDataToWinamp(Win32Helpers.COPYDATASTRUCT pData, int pParameter)
         {
+            return 0;
             if (!Initialized)
             {
                 DebugHandler.DebugPrint("Winamp not initialized, cannot send message");

@@ -78,6 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AlbumArtScannerTest.cs" />
+    <Compile Include="D2DViewControlTest.cs" />
     <Compile Include="MessageDispatcherTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

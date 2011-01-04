@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace CarMP.ViewControls
 {
@@ -36,15 +37,14 @@ namespace CarMP.ViewControls
                     // NEed to implement functionality to populate this shortcut list
                     // and to change in this lambda
 
-                    _internalList.ClearListAtIndex(0, false);
+                    _internalList.ClearList();
 
                     int i = 0;
                     foreach(MediaHistory item in AppMain.MediaManager.MediaListHistory)
                     {
-                        _internalList.InsertNextIntoCurrent(
-                            new ShortcutListItem(item.ListIndex)
+                        _internalList.InsertNext(
+                            new ShortcutListItem(item.ListIndex, item.DisplayString)
                             {
-                                DisplayString = item.DisplayString,
                                 Selected = item.ListIndex == i
                             });
                         i++;
@@ -69,7 +69,8 @@ namespace CarMP.ViewControls
         {
             public int ListIndex { get; private set; }
 
-            public ShortcutListItem(int pListIndex)
+            public ShortcutListItem(int pListIndex, string pDisplayText)
+                : base(pDisplayText)
             {
                 ListIndex = pListIndex;
             }

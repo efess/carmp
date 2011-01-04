@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace CarMP.Callbacks
 {
-    public delegate void Messenger(ref Message pMessage);
+    public delegate void Win32Messenger(ref Message pMessage);
     public delegate void MediaUpdate(List<MediaItem> MInfo);
 
     public delegate bool FileCheck(String FileName, Int32 FileSize);

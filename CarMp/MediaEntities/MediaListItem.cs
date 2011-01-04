@@ -20,9 +20,9 @@ namespace CarMP.MediaEntities
         public abstract string Key { get; }
         internal MediaListItemType MediaType { get; private set; }
         protected MediaListItem(string pDisplayString, MediaListItemType pListItemType)
+            : base(pDisplayString)
         {
             MediaType = pListItemType;
-            DisplayString = pDisplayString;
         }
     }
 }

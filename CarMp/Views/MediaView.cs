@@ -12,7 +12,7 @@ namespace CarMP.Views
 {
     public class MediaView : D2DView
     {
-        DragableList MediaList;
+        SwapableDragableList MediaList;
 
         private const string XPATH_BACKGROUND_IMAGE = "BackgroundImg";
         private const string XPATH_PROGRESSBAR = "GraphicalProgressBar";
@@ -23,7 +23,7 @@ namespace CarMP.Views
         internal MediaView(SizeF pWindowSize)
             : base(pWindowSize)
         {
-            MediaList = new DragableList();
+            MediaList = new SwapableDragableList();
             MediaList.Bounds = new RectF(20, 40, this.Width - 80, this.Height - 120);
             MediaList.SelectedItemChanged += new DragableList.SelectedItemChangedEventHandler(MediaList_SelectedItemChanged);
 
@@ -43,23 +43,6 @@ namespace CarMP.Views
         {
             base.ApplySkin(pSkinNode, pSkinPath);
 
-            //var xmlNode = pSkinNode.SelectSingleNode(XPATH_HISTORY_BAR);
-            //if(xmlNode != null)
-            //{
-            //    var historyBar = new HistoryBar();
-            //    historyBar.ApplySkin(xmlNode, pSkinPath);
-            //    MediaList.AfterListChanged += (sender, e) =>
-            //    {
-            //        historyBar.ClearHistory();
-            //        foreach (MediaHistory item in AppMain.MediaManager.MediaListHistory.Reverse())
-            //        {
-            //            historyBar.Push(item.DisplayString, item.ListIndex);
-            //        }
-            //    };
-            //    historyBar.HistoryClick += AppMain.MediaManager.SetList;
-            //    AddViewControl(historyBar);
-            //}
-
             var xmlNode = pSkinNode.SelectSingleNode(XPATH_MEDIALIST);
             if (xmlNode != null)
             {
@@ -77,8 +60,8 @@ namespace CarMP.Views
         private void InitializeInitialListState()
         {
             // Initial list- Current is first list, add two Root items:
-            MediaList.InsertNextIntoCurrent(new RootItem("Media Library", RootItemType.DigitalMediaLibrary));
-            MediaList.InsertNextIntoCurrent(new RootItem("File System", RootItemType.FileSystem));
+            MediaList.InsertNext(new RootItem("Media Library", RootItemType.DigitalMediaLibrary));
+            MediaList.InsertNext(new RootItem("File System", RootItemType.FileSystem));
 
             int listIndex = 1;
             foreach (MediaHistory item in AppMain.MediaManager.MediaListHistory)

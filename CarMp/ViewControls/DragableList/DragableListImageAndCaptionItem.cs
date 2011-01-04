@@ -10,15 +10,19 @@ using System.Xml;
 
 namespace CarMP.ViewControls
 {
-    public class DragableListTextItem : DragableListItem
+    public class DragableListImageAndCaptionItem : DragableListItem
     {
-        private TextLayout _stringLayout = null;
-        private LinearGradientBrush _linearGradient = null;
+        private D2DBitmap imageBitmap;
+        private Direct2D.BitmapData imageBitmapData;
+
+        private TextLayout StringLayout = null;
+        private LinearGradientBrush LinearGradient = null;
 
         private static TextFormat StringDrawFormat = null;
-        public DragableListTextItem(string pTextString)
+        public DragableListImageAndCaptionItem(string pTextString, Direct2D.BitmapData pBitmapData)
         {
             DisplayString = pTextString;
+            imageBitmapData = pBitmapData;
             if (StringDrawFormat == null)
             {
                 StringDrawFormat = D2DStatic.StringFactory.CreateTextFormat(
@@ -26,36 +30,31 @@ namespace CarMP.ViewControls
                     20F,
                     FontWeight.Normal,
                     FontStyle.Normal,
-                    FontStretch.Normal, 
-                    new System.Globalization.CultureInfo("en-us")) ;
-            
+                    FontStretch.Normal,
+                    new System.Globalization.CultureInfo("en-us"));
+
                 StringDrawFormat.TextAlignment = TextAlignment.Leading;
                 StringDrawFormat.WordWrapping = WordWrapping.NoWrap;
             }
         }
 
-        public string _displayString;
         /// <summary>
         /// String shown to the user
         /// </summary>
-        public string DisplayString 
-        {
-            get { return _displayString; }
-            set { _displayString = value; _stringLayout = null; }
-        }
-
+        public string DisplayString { get; private set; }
 
         protected override void OnRender(Direct2D.RenderTargetWrapper pRenderer)
         {
-            if(_stringLayout == null)
-            {
-                _stringLayout = D2DStatic.StringFactory.CreateTextLayout(DisplayString, StringDrawFormat, _bounds.Width, _bounds.Height);
-            }
+            if (StringLayout == null)
+                StringLayout = D2DStatic.StringFactory.CreateTextLayout(DisplayString, StringDrawFormat, _bounds.Width, _bounds.Height);
+            
+            if(imageBitmap == null)
+                imageBitmap = D2DStatic.GetBitmap(imageBitmapData, pRenderer.Renderer);
 
-            if (_linearGradient == null)
+            if (LinearGradient == null)
             {
-                if (_linearGradient == null)
-                    _linearGradient = pRenderer.Renderer.CreateLinearGradientBrush(
+                if (LinearGradient == null)
+                    LinearGradient = pRenderer.Renderer.CreateLinearGradientBrush(
                             new LinearGradientBrushProperties()
                             {
                                 StartPoint = new Point2F(0, 0),
@@ -80,11 +79,11 @@ namespace CarMP.ViewControls
 
             }
 
-            _linearGradient.EndPoint = new Point2F(0, 0);
-            _linearGradient.StartPoint = new Point2F(0, _bounds.Height);
+            LinearGradient.EndPoint = new Point2F(0, 0);
+            LinearGradient.StartPoint = new Point2F(0, _bounds.Height);
 
-            pRenderer.DrawTextLayout(new Point2F(4, 0), _stringLayout, _linearGradient);
-            
+            pRenderer.DrawTextLayout(new Point2F(4, 0), StringLayout, LinearGradient);
+
             // Call base which will draw the selection is selected
             base.OnRender(pRenderer);
         }

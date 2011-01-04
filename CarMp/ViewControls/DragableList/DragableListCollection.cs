@@ -26,20 +26,6 @@ namespace CarMP.ViewControls
         
         private int m_bufferSize;
 
-        // Position of list in view
-        private float m_listLocPx;
-
-        internal float ListLocPx
-        {
-            get
-            {
-                return m_listLocPx;
-            }
-            set
-            {
-                m_listLocPx = value;
-            }
-        }
 
         public DragableListCollection()
         {

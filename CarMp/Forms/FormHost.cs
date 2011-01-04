@@ -1,26 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Xml;
-using System.Windows.Forms;
 using System.Threading;
-using CarMP.Views;
-using CarMP.ViewControls;
-using CarMP.Reactive.Touch;
-using CarMP.Reactive.KeyInput;
-using CarMP.Reactive;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
-using Microsoft.WindowsAPICodePack.DirectX;
-using CarMP.Direct2D;
+using System.Windows.Forms;
+using System.Xml;
+
 using CarMP.Callbacks;
+using CarMP.Reactive;
+using CarMP.Reactive.KeyInput;
 using CarMP.Reactive.Messaging;
+using CarMP.Reactive.Touch;
+using CarMP.ViewControls;
+using CarMP.Views;
+using CarMP.Win32;
+
+using Microsoft.WindowsAPICodePack.DirectX;
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace CarMP.Forms
 {
-    public partial class FormHost : Form, IMessageHookable, IMessageObserver
+    public partial class FormHost : Form, IWin32MessageHookable, IMessageObserver
     {
         private ManualResetEvent _viewChanging;
 
@@ -44,7 +42,7 @@ namespace CarMP.Forms
 
             base.WndProc(ref m);
         }
-        public Messenger MessagePump { get; set; }
+        public Win32Messenger MessagePump { get; set; }
         RenderTargetProperties _renderProps = new RenderTargetProperties
         {
             PixelFormat = new PixelFormat(
@@ -93,8 +91,6 @@ namespace CarMP.Forms
 
             _overlayViewControls = _viewFactory.CreateView(D2DViewFactory.OVERLAY);
 
-            InitializeOverlayControls();
-            
             ApplySkin();
 
             Action renderingLoop = new Action(() => RenderingLoop());
@@ -128,28 +124,6 @@ namespace CarMP.Forms
                 currentlySelected.SendUpdate(pTouchEvent);
         }
 
-        private void InitializeOverlayControls()
-        {
-            //_fpsControl = new ViewControls.Text();
-            //_fpsControl.Bounds = new RectF(this.Width - 40, 0, this.Width, 40);
-            //_overlayViewControls.Add(_fpsControl);
-                        
-            //GraphicalButton toggleAnimation = new GraphicalButton();
-            //toggleAnimation.Bounds = new RectF(450, 30, 514, 94);
-            //toggleAnimation.SetButtonUpBitmapData(@"C:\source\CarMP\trunk\Images\Skins\BMW\Box.bmp");
-            //int i = 0;
-
-            //toggleAnimation.Click += (sender, e) =>
-            //    {
-            //        controlBar.SetAnimation(i);
-            //        controlBar.StartAnimation();
-            //        infoBar.SetAnimation(i);
-            //        infoBar.StartAnimation();
-            //        if(i > 0)
-            //            i = -1 ;
-            //        else i = 1;
-            //    };
-        }
 
         public D2DView ShowView(string pViewName)
         {
@@ -183,7 +157,7 @@ namespace CarMP.Forms
                         System.Xml.XmlNode viewSkinNode = AppMain.Settings.CurrentSkin.GetViewNodeSkin(pViewName);
 
                         if (viewSkinNode != null)
-                            (_currentView as ISkinable).ApplySkin(viewSkinNode, AppMain.Settings.CurrentSkinPath);
+                            (_currentView as ISkinable).ApplySkin(viewSkinNode, AppMain.Settings.CurrentSkin.CurrentSkinPath);
                     }
 
                 }
@@ -211,7 +185,7 @@ namespace CarMP.Forms
                     System.Xml.XmlNode viewSkinNode = AppMain.Settings.CurrentSkin.GetViewNodeSkin(view.Name);
 
                     if (viewSkinNode != null)
-                        (view as ISkinable).ApplySkin(viewSkinNode, AppMain.Settings.CurrentSkinPath);
+                        (view as ISkinable).ApplySkin(viewSkinNode, AppMain.Settings.CurrentSkin.CurrentSkinPath);
                 }
             }
 
@@ -223,7 +197,7 @@ namespace CarMP.Forms
             {
                 var viewControl = ViewControlFactory.GetViewControlAndApplySkin(
                     node.Name,
-                    AppMain.Settings.CurrentSkinPath,
+                    AppMain.Settings.CurrentSkin.CurrentSkinPath,
                     node);
                 //if (viewControl is IMessageObserver)
                 //    AppMain.Messanger.AddMessageObserver(viewControl as IMessageObserver);

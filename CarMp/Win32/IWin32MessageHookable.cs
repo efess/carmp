@@ -5,10 +5,10 @@ using System.Text;
 using System.Windows.Forms;
 using CarMP.Callbacks;
 
-namespace CarMP
+namespace CarMP.Win32
 {
-    public interface IMessageHookable
+    public interface IWin32MessageHookable
     {
-        Messenger MessagePump { get; set; }
+        Win32Messenger MessagePump { get; set; }
     }
 }

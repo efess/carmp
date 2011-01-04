@@ -111,14 +111,8 @@ namespace CarMP
             {
                 MediaNext();
 
-                // Sleep, give mediacontroller time to do its thing.
-                Thread.Sleep(100);
-
                 songPosition = GetCurrentPosition();
-                _currnetSongLength = GetSongLength();
             }
-
-            _lastSongPosition = songPosition;
 
             OnMediaProgressChanged(songPosition);
         }
@@ -253,6 +247,10 @@ namespace CarMP
             if (CurrentMediaItem != null)
             {
                 _audioController.StartPlayback();
+
+                // Sleep, give mediacontroller time to do its thing.
+                Thread.Sleep(100);
+                _currnetSongLength = GetSongLength();
                 _progressTimer.Change(0, TIMER_DEFAULT_INTERVAL);
 
                 CurrentState = MediaState.Playing;
@@ -373,6 +371,11 @@ namespace CarMP
         private void StartPlayback(string pFullPath)
         {
             _audioController.PlayFile(pFullPath);
+
+            // Sleep, give mediacontroller time to do its thing.
+            Thread.Sleep(100);
+            _currnetSongLength = GetSongLength();
+
             _progressTimer.Change(0, TIMER_DEFAULT_INTERVAL);
             CurrentState = MediaState.Playing;
         }

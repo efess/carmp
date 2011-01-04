@@ -31,7 +31,7 @@ namespace CarMP.ViewControls
 
         public HistoryBar()
         {
-            MaxItemPixelLength = 100;
+            MaxItemPixelLength = 150;
         }
 
         public override void ApplySkin(XmlNode pSkinNode, string pSkinPath)

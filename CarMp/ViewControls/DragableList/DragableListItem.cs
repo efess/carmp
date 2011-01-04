@@ -11,7 +11,7 @@ using System.Xml;
 
 namespace CarMP.ViewControls
 {
-    public abstract class DragableListItem : ViewControlCommonBase, IDisposable, ISkinable
+    public abstract class DragableListItem : ViewControlCommonBase, IDisposable
     {
         private const int SELECTION_BORDER_PADDING = 1;
         private const int BACKGROUND_BOUNDS_PADDING = 2;
@@ -73,7 +73,7 @@ namespace CarMP.ViewControls
             set { m_index = value; }
         }
 
-        internal Boolean Selected
+        public Boolean Selected
         {
             get { return m_selected; }
             set 
@@ -83,23 +83,6 @@ namespace CarMP.ViewControls
 
                 m_selected = value; 
             }
-        }
-
-        // Methods
-
-        internal System.Drawing.Bitmap GetCanvas()
-        {
-            return m_canvas;
-        }
-
-        private void ClearCanvas()
-        {
-            if (m_canvas != null)
-            {
-                m_canvas.Dispose();
-                m_canvas = null;
-            }
-            m_buffered = false;
         }
 
         /// <summary>

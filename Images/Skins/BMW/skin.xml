@@ -1,5 +1,5 @@
 <Skin>
-	<Name>BMW Skin</Name>
+	<Name>BMW</Name>
   <Views>
 	  <Home>
 		  <BackgroundImg>BMWBackground.bmp</BackgroundImg>
@@ -28,12 +28,6 @@
             <FaceUpImg>gear.png</FaceUpImg>
             <FaceDownImg>gear.png</FaceDownImg>
           </Options>
-          <Something Type="CarMP.ViewControls.GraphicalButton">
-            <Function Parameter="MediaInfoBar, MediaControlBar">TriggerToggle</Function>
-            <Bounds>4,375,100,80</Bounds>
-            <FaceUpImg>gear.png</FaceUpImg>
-            <FaceDownImg>gear.png</FaceDownImg>
-          </Something>
       </NavigationBar>
 	  </Home>
     <Media>
@@ -65,20 +59,21 @@
         </Options>
       </NavigationBar>
       <MediaList>
+        <ItemSize>-1,25</ItemSize>
         <BackgroundColor>0,0,0,160</BackgroundColor>
         <Bounds>120,80,595,344</Bounds>
       </MediaList>
       <HistoryBar Type="CarMP.ViewControls.HistoryBar">
         <Function>MediaGroupHistory</Function>
-        <Bounds>120,50,300,30</Bounds>
+        <Bounds>120,50,600,30</Bounds>
         <SeparatorImg>backslash.png</SeparatorImg>
         <TextStyle>
           <Size>18</Size>
           <Face>Arial</Face>
           <ColorOne>#DDDDDD</ColorOne>
           <ColorTwo>#666666</ColorTwo>
-          <WordWrap>True</WordWrap>
-          <Alignment>Center</Alignment>
+          <WordWrap>False</WordWrap>
+          <Alignment>Leading</Alignment>
         </TextStyle>
       </HistoryBar>
     </Media>
@@ -111,6 +106,7 @@
         </Options>
       </NavigationBar>
       <OptionsList Type="CarMP.ViewControls.DragableList">
+        <ItemSize>-1,25</ItemSize>
         <Bounds>120,200,435,344</Bounds>
         <BackgroundColor>0,0,0,60</BackgroundColor>
       </OptionsList>
@@ -191,21 +187,21 @@
   </Views>
   <OverlayControls>
     <MediaControlBar Type="CarMP.ViewControls.AnimationContainer">
-      <Bounds>-88, 399, 934, 75</Bounds>
+      <Bounds>-161, 407, 1050, 73</Bounds>
       <BackgroundImg>bottombar.png</BackgroundImg>
       <AnimationPath>
-        <AnimationPathPoint>-88,480,500,1</AnimationPathPoint>
-        <AnimatinoPathPoint>-88,407,500,1</AnimatinoPathPoint>
+        <AnimationPathPoint>-161,480,500,1</AnimationPathPoint>
+        <AnimatinoPathPoint>-161,407,500,1</AnimatinoPathPoint>
       </AnimationPath>
       <Play Type="CarMP.ViewControls.GraphicalButton">
         <Function>MediaPlay</Function>
-        <Bounds>830,14,50,51</Bounds>
+        <Bounds>171,13 ,50,51</Bounds>
         <FaceUpImg>play.png</FaceUpImg>
         <FaceDownImg>play.png</FaceDownImg>
       </Play>
       <Stop Type="CarMP.ViewControls.GraphicalButton">
         <Function>MediaStop</Function> 
-        <Bounds>772,39,28,28</Bounds>
+        <Bounds>229,39,28,28</Bounds>
         <FaceUpImg>stop.png</FaceUpImg>
         <FaceDownImg>stop.png</FaceDownImg>
       </Stop>
@@ -217,25 +213,25 @@
       </Pause>
       <Next Type="CarMP.ViewControls.GraphicalButton">
         <Function>MediaNext</Function>
-        <Bounds>728,39,40,28</Bounds>
+        <Bounds>319,39,40,28</Bounds>
         <FaceUpImg>next.png</FaceUpImg>
         <FaceDownImg>next.png</FaceDownImg>
       </Next>
       <Previous Type="CarMP.ViewControls.GraphicalButton">
         <Function>MediaPrevious</Function>
-        <Bounds>682,39,46,28</Bounds>
+        <Bounds>273,39,46,28</Bounds>
         <FaceUpImg>previous.png</FaceUpImg>
         <FaceDownImg>previous.png</FaceDownImg>
       </Previous>
       <ThermometerProgressBar Type="CarMP.ViewControls.ThermometerProgressBar">
         <Function>MediaProgressBar</Function>
-        <Bounds>263,38,322,27</Bounds>
+        <Bounds>400,38,322,27</Bounds>
         <BackgroundImg>ProgressBackground.png</BackgroundImg>
         <OverlayMask>ProgressOverlay.png</OverlayMask>
       </ThermometerProgressBar>
       <PositionText Type="CarMP.ViewControls.Text">
         <Function>MediaProgressText</Function>
-        <Bounds>585,38,75,27</Bounds>
+        <Bounds>722,38,75,27</Bounds>
         <TextPosition>-5,2</TextPosition>
         <BackgroundImg>PositionBackground.png</BackgroundImg>
         <TextStyle>
@@ -248,6 +244,19 @@
         </TextStyle>
       </PositionText>
     </MediaControlBar>
+    <ToggleControlContainer Type="CarMP.ViewControls.AnimationContainer">
+      <Bounds>0, 382, 40, 25</Bounds>
+      <AnimationPath>
+        <AnimationPathPoint>0,455,500,1</AnimationPathPoint>
+        <AnimatinoPathPoint>0,382,500,1</AnimatinoPathPoint>
+      </AnimationPath>
+      <ToggleTab Type="CarMP.ViewControls.GraphicalButton">
+        <Function Parameter="MediaInfoBar, MediaControlBar, ToggleControlContainer">TriggerToggle</Function>
+        <Bounds>0,0,40,25</Bounds>
+        <FaceUpImg>TransparentTabButton.png</FaceUpImg>
+        <FaceDownImg>TransparentTabButton.png</FaceDownImg>
+      </ToggleTab>
+    </ToggleControlContainer>
     <MediaInfoBar Type="CarMP.ViewControls.AnimationContainer">
       <Bounds>0, 0, 806, 35</Bounds>
       <BackgroundImg>TopBar.png</BackgroundImg>

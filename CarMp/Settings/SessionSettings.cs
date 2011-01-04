@@ -7,6 +7,7 @@ using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using System.IO;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using CarMP.Skinning;
 
 namespace CarMP.Settings
 {
@@ -74,7 +75,7 @@ namespace CarMP.Settings
         public ColorF DefaultFontSpecialColor { get;  set; }
 
         public string SkinName { get;  set; }
-        public SkinSettings CurrentSkin = null;
+        public Skin CurrentSkin { get; private set; }
 
         public string SkinPath { get;  set; }
         public string MusicPath { get;  set; }
@@ -94,7 +95,6 @@ namespace CarMP.Settings
 
         private IXmlSettings InstantiateSetting<T>() 
         {
-
             IXmlSettings setting = Activator.CreateInstance(typeof(T))
                 as IXmlSettings;
             SettingObjects.Add(setting);
@@ -105,11 +105,6 @@ namespace CarMP.Settings
         public string SettingsPath = @".\";
 
         private string settingsFile = null;
-
-        public string CurrentSkinPath
-        {
-            get { return System.IO.Path.Combine(SkinPath, SkinName); }
-        }
 
         public void SetDefaults()
         {
@@ -297,23 +292,23 @@ namespace CarMP.Settings
 
         public void LoadCurrentSkin()
         {
-            string path = CurrentSkinPath;
-            System.IO.FileAttributes attr = System.IO.File.GetAttributes(path);
-            // If this is a directory, append the filename
-            if ((attr & System.IO.FileAttributes.Directory) != System.IO.FileAttributes.Directory)
+            if (string.IsNullOrEmpty(SkinName))
             {
-                path = System.IO.Path.GetDirectoryName(path);
+                DebugHandler.DebugPrint("No skin selected");
+                return;
             }
 
-            // Load Skin now
-            try
+            var skinManager = new SkinManager();
+            skinManager.LoadSkins();
+            var skin = skinManager.GetSkin(SkinName);
+
+            if (skin == null)
             {
-                CurrentSkin = new SkinSettings(path);
+                DebugHandler.DebugPrint("Skin with name \"" + SkinName + "\" not found");
+                return;
             }
-            catch (Exception ex)
-            {
-                DebugHandler.DebugPrint("Could not load skin from " + SkinPath + Environment.NewLine + "Exception Info: " + ex.ToString());
-            }
+
+            CurrentSkin = skin;
         }
     }
 }

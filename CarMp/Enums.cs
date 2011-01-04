@@ -11,6 +11,12 @@ namespace CarMP
         Back
     }
 
+    public enum Orientation
+    {
+        Vertical,
+        Horizontal
+    }
+
     public enum MediaState
     {
         Stopped,

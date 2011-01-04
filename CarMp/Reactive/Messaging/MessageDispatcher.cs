@@ -28,11 +28,11 @@ namespace CarMP.Reactive.Messaging
         private void InternalSendMessage(Message pMessage)
         {
             DebugHandler.DebugPrint("Sending Message " + pMessage.Type.ToString() + " with data " + pMessage.Data ?? "null");
-            lock(_observerList)
+            lock (_observerList)
                 foreach (var observer in _observerList.OfType<InternalMessageObserver>()
                     .Where((m) => pMessage.Recipient == null
                         || pMessage.Recipient.Count() <= 0
-                        || pMessage.Recipient.Contains(m.Name, StringComparer.InvariantCultureIgnoreCase)))
+                        || pMessage.Recipient.Contains(m.Name, StringComparer.InvariantCultureIgnoreCase)).ToArray())
                 {
                     observer.OnNext(pMessage);
                 }

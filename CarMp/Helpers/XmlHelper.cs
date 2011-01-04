@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Drawing;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace CarMP
@@ -140,6 +139,27 @@ namespace CarMP
             else
             {
                 throw new Exception("Incorrect Point format. Correct format is #,#");
+            }
+        }
+
+        public static SizeF GetSize(string pXmlText)
+        {
+            string[] size = GetSeparatedList(pXmlText);
+
+            if (size != null && size.Length == 2)
+            {
+                try
+                {
+                    return new SizeF((float)Convert.ToDouble(size[0]), (float)Convert.ToDouble(size[1]));
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error parsing Size from Xml: " + ex.Message);
+                }
+            }
+            else
+            {
+                throw new Exception("Incorrect Size format. Correct format is #,#");
             }
         }
 

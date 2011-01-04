@@ -7,7 +7,6 @@ namespace CarMP.Reactive
 {
     public abstract class DefaultObservable<T> : IObservable<T>
     {
-        protected object _listLockObject = new object();
         public DefaultObservable()
         {
             _observerList = new List<IObserver<T>>();
@@ -28,11 +27,9 @@ namespace CarMP.Reactive
 
         public virtual IDisposable Subscribe(IObserver<T> observer)
         {
-            lock (_listLockObject)
-            {
+            lock (_observerList)
                 if (!_observerList.Contains(observer))
                     _observerList.Add(observer);
-            }
 
             return new UnSubscriber<T>(
                 _observerList,

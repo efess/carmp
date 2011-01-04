@@ -39,7 +39,7 @@ namespace CarMP.Reactive
 
         //****
 
-        private IMessageHookable _hookedPump;
+        private IWin32MessageHookable _hookedPump;
         private Control _control;
         public readonly Observables ObservableActions;
 
@@ -52,10 +52,10 @@ namespace CarMP.Reactive
             if (pControl == null)
                 throw new ArgumentNullException("pControl");
 
-            if (pControl is IMessageHookable)
+            if (pControl is IWin32MessageHookable)
             {
-                (pControl as IMessageHookable).MessagePump +=
-                    new Messenger(ProcessMessage); 
+                (pControl as IWin32MessageHookable).MessagePump +=
+                    new Win32Messenger(ProcessMessage); 
             }
             _control = pControl;
 

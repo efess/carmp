@@ -5,22 +5,27 @@ using System.Text;
 using System.Xml;
 using System.IO;
 
-namespace CarMP.Settings
+namespace CarMP.Skinning
 {
-    public class SkinSettings
+    public class Skin
     {
-        private const string XML_FILE_NAME = "skin.xml";
         private const string XPATH_SKIN_NAME = "Skin/Name";
         private const string XPATH_VIEWS = "Skin/Views/*";
         private const string XPATH_OVERLAY_CONTROLS = "Skin/OverlayControls/*";
+        public const string SKIN_PREVIEW_FULL_FILE_NAME = "preview.png";
 
         private Dictionary<string, XmlNode> viewNodes = new Dictionary<string, XmlNode>();
         private Dictionary<string, XmlNode> overlayNodes = new Dictionary<string, XmlNode>();
 
+        // Resolution
+        // Day/Night?
+
         public string CurrentSkinPath { get; private set; }
         public string Name { get; private set; }
+        public string SkinLoadError { get; private set; }
+        public string SkinPreviewImagePath { get; private set; }
 
-        public SkinSettings(string pSkinXmlPath)
+        public Skin(string pSkinXmlPath)
         {
             LoadXml(pSkinXmlPath);
         }
@@ -32,25 +37,49 @@ namespace CarMP.Settings
 
         private void LoadXml(string pXmlPath)
         {
+            SkinLoadError = null;
+
             CurrentSkinPath = pXmlPath;
             viewNodes.Clear();
             overlayNodes.Clear();
 
-            string xmlFile = Path.Combine(pXmlPath, XML_FILE_NAME);
+            string xmlFile = Path.Combine(pXmlPath, Constants.SKIN_FULL_FILE_NAME);
+
+
+            if(string.IsNullOrEmpty(xmlFile))
+            {
+                SkinLoadError = "Skin XML file not found";
+                return;
+            }
+
             XmlDocument xdoc = new XmlDocument();
-            xdoc.Load(xmlFile);
+            try
+            {
+                xdoc.Load(xmlFile);
+            }
+            catch (XmlException ex)
+            {
+                SkinLoadError = "Could not parse Skin XML: " + ex.Message;
+                return;
+            }
+
+            string previewFile = Path.Combine(pXmlPath, SKIN_PREVIEW_FULL_FILE_NAME);
+            if (File.Exists(previewFile))
+                SkinPreviewImagePath = previewFile;
 
             foreach(XmlNode node in xdoc.SelectNodes(XPATH_VIEWS))
-            {
                 viewNodes.Add(node.Name, node);
-            }
 
             foreach (XmlNode node in xdoc.SelectNodes(XPATH_OVERLAY_CONTROLS))
-            {
                 overlayNodes.Add(node.Name, node);
-            }
             
-            Name = xdoc.SelectSingleNode(XPATH_SKIN_NAME).InnerText;
+            var nameNode = xdoc.SelectSingleNode(XPATH_SKIN_NAME);
+            if(nameNode == null)
+            {
+                SkinLoadError = "Skin Name not found in XML";
+                return;
+            }
+            Name = nameNode.InnerText;
         }
 
         public XmlNode GetViewNodeSkin(string pViewName)

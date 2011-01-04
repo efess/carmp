@@ -24,7 +24,7 @@ namespace CarMP
         public float[] Color2 { get; private set; }
         public bool WordWrap { get; private set; }
         public TextAlignment Alignment { get; private set;}
-
+        
         public TextFormat Format { get; private set;}
 
         private Brush _textBrush;
@@ -68,14 +68,13 @@ namespace CarMP
             Alignment = pAlignment;
         }
 
-
         public Brush GetBrush(CarMP.Direct2D.RenderTargetWrapper pRenderWrapper)
         {
             if(pRenderWrapper.CurrentBounds.Height !=
                 _bounds.Height || _textBrush == null)
             {
                 _bounds = pRenderWrapper.CurrentBounds;
-                // LinearGradient
+                // _linearGradient
                 if (Color2 != null)
                 {
                     _textBrush = pRenderWrapper.Renderer.CreateLinearGradientBrush(

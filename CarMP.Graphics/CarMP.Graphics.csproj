@@ -31,8 +31,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.WindowsAPICodePack.DirectX">
+      <HintPath>..\Libraries\Microsoft.WindowsAPICodePack.DirectX.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -40,11 +44,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IRenderer.cs" />
-    <Compile Include="Point.cs" />
+    <Compile Include="Color.cs" />
+    <Compile Include="Implementation\Direct2D\D2DBrush.cs" />
+    <Compile Include="Implementation\Direct2D\D2DImage.cs" />
+    <Compile Include="Implementation\Direct2D\D2DStringLayout.cs" />
+    <Compile Include="Implementation\Direct2D\Direct2DRenderer.cs" />
+    <Compile Include="Geometry\Ellipse.cs" />
+    <Compile Include="Interfaces\IBrush.cs" />
+    <Compile Include="Interfaces\IImage.cs" />
+    <Compile Include="Interfaces\IColorResolver.cs" />
+    <Compile Include="Interfaces\IRenderer.cs" />
+    <Compile Include="Geometry\Point.cs" />
+    <Compile Include="Interfaces\IResourceFactory.cs" />
+    <Compile Include="Interfaces\IStringLayout.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Rectangle.cs" />
-    <Compile Include="Size.cs" />
+    <Compile Include="Geometry\Rectangle.cs" />
+    <Compile Include="Geometry\Size.cs" />
+    <Compile Include="StringAlignment.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Implementation\OpenGL\" />
+    <Folder Include="Implementation\OpenTk\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

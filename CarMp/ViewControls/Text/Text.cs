@@ -21,7 +21,6 @@ namespace CarMP.ViewControls
         protected Point2F TextPosition { get { return _textPosition; } set { _textPosition = value; } }
         
         private TextLayout StringLayout = null;
-        private SolidColorBrush ColorBrush = null;
 
         private object stringLayoutLock = new Object();
         
@@ -35,7 +34,6 @@ namespace CarMP.ViewControls
         public void Dispose()
         {
             if(StringLayout != null) StringLayout.Dispose();
-            if(ColorBrush != null) ColorBrush.Dispose();
             if(_font != null) _font.Dispose();
             if(_textStyle != null) _textStyle.Dispose();
             base.Dispose();

@@ -1,4 +1,4 @@
-﻿using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+﻿using CarMP.Graphics.Geometry;
 using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
 using Microsoft.WindowsAPICodePack.DirectX;
 using Microsoft.WindowsAPICodePack.DirectX.DXGI;
@@ -33,6 +33,7 @@ namespace CarMP
                 return _factory;
             }
         }
+
         private static ImagingFactory _imagingFactory;
         public static ImagingFactory ImagingFactory
         {
@@ -44,13 +45,13 @@ namespace CarMP
             }
         }
 
-        public static SizeF GetTextPixelSize(string pText, TextStyle pTextStyle)
+        public static Size GetTextPixelSize(string pText, TextStyle pTextStyle)
         {
             if(pTextStyle.Format == null)
                 pTextStyle.Initialize(D2DStatic.StringFactory);
             using (TextLayout layout = StringFactory.CreateTextLayout(pText, pTextStyle.Format, 9999, 9999))
             {
-                return new SizeF(layout.Metrics.Width, layout.Metrics.Height);
+                return new Size(layout.Metrics.Width, layout.Metrics.Height);
             }
         }
 
@@ -63,8 +64,8 @@ namespace CarMP
             return pRenderer.CreateLinearGradientBrush(
                     new LinearGradientBrushProperties()
                     {
-                        StartPoint = new Point2F(0, 0),
-                        EndPoint = new Point2F(0, pBounds.Height)
+                        StartPoint = new Point(0, 0),
+                        EndPoint = new Point(0, pBounds.Height)
                     },
                     pRenderer.CreateGradientStopCollection(new GradientStop[] {
                         new GradientStop
@@ -84,15 +85,15 @@ namespace CarMP
                 ));
         }
 
-        public static ColorF ConvertToColorF(float[] pFloatArray)
+        public static Color ConvertToColorF(float[] pFloatArray)
         {
-            return new ColorF(
+            return new Color(
                 pFloatArray[0] / 256,
                 pFloatArray[1] / 256,
                 pFloatArray[2] / 256,
                 pFloatArray[3] / 256);
         }
-        public static D2DBitmap GetBitmap(BitmapData pBitmapData, RenderTarget pRenderTarget)
+        public static D2DBitmap GetBitmap(BitmapData pBitmapData, RenderTarget pRenderer)
         {
             try
             {
@@ -103,7 +104,7 @@ namespace CarMP
                 BitmapSource src = frameDeocder.ToBitmapSource();
                 formatConverter.Initialize(frameDeocder.ToBitmapSource(), PixelFormats.Pf32bppPBGRA, BitmapDitherType.None, BitmapPaletteType.MedianCut);
 
-                return pRenderTarget.CreateBitmapFromWicBitmap(formatConverter.ToBitmapSource());
+                return pRenderer.CreateBitmapFromWicBitmap(formatConverter.ToBitmapSource());
                
             }
             catch (Exception)

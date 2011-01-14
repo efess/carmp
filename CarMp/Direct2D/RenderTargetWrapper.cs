@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
 using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
 
 namespace CarMP.Direct2D
@@ -14,11 +14,11 @@ namespace CarMP.Direct2D
     /// </summary>
     public class RenderTargetWrapper
     {
-        public delegate void WindowResizeHandler(SizeU Size);
+        public delegate void WindowResizeHandler(Size Size);
         public RenderTarget Renderer { get; private set; }
         public RectF CurrentBounds { get; set; }
 
-        public void Resize(SizeU pSize)
+        public void Resize(Size pSize)
         {
             if (Renderer is HwndRenderTarget)
                 (Renderer as HwndRenderTarget).Resize(pSize);
@@ -36,15 +36,15 @@ namespace CarMP.Direct2D
                     (Renderer as HwndRenderTarget).IsOccluded : true;
             }
         }
-        public RenderTargetWrapper(RenderTarget pRenderTarget)
+        public RenderTargetWrapper(RenderTarget pRenderer)
         {
-            Renderer = pRenderTarget;
+            Renderer = pRenderer;
         }
         public void DrawRectangle(Brush pBrush, RectF pRectangle, float pStrokeWidth)
         {
             Renderer.DrawRectangle(TransformRectangle(pRectangle), pBrush, pStrokeWidth);
         }
-        public void DrawLine(Point2F pPoint1, Point2F pPoint2, Brush pBrush, float pStrokeWidth)
+        public void DrawLine(Point pPoint1, Point pPoint2, Brush pBrush, float pStrokeWidth)
         {
             Renderer.DrawLine(TransformPoint(pPoint1), TransformPoint(pPoint2), pBrush, pStrokeWidth);
         }
@@ -68,7 +68,7 @@ namespace CarMP.Direct2D
             Renderer.FillEllipse(TransformEllipse(pEllipse), pBrush);
         }
 
-        public void DrawTextLayout(Point2F pPoint, TextLayout pTextLayout, Brush pBrush)
+        public void DrawTextLayout(Point pPoint, TextLayout pTextLayout, Brush pBrush)
         {
             if (pBrush is LinearGradientBrush)
             {
@@ -83,9 +83,9 @@ namespace CarMP.Direct2D
             return new Point2U(Convert.ToUInt32(pPoint.X + CurrentBounds.Left), Convert.ToUInt32(pPoint.Y + CurrentBounds.Top));
         }
 
-        private Point2F TransformPoint(Point2F pPoint)
+        private Point TransformPoint(Point pPoint)
         {
-            return new Point2F(pPoint.X + CurrentBounds.Left, pPoint.Y + CurrentBounds.Top);
+            return new Point(pPoint.X + CurrentBounds.Left, pPoint.Y + CurrentBounds.Top);
         }
         private RectU TransformRectangle(RectU pRectangle)
         {

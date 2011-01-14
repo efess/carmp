@@ -150,13 +150,10 @@ namespace CarMP.ViewControls
 
             AppMain.MediaManager.MediaChanged += (sender, e) =>
             {
-                Direct2D.BitmapData art;
                 var artPath = AppMain.MediaManager.GetCurrentSmallAlbumArt();
                 if (!string.IsNullOrEmpty(artPath))
-                    art = new Direct2D.BitmapData(artPath);
-                else art = new Direct2D.BitmapData();
 
-                commonbase.SetBackground(art);
+                    commonbase.SetBackground(artPath);
             };
         }
     }

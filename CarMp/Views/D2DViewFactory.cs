@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
 
 namespace CarMP.Views
 {
@@ -14,9 +14,9 @@ namespace CarMP.Views
         public const string OPTIONS = "Options";
         public const string OVERLAY = "Overlay";
 
-        private SizeF _windowSize;
+        private Size _windowSize;
 
-        public D2DViewFactory(SizeF pWindowSize)
+        public D2DViewFactory(Size pWindowSize)
         {
             _windowSize = pWindowSize;
         }

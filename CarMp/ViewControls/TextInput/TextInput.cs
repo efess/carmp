@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
-using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
-using Microsoft.WindowsAPICodePack.DirectX;
+using CarMP.Graphics.Geometry;
 using System.Windows.Forms;
+using CarMP.Graphics.Interfaces;
+using CarMP.Graphics;
 
 namespace CarMP.ViewControls
 {
@@ -15,17 +15,17 @@ namespace CarMP.ViewControls
         private const string XPATH_TEXT = "Text";
         private const string XPATH_DEFAULT_TEXT = "DefaultText";
 
-        private RectF _borderRect;
-        private LinearGradientBrush _borderBrush;
-        private Point2F _cursorTopPoint;
-        private Point2F _cursorBottomPoint;
-        private SolidColorBrush _cursorLineBrush;
+        private Rectangle _borderRect;
+        private IBrush _borderBrush;
+        private Point _cursorTopPoint;
+        private Point _cursorBottomPoint;
+        private IBrush _cursorLineBrush;
         private int millisecondWindow = 0;
         private int _cursorPosition;
 
         public TextInput()
         {
-            this.TextPosition = new Point2F(2, 2);
+            this.TextPosition = new Point(2, 2);
         }
 
         private int GetCurrentMillisecondTimer()
@@ -41,7 +41,7 @@ namespace CarMP.ViewControls
         {
             base.ApplySkin(pXmlNode, pSkinPath);
 
-            this.TextPosition = new Point2F(5, 4);   
+            this.TextPosition = new Point(5, 4);   
             _borderBrush = null;
 
             XmlNode node = pXmlNode.SelectSingleNode(XPATH_DEFAULT_TEXT);
@@ -52,32 +52,34 @@ namespace CarMP.ViewControls
 
         public override void OnSizeChanged(object sender, EventArgs e)
         {
-            _borderRect = new RectF(2, 2, this.Width - 2, this.Height - 2);
+            _borderRect = new Rectangle(2, 2, this.Width - 4, this.Height - 4);
         }
 
-        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
+        protected override void OnRender(IRenderer pRenderer)
         {
-            base.OnRender(pRenderTarget);
+            base.OnRender(pRenderer);
+            if (_cursorLineBrush == null)
+                _cursorLineBrush = pRenderer.CreateBrush(Color.White);
+
             if (_borderBrush == null)
             {
-                _borderBrush = D2DStatic.GetBasicLinearGradient(pRenderTarget.Renderer,
-                    _borderRect,
-                    new ColorF(1f, 1f, 1f, .3f), new ColorF(1f, 1f, 1f, .8f));
+                _borderBrush = pRenderer.CreateBrush(Color.White);
+                // TODO: Gradients?
+                //_borderBrush = D2DStatic.GetBasicLinearGradient(pRenderer.Renderer,
+                //    _borderRect,
+                //    new Color(1f, 1f, 1f, .3f), new Color(1f, 1f, 1f, .8f));
             }
 
-            pRenderTarget.DrawRectangle(_borderBrush, _borderRect, 2.0f);
+            pRenderer.DrawRectangle(_borderBrush, _borderRect, 2.0f);
             
             SetCursorCoordinatesPosition();
 
-            if (_cursorLineBrush == null)
-                _cursorLineBrush = pRenderTarget.Renderer.CreateSolidColorBrush(new ColorF(Colors.White, 1));
-
             
-            base.OnRender(pRenderTarget);
+            base.OnRender(pRenderer);
 
             if (D2DViewControl.HasInputControl == this)
                 if (GetCurrentMillisecondTimer() < 500)
-                    pRenderTarget.DrawLine(_cursorTopPoint, _cursorBottomPoint, _cursorLineBrush, 1);
+                    pRenderer.DrawLine(_cursorTopPoint, _cursorBottomPoint, _cursorLineBrush, 1);
 
         }
 
@@ -152,26 +154,26 @@ namespace CarMP.ViewControls
             // Check for OutOfBounds cursor position
             if (xPosition + TextPosition.X > (this.Bounds.Width - 5))
             {
-                TextPosition = new Point2F((Bounds.Width - 20) - xPosition, TextPosition.Y);
+                TextPosition = new Point((Bounds.Width - 20) - xPosition, TextPosition.Y);
             }
             else if (TextString != null && maxLength < this.Bounds.Width / 4)
             {
-                TextPosition = new Point2F(5, 4);
+                TextPosition = new Point(5, 4);
             }
             else if (xPosition < Math.Abs(TextPosition.X))
             {
                 if (xPosition < 5)
-                    TextPosition = new Point2F(5, 4);
+                    TextPosition = new Point(5, 4);
                 else
-                    TextPosition = new Point2F(-xPosition + 10, TextPosition.Y);
+                    TextPosition = new Point(-xPosition + 10, TextPosition.Y);
             }
 
-            _cursorTopPoint = new Point2F(xPosition + TextPosition.X, 6);
-            _cursorBottomPoint = new Point2F(xPosition + TextPosition.X, this.Height - 6);
+            _cursorTopPoint = new Point(xPosition + TextPosition.X, 6);
+            _cursorBottomPoint = new Point(xPosition + TextPosition.X, this.Height - 6);
         }
 
         // From X/Y, change Cursor Position, AND set coords
-        private void SetTextPositionByCoords(Point2F pCursorPreferredLocation)
+        private void SetTextPositionByCoords(Point pCursorPreferredLocation)
         {
             _cursorPosition = GetTextPositionAtPoint(pCursorPreferredLocation);
             SetCursorCoordinatesPosition();

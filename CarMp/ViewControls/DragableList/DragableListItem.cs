@@ -5,9 +5,10 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
-using Microsoft.WindowsAPICodePack.DirectX;
+using CarMP.Graphics.Geometry;
 using System.Xml;
+using CarMP.Graphics.Interfaces;
+using CarMP.Helpers;
 
 namespace CarMP.ViewControls
 {
@@ -16,22 +17,20 @@ namespace CarMP.ViewControls
         private const int SELECTION_BORDER_PADDING = 1;
         private const int BACKGROUND_BOUNDS_PADDING = 2;
 
-        private LinearGradientBrush SelectionGradient;
+        private IBrush _selectionBoxBrush;
 
         // Private members
-        private int m_index;
-        private String m_txtLabelString;
-        private Boolean m_selected;
+        private int _index;
+        private String _txtLabelString;
+        private Boolean _selected;
         private System.Drawing.Bitmap m_canvas;
-        private bool m_buffered;
-        private Brush _backgroundBrush;
+        private bool _buffered;
 
         public object Tag { get; set; }
 
         // Rectangle used to create selection square
-        private RectF m_selectionRectangle;
+        private Rectangle _selectionRectangle;
 
-        private RectF _backgroundRect;
         // Constructors
 
         public DragableListItem()
@@ -42,11 +41,11 @@ namespace CarMP.ViewControls
         {
             base.OnSizeChanged(sender, e);
 
-            m_selectionRectangle = new RectF(
+            _selectionRectangle = new Rectangle(
                 SELECTION_BORDER_PADDING,
                 SELECTION_BORDER_PADDING,
-                Width - SELECTION_BORDER_PADDING,
-                Height - SELECTION_BORDER_PADDING
+                Width,
+                Height
                 );
 
         }
@@ -58,30 +57,30 @@ namespace CarMP.ViewControls
 
         internal Boolean Buffered
         {
-            get {return m_buffered;}
+            get {return _buffered;}
             set
             {
 
-                if (value == m_buffered)
+                if (value == _buffered)
                     return;
             }
         }
 
         internal int Index
         {
-            get { return m_index; }
-            set { m_index = value; }
+            get { return _index; }
+            set { _index = value; }
         }
 
         public Boolean Selected
         {
-            get { return m_selected; }
+            get { return _selected; }
             set 
             {
-                if (m_selected == value)
+                if (_selected == value)
                     return;
 
-                m_selected = value; 
+                _selected = value; 
             }
         }
 
@@ -102,46 +101,43 @@ namespace CarMP.ViewControls
         /// Override this
         /// </summary>
         /// <param name="pCanvas"></param>
-        protected override void OnRender(CarMP.Direct2D.RenderTargetWrapper pRenderer) 
+        protected override void OnRender(IRenderer pRenderer) 
         {
-            if(_backgroundBrush == null)
+            if (_selected)
             {
-                _backgroundBrush = pRenderer.Renderer.CreateSolidColorBrush(new ColorF(Colors.Black, .3f));
-            }
-            if (m_selected)
-            {
-                if (SelectionGradient == null)
-                    SelectionGradient = pRenderer.Renderer.CreateLinearGradientBrush(
-                            new LinearGradientBrushProperties()
-                            {
-                                StartPoint = new Point2F(0, 0),
-                                EndPoint = new Point2F(0, _bounds.Height)
-                            },
-                            pRenderer.Renderer.CreateGradientStopCollection(new GradientStop[] {
-                                new GradientStop
-                                    {
-                                        Color = new ColorF(Colors.Gray, 1),
-                                        Position = 0
-                                    }
-                                    ,
-                                new GradientStop
-                                    {
-                                        Color = new ColorF(Colors.Blue, 1),
-                                        Position = 1
-                                    }
-                                },
-                                Gamma.Gamma_10,
-                                ExtendMode.Clamp
-                        ));
+                // TODO: Gradients?
+                //if (SelectionGradient == null)
+                //    SelectionGradient = pRenderer.Renderer.CreateLinearGradientBrush(
+                //            new LinearGradientBrushProperties()
+                //            {
+                //                StartPoint = new Point(0, 0),
+                //                EndPoint = new Point(0, _bounds.Height)
+                //            },
+                //            pRenderer.Renderer.CreateGradientStopCollection(new GradientStop[] {
+                //                new GradientStop
+                //                    {
+                //                        Color = new ColorF(Colors.Gray, 1),
+                //                        Position = 0
+                //                    }
+                //                    ,
+                //                new GradientStop
+                //                    {
+                //                        Color = new ColorF(Colors.Blue, 1),
+                //                        Position = 1
+                //                    }
+                //                },
+                //                Gamma.Gamma_10,
+                //                ExtendMode.Clamp
+                //        ));
 
-                pRenderer.DrawRectangle(SelectionGradient, m_selectionRectangle, 2F);
+                pRenderer.DrawRectangle(_selectionBoxBrush, _selectionRectangle, 2F);
             }
             else
             {
-                if (SelectionGradient != null)
+                if (_selectionBoxBrush != null)
                 {
-                    SelectionGradient.Dispose();
-                    SelectionGradient = null;
+                    Helpers.GraphicsHelper.DisposeIfImplementsIDisposable(_selectionBoxBrush);
+                    _selectionBoxBrush = null;
                 }
             }
            // pRenderer.FillRectangle(_backgroundBrush, _backgroundRect);
@@ -156,11 +152,8 @@ namespace CarMP.ViewControls
         /// </summary>
         public virtual void Dispose()
         {
-            if (_backgroundBrush != null)
-                _backgroundBrush.Dispose();
-
-            if (SelectionGradient != null)
-                SelectionGradient.Dispose();
+            //if (SelectionGradient != null)
+            //    GraphicsHelper.DisposeIfImplementsIDisposable(_selectionBoxBrush);
         }
 
         #endregion

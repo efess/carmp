@@ -8,10 +8,9 @@ using System.Windows.Forms;
 using System.Xml;
 using System.IO;
 using CarMP.Reactive.Touch;
-using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
-using Microsoft.WindowsAPICodePack.DirectX;
+using CarMP.Graphics.Geometry;
 using CarMP.ViewControls.Interfaces;
+using CarMP.Graphics.Interfaces;
 
 namespace CarMP.ViewControls
 {
@@ -27,19 +26,19 @@ namespace CarMP.ViewControls
         private Text _textControl;
 
         // Direct2d Resources
-        private D2DBitmap ButtonUpBitmap = null;
-        private D2DBitmap ButtonDownBitmap = null;
+        private IImage _buttonUpImage = null;
+        private IImage _buttonDownImage = null;
 
         public void Dispose()
         {
-            if(ButtonUpBitmap != null) ButtonUpBitmap.Dispose();
-            if(ButtonDownBitmap != null) ButtonDownBitmap.Dispose();
+            if(_buttonUpImage != null) Helpers.GraphicsHelper.DisposeIfImplementsIDisposable(_buttonUpImage);
+            if(_buttonDownImage != null) Helpers.GraphicsHelper.DisposeIfImplementsIDisposable(_buttonDownImage);
         }
 
         private bool _mouseDown;
 
-        private Direct2D.BitmapData _buttonDownImageData;
-        private Direct2D.BitmapData _buttonUpImageData;
+        private string _buttonDownImagePath;
+        private string _buttonUpImagePath;
 
         private string _buttonString = "";
         public string ButtonString { 
@@ -54,23 +53,15 @@ namespace CarMP.ViewControls
         {
             this.Clear();
 
-            SkinningHelper.XmlRectangleFEntry(XPATH_BOUNDS, pXmlNode, ref _bounds);
-            XmlNode xmlNode = pXmlNode.SelectSingleNode(XPATH_BUTTON_DOWN_IMAGE);
+            Helpers.SkinningHelper.XmlRectangleEntry(XPATH_BOUNDS, pXmlNode, ref _bounds);
 
-            if (xmlNode != null)
-            {
-                _buttonDownImageData = new Direct2D.BitmapData(System.IO.Path.Combine(pSkinPath, xmlNode.InnerText));
-                ButtonDownBitmap = null;
-            }
+            Helpers.SkinningHelper.XmlValidFilePath(XPATH_BUTTON_DOWN_IMAGE, pXmlNode, pSkinPath, ref _buttonDownImagePath);
+            Helpers.SkinningHelper.XmlValidFilePath(XPATH_BUTTON_UP_IMAGE, pXmlNode, pSkinPath, ref _buttonUpImagePath);
 
-            xmlNode = pXmlNode.SelectSingleNode(XPATH_BUTTON_UP_IMAGE);
-            if (xmlNode != null)
-            {
-                _buttonUpImageData = new Direct2D.BitmapData(System.IO.Path.Combine(pSkinPath, xmlNode.InnerText));
-                ButtonUpBitmap = null;
-            }
-            
-            xmlNode = pXmlNode.SelectSingleNode(XPATH_TEXT);
+            _buttonDownImage = null;
+            _buttonUpImage = null;
+
+            var xmlNode = pXmlNode.SelectSingleNode(XPATH_TEXT);
             if (xmlNode != null)
             {
                 _textControl = new Text();
@@ -84,45 +75,48 @@ namespace CarMP.ViewControls
 
         public void SetButtonUpBitmapData(string pImageFile)
         {
-            _buttonUpImageData = new Direct2D.BitmapData(pImageFile);
+            _buttonUpImagePath = pImageFile;
+            _buttonUpImage = null;
         }
         public void SetButtonDownBitmapData(string pImageFile)
         {
-            _buttonDownImageData = new Direct2D.BitmapData(pImageFile);
+            _buttonDownImagePath = pImageFile;
+            _buttonUpImage = null;
         }
 
         public GraphicalButton() { }
 
-        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderer)
+        protected override void OnRender(IRenderer pRenderer)
         {
-            if (ButtonUpBitmap == null
-                && _buttonUpImageData.Data != null)
+            if (_buttonUpImage == null
+                && !string.IsNullOrEmpty(_buttonUpImagePath))
             {
-                ButtonUpBitmap = D2DStatic.GetBitmap(_buttonUpImageData, pRenderer.Renderer);
+                _buttonUpImage = pRenderer.CreateImage(_buttonUpImagePath);
             }
 
-            if (ButtonDownBitmap == null
-                && _buttonDownImageData.Data != null)
+            if (_buttonDownImage == null
+                && !string.IsNullOrEmpty(_buttonDownImagePath))
             {
-                ButtonDownBitmap = D2DStatic.GetBitmap(_buttonDownImageData, pRenderer.Renderer);
+                _buttonDownImage = pRenderer.CreateImage(_buttonDownImagePath);
             }
 
-
-            RectF imageLocation = new RectF(
+            if (_buttonUpImage == null)
+                return;
+            Rectangle imageLocation = new Rectangle(
                 0,
                 0,
-                _buttonUpImageData.Width,
-                _buttonUpImageData.Height);
+                _buttonUpImage.Size.Width,
+                _buttonUpImage.Size.Height);
 
             if (_mouseDown)
             {
-                if (ButtonDownBitmap != null)
-                    pRenderer.DrawBitmap(ButtonDownBitmap, imageLocation);
+                if (_buttonDownImage != null)
+                    pRenderer.DrawImage(imageLocation, _buttonDownImage, 1F);
             }
             else
             {
-                if (ButtonUpBitmap != null)
-                    pRenderer.DrawBitmap(ButtonUpBitmap, imageLocation);
+                if (_buttonUpImage != null)
+                    pRenderer.DrawImage(imageLocation, _buttonUpImage, 1F);
             }
         }
 

@@ -12,9 +12,9 @@ using CarMP.Reactive.Touch;
 using CarMP.ViewControls;
 using CarMP.Views;
 using CarMP.Win32;
-
-using Microsoft.WindowsAPICodePack.DirectX;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Interfaces;
+using CarMP.Graphics;
+using CarMP.Graphics.Geometry;
 
 namespace CarMP.Forms
 {
@@ -34,25 +34,29 @@ namespace CarMP.Forms
         private D2DView _currentView;
         private D2DViewFactory _viewFactory;
 
-        private Direct2D.RenderTargetWrapper _renderTarget;
+        //private Direct2D.RenderTargetWrapper _renderTarget;
+        private IRenderer _renderer;
+
+
         protected override void WndProc(ref System.Windows.Forms.Message m)
         {
             if (MessagePump != null)
                 MessagePump(ref m);
-
+            
             base.WndProc(ref m);
         }
         public Win32Messenger MessagePump { get; set; }
-        RenderTargetProperties _renderProps = new RenderTargetProperties
-        {
-            PixelFormat = new PixelFormat(
-                Microsoft.WindowsAPICodePack.DirectX.DXGI.Format.B8G8R8A8_UNORM,
-                AlphaMode.Ignore),
-            Usage = RenderTargetUsage.None,
-            Type = RenderTargetType.Default // Software type is required to allow resource 
-            // sharing between hardware (HwndRenderTarget) 
-            // and software (WIC Bitmap render Target).
-        };
+
+        //RenderTargetProperties _renderProps = new RenderTargetProperties
+        //{
+        //    PixelFormat = new PixelFormat(
+        //        Microsoft.WindowsAPICodePack.DirectX.DXGI.Format.B8G8R8A8_UNORM,
+        //        AlphaMode.Ignore),
+        //    Usage = RenderTargetUsage.None,
+        //    Type = RenderTargetType.Default // Software type is required to allow resource 
+        //    // sharing between hardware (HwndRenderTarget) 
+        //    // and software (WIC Bitmap render Target).
+        //};
         
 
         public FormHost()
@@ -74,19 +78,16 @@ namespace CarMP.Forms
                 ControlStyles.AllPaintingInWmPaint |
                 ControlStyles.UserPaint, true);
 
-            _renderTarget = new Direct2D.RenderTargetWrapper(
-                D2DStatic.D2DFactory.CreateHwndRenderTarget(
-                _renderProps,
-                new HwndRenderTargetProperties(this.Handle, new SizeU(Convert.ToUInt32(ClientSize.Width), Convert.ToUInt32(ClientSize.Height)), PresentOptions.Immediately)));
+            _renderer = new RendererFactory().GetRenderer("Direct2D", this.Handle);
             
-            this.ClientSizeChanged += (o, e) => { _renderTarget.Resize(new SizeU(Convert.ToUInt32(ClientSize.Width), Convert.ToUInt32(ClientSize.Height))); };
+            this.ClientSizeChanged += (o, e) => { _renderer.Resize(new Size(ClientSize.Width, ClientSize.Height)); };
             
             InitializeComponent();
 
             this.Size = new System.Drawing.Size(Convert.ToInt32(AppMain.Settings.ScreenResolution.Width), Convert.ToInt32(AppMain.Settings.ScreenResolution.Height));
             this.Location = new System.Drawing.Point(Convert.ToInt32(AppMain.Settings.WindowLocation.X), Convert.ToInt32(AppMain.Settings.WindowLocation.Y));
 
-            _viewFactory = new D2DViewFactory(new SizeF(ClientSize.Width, ClientSize.Height));
+            _viewFactory = new D2DViewFactory(new Size(ClientSize.Width, ClientSize.Height));
             _loadedViews = new Dictionary<string, D2DView>();
 
             _overlayViewControls = _viewFactory.CreateView(D2DViewFactory.OVERLAY);
@@ -232,14 +233,13 @@ namespace CarMP.Forms
         {
             try
             {
-                if (!_renderTarget.IsOccluded)
-                {
-                    _renderTarget.BeginDraw();
-                    _renderTarget.Transform = Matrix3x2F.Identity;
-                    _renderTarget.Clear(new ColorF(Colors.Black, 1f));
+                //if (!_renderTarget.IsOccluded)
+                //{
+                    _renderer.BeginDraw();
+                    _renderer.Clear(new Color(Color.Black, 1f));
 
-                    _currentView.Render(_renderTarget);
-                    _overlayViewControls.Render(_renderTarget);
+                    _currentView.Render(_renderer);
+                    _overlayViewControls.Render(_renderer);
 
                     //for (int i = _overlayViewControls.Count - 1;
                     //    i >= 0;
@@ -248,15 +248,15 @@ namespace CarMP.Forms
                     //    _overlayViewControls[i].Render(_renderTarget);
                     //}
 
-                    _renderTarget.EndDraw();
+                    _renderer.EndDraw();
 
                     this.Invalidate();
-                }
+                //}
             }
             catch (Exception ex)
             {
                 DebugHandler.HandleException(ex);
-                _renderTarget.Renderer.Flush();
+                _renderer.Flush();
             }
         }
 

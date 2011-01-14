@@ -86,6 +86,10 @@
     <Shadow Include="Test References\CarMP.accessor" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CarMP.Graphics\CarMP.Graphics.csproj">
+      <Project>{50176D99-E610-4BF1-833E-A48BD5346327}</Project>
+      <Name>CarMP.Graphics</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CarMp.MediaInfo\CarMP.MediaInfo.csproj">
       <Project>{328BCACA-4652-49CF-96A9-B64DC3EA23AB}</Project>
       <Name>CarMP.MediaInfo</Name>

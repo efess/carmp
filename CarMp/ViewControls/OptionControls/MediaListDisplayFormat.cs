@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using CarMP.Graphics.Geometry;
+using CarMP.Graphics.Interfaces;
 
 namespace CarMP.ViewControls.OptionControls
 {
@@ -24,7 +26,7 @@ namespace CarMP.ViewControls.OptionControls
         {
             string existingTemplate = AppMain.Settings.DisplayFormat.FormatTemplate;
             var option = new SingleOptionRadio();
-            option.Bounds = new Microsoft.WindowsAPICodePack.DirectX.Direct2D1.RectF(5, 5, 250, 30);
+            option.Bounds = new Rectangle(5, 5, 245, 25);
             AddViewControl(option);
             option.TextString = "Track - Artist - Title";
             option.Checked = existingTemplate == TRACK_ARTIST_TITLE;
@@ -33,7 +35,7 @@ namespace CarMP.ViewControls.OptionControls
             option.StartRender();
 
             option = new SingleOptionRadio();
-            option.Bounds = new Microsoft.WindowsAPICodePack.DirectX.Direct2D1.RectF(5, 40, 250, 65);
+            option.Bounds = new Rectangle(5, 40, 245, 25);
             AddViewControl(option);
             option.TextString = "Artist - Title";
             option.Checked = existingTemplate == ARTIST_TITLE;
@@ -41,7 +43,8 @@ namespace CarMP.ViewControls.OptionControls
             option.StartRender();
 
             option = new SingleOptionRadio();
-            option.Bounds = new Microsoft.WindowsAPICodePack.DirectX.Direct2D1.RectF(5, 75, 250, 100);
+            option.Bounds = new Rectangle(5, 75, 245, 25);
+            
             AddViewControl(option);
             option.TextString = "Track - Title";
             option.Checked = existingTemplate == TRACK_TITLE;
@@ -49,7 +52,7 @@ namespace CarMP.ViewControls.OptionControls
             option.StartRender();
 
             option = new SingleOptionRadio();
-            option.Bounds = new Microsoft.WindowsAPICodePack.DirectX.Direct2D1.RectF(260, 5, 460, 30);
+            option.Bounds = new Rectangle(260, 5, 245, 25);
             AddViewControl(option);
             option.Checked = existingTemplate == TITLE;
             option.TextString = "Title";
@@ -57,7 +60,7 @@ namespace CarMP.ViewControls.OptionControls
             option.InputLeave += () => { SetFormat(TITLE); };
 
             option = new SingleOptionRadio();
-            option.Bounds = new Microsoft.WindowsAPICodePack.DirectX.Direct2D1.RectF(260, 40, 460, 65);
+            option.Bounds = new Rectangle(260, 40, 245, 25);
             AddViewControl(option);
             option.TextString = "FileName";
             option.Checked = existingTemplate == FILENAME;
@@ -66,7 +69,7 @@ namespace CarMP.ViewControls.OptionControls
 
 
             var chkoption = new CheckBox();
-            chkoption.Bounds = new Microsoft.WindowsAPICodePack.DirectX.Direct2D1.RectF(5, 110, 250, 135);
+            option.Bounds = new Rectangle(5, 110, 245, 25);
             AddViewControl(chkoption);
             chkoption.Checked = AppMain.Settings.DisplayFormat.ReplacePercentTwenty;
             chkoption.TextString = "Replaced %20 With Space";
@@ -74,7 +77,7 @@ namespace CarMP.ViewControls.OptionControls
             chkoption.StartRender();
 
             chkoption = new CheckBox();
-            chkoption.Bounds = new Microsoft.WindowsAPICodePack.DirectX.Direct2D1.RectF(5, 145, 250, 170);
+            option.Bounds = new Rectangle(5, 145, 245, 25);
             AddViewControl(chkoption);
             chkoption.Checked = AppMain.Settings.DisplayFormat.ReplaceUnderscores;
             chkoption.TextString = "Replaced Underscores With Space";
@@ -101,7 +104,7 @@ namespace CarMP.ViewControls.OptionControls
         }
 
 
-        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
+        protected override void OnRender(IRenderer pRenderer)
         {
             
         }

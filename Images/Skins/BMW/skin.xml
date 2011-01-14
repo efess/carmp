@@ -73,7 +73,7 @@
           <ColorOne>#DDDDDD</ColorOne>
           <ColorTwo>#666666</ColorTwo>
           <WordWrap>False</WordWrap>
-          <Alignment>Leading</Alignment>
+          <Alignment>Left</Alignment>
         </TextStyle>
       </HistoryBar>
     </Media>
@@ -141,7 +141,7 @@
               <Face>Arial</Face>
               <ColorOne>#FFFFFF</ColorOne>
               <WordWrap>False</WordWrap>
-              <Alignment>Leading</Alignment>
+              <Alignment>Left</Alignment>
             </TextStyle>
           </MusicFolder>  
           <VideoFolder>
@@ -151,7 +151,7 @@
               <Face>Arial</Face>
               <ColorOne>#FFFFFF</ColorOne>
               <WordWrap>False</WordWrap>
-              <Alignment>Leading</Alignment>
+              <Alignment>Left</Alignment>
             </TextStyle>
           </VideoFolder>
           <PictureFolder>
@@ -161,7 +161,7 @@
               <Face>Arial</Face>
               <ColorOne>#FFFFFF</ColorOne>
               <WordWrap>False</WordWrap>
-              <Alignment>Leading</Alignment>
+              <Alignment>Left</Alignment>
             </TextStyle>
           </PictureFolder>
           <RebuildDatabase>
@@ -240,7 +240,7 @@
           <ColorOne>#CCCCCC</ColorOne>
           <ColorTwo>#CCCCCC</ColorTwo>
           <WordWrap>False</WordWrap>
-          <Alignment>Trailing</Alignment>
+          <Alignment>Right</Alignment>
         </TextStyle>
       </PositionText>
     </MediaControlBar>
@@ -273,7 +273,7 @@
           <ColorOne>#CCCCCC</ColorOne>
           <ColorTwo>#CCCCCC</ColorTwo>
           <WordWrap>False</WordWrap>
-          <Alignment>Leading</Alignment>
+          <Alignment>Left</Alignment>
         </TextStyle>
       </MediaTitle>
       <MediaArt Type="CarMP.ViewControls.Container">

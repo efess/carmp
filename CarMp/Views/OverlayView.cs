@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
 
 namespace CarMP.Views
 {
     public class OverlayView : D2DView
     {
-        public OverlayView(SizeF pWindowSize)
+        public OverlayView(Size pWindowSize)
             : base(pWindowSize)
         {
         }

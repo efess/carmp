@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
+using CarMP.Graphics.Geometry;
 
 namespace CarMP.Reactive.Touch
 {
     public class Touch : ReactiveUpdate
     {
-        public Point2F Location { get; private set;}
+        public Point Location { get; private set;}
         public float X { get { return Location.X;}}
         public float Y { get { return Location.Y;}}
 
-        public Touch(Point2F pLocation)
+        public Touch(Point pLocation)
         {
             Location = pLocation;
         }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
 
 namespace CarMP
 {
@@ -71,7 +71,7 @@ namespace CarMP
             }
             return rgb;
         }
-        public static RectF GetBoundsRectangle(string pXmlText)
+        public static Rectangle GetBoundsRectangle(string pXmlText)
         {
             string[] bounds = GetSeparatedList(pXmlText);
 
@@ -81,10 +81,10 @@ namespace CarMP
                 {
                     float left = (float)Convert.ToDouble(bounds[0]);
                     float top = (float)Convert.ToDouble(bounds[1]);
-                    float right =  (float)Convert.ToDouble(bounds[2]) + left;
-                    float bottom =  (float)Convert.ToDouble(bounds[3]) + top;
+                    float right =  (float)Convert.ToDouble(bounds[2]);
+                    float bottom =  (float)Convert.ToDouble(bounds[3]);
 
-                    return new RectF(left, top, right, bottom);
+                    return new Rectangle(left, top, right, bottom);
                 }
                 catch (Exception ex)
                 {
@@ -121,7 +121,7 @@ namespace CarMP
             }
         }
 
-        public static Point2F GetPoint(string pXmlText)
+        public static Point GetPoint(string pXmlText)
         {
             string[] point = GetSeparatedList(pXmlText);
 
@@ -129,7 +129,7 @@ namespace CarMP
             {
                 try
                 {
-                    return new Point2F((float)Convert.ToDouble(point[0]), (float)Convert.ToDouble(point[1]));
+                    return new Point((float)Convert.ToDouble(point[0]), (float)Convert.ToDouble(point[1]));
                 }
                 catch (Exception ex)
                 {
@@ -142,7 +142,7 @@ namespace CarMP
             }
         }
 
-        public static SizeF GetSize(string pXmlText)
+        public static Size GetSize(string pXmlText)
         {
             string[] size = GetSeparatedList(pXmlText);
 
@@ -150,7 +150,7 @@ namespace CarMP
             {
                 try
                 {
-                    return new SizeF((float)Convert.ToDouble(size[0]), (float)Convert.ToDouble(size[1]));
+                    return new Size((float)Convert.ToDouble(size[0]), (float)Convert.ToDouble(size[1]));
                 }
                 catch (Exception ex)
                 {

@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
+using CarMP.Graphics.Interfaces;
 
 namespace CarMP.ViewControls
 {
@@ -13,13 +14,13 @@ namespace CarMP.ViewControls
         private const string XPATH_MEDIA_ART = "MediaArt";
         private const string XPATH_ANIMATION_POINT = "AnimationPath/*";
 
-        private Direct2D.BitmapData _backgroundBitmapData;
-        private D2DBitmap _backgroundImage = null;
+        private string _backgroundBitmapPath;
+        private IImage _backgroundImage = null;
 
-        private D2DBitmap _artImage = null;
-        private Direct2D.BitmapData _artBitmapData;
+        private IImage _artImage = null;
+        private string _artBitmapPath;
 
-        private RectF _artBounds;
+        private Rectangle _artBounds;
 
         public void ApplySkin(XmlNode pSkinNode, string pSkinPath)
         {
@@ -38,7 +39,7 @@ namespace CarMP.ViewControls
                 textView.StartRender();
             }
 
-            SkinningHelper.XmlRectangleFEntry(XPATH_MEDIA_ART, pSkinNode, ref _artBounds);
+            Helpers.SkinningHelper.XmlRectangleEntry(XPATH_MEDIA_ART, pSkinNode, ref _artBounds);
             if (!_artBounds.IsEmpty())
             {
                 AppMain.MediaManager.MediaChanged += (sender, e) =>
@@ -71,35 +72,35 @@ namespace CarMP.ViewControls
         public void SetArt(string pPath)
         {
             if (!string.IsNullOrEmpty(pPath))
-                _artBitmapData = new Direct2D.BitmapData(pPath);
-            else _artBitmapData = new Direct2D.BitmapData(); ;
+                _artBitmapPath = pPath;
+            else _artBitmapPath = null;
             _artImage = null;
         }
 
-        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
+        protected override void OnRender(IRenderer pRenderer)
         {
-            base.OnRender(pRenderTarget);
+            base.OnRender(pRenderer);
 
 
             if (_backgroundImage == null
-                && _backgroundBitmapData.Data != null)
+                && !string.IsNullOrEmpty(_backgroundBitmapPath))
             {
-                _backgroundImage = D2DStatic.GetBitmap(_backgroundBitmapData, pRenderTarget.Renderer);
+                _backgroundImage = pRenderer.CreateImage(_backgroundBitmapPath);
             }
             if (_backgroundImage != null)
             {
-                pRenderTarget.DrawBitmap(_backgroundImage, new RectF(0, 0, _backgroundBitmapData.Width, _backgroundBitmapData.Height));
+                pRenderer.DrawImage(new Rectangle(0, 0, _backgroundImage.Size.Width, _backgroundImage.Size.Height), _backgroundImage, 1f);
             }
 
             if (!_artBounds.IsEmpty()
                 && _artImage == null
-                && _artBitmapData.Data != null)
+                && _artBitmapPath != null)
             {
-                _artImage = D2DStatic.GetBitmap(_artBitmapData, pRenderTarget.Renderer);
+                _artImage = pRenderer.CreateImage(_artBitmapPath);
             }
             if (_artImage != null)
             {
-                pRenderTarget.DrawBitmap(_artImage, _artBounds);
+                pRenderer.DrawImage(_artBounds, _artImage, 1f);
             }
         }
     }

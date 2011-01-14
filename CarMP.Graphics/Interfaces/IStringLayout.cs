@@ -17,5 +17,9 @@ namespace CarMP.Graphics.Interfaces
         StringAlignment Alignment { get; set; }
 
         string String { get; set; }
+
+        Point GetPointAtCharPosition(int pCharPosition);
+        int GetCharPositionAtPoint(Point pPoint);
+        Size GetStringSize();
     }
 }

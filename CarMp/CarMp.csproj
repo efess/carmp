@@ -62,9 +62,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\FluentNHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.WindowsAPICodePack.DirectX">
-      <HintPath>..\Libraries\Microsoft.WindowsAPICodePack.DirectX.dll</HintPath>
-    </Reference>
     <Reference Include="NHibernate, Version=2.1.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\NHibernate.dll</HintPath>
@@ -119,12 +116,10 @@
     <Compile Include="DataObjects\View\Mappings\AlbumArtPathsMapping.cs" />
     <Compile Include="DataObjects\View\MediaGroupLibraryItem.cs" />
     <Compile Include="Direct2D\BitmapData.cs" />
-    <Compile Include="Direct2D\RenderTargetWrapper.cs" />
     <Compile Include="GlobalStatic\Constants.cs" />
+    <Compile Include="Helpers\GraphicsHelper.cs" />
     <Compile Include="MediaEntities\DigitalMediaItem.cs" />
-    <Compile Include="Direct2D\Direct2D.cs" />
     <Compile Include="Direct2D\Imaging.cs" />
-    <Compile Include="Direct2D\RectFExt.cs" />
     <Compile Include="IO\FileMediaInfo.cs" />
     <Compile Include="Skinning\Skin.cs" />
     <Compile Include="Skinning\SkinManager.cs" />
@@ -298,6 +293,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CarMP.Graphics\CarMP.Graphics.csproj">
+      <Project>{50176D99-E610-4BF1-833E-A48BD5346327}</Project>
+      <Name>CarMP.Graphics</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CarMp.MediaInfo\CarMP.MediaInfo.csproj">
       <Project>{328BCACA-4652-49CF-96A9-B64DC3EA23AB}</Project>
       <Name>CarMP.MediaInfo</Name>

@@ -2,40 +2,49 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
-using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
-using Microsoft.WindowsAPICodePack.DirectX;
+using CarMP.Graphics.Geometry;
 using System.Xml;
+using CarMP.Graphics.Interfaces;
+using CarMP.Graphics;
 
 
 namespace CarMP.ViewControls
 {
     public class DragableListImageAndCaptionItem : DragableListItem
     {
-        private D2DBitmap imageBitmap;
-        private Direct2D.BitmapData imageBitmapData;
+        private IImage _imageBitmap;
+        private string _imageBitmapPath;
 
-        private TextLayout StringLayout = null;
-        private LinearGradientBrush LinearGradient = null;
+        private TextStyle _textStyle;
 
-        private static TextFormat StringDrawFormat = null;
-        public DragableListImageAndCaptionItem(string pTextString, Direct2D.BitmapData pBitmapData)
+        private IStringLayout _stringLayout = null;
+        private IBrush _stringBrush = null;
+
+        public DragableListImageAndCaptionItem(string pTextString, string pBitmapPath)
         {
             DisplayString = pTextString;
-            imageBitmapData = pBitmapData;
-            if (StringDrawFormat == null)
-            {
-                StringDrawFormat = D2DStatic.StringFactory.CreateTextFormat(
-                    "Arial",
-                    20F,
-                    FontWeight.Normal,
-                    FontStyle.Normal,
-                    FontStretch.Normal,
-                    new System.Globalization.CultureInfo("en-us"));
+            _imageBitmapPath = pBitmapPath;
 
-                StringDrawFormat.TextAlignment = TextAlignment.Leading;
-                StringDrawFormat.WordWrapping = WordWrapping.NoWrap;
-            }
+            _textStyle = new TextStyle(20F,
+                "Arial",
+                null,
+                null,
+                false,
+                Graphics.StringAlignment.Left);
+
+            //if (StringDrawFormat == null)
+            //{
+            //    StringDrawFormat = D2DStatic.StringFactory.CreateTextFormat(
+            //        "Arial",
+            //        20F,
+            //        FontWeight.Normal,
+            //        FontStyle.Normal,
+            //        FontStretch.Normal,
+            //        new System.Globalization.CultureInfo("en-us"));
+
+            //    StringDrawFormat.TextAlignment = TextAlignment.Leading;
+            //    StringDrawFormat.WordWrapping = WordWrapping.NoWrap;
+            //}
         }
 
         /// <summary>
@@ -43,46 +52,49 @@ namespace CarMP.ViewControls
         /// </summary>
         public string DisplayString { get; private set; }
 
-        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderer)
+        protected override void OnRender(IRenderer pRenderer)
         {
-            if (StringLayout == null)
-                StringLayout = D2DStatic.StringFactory.CreateTextLayout(DisplayString, StringDrawFormat, _bounds.Width, _bounds.Height);
-            
-            if(imageBitmap == null)
-                imageBitmap = D2DStatic.GetBitmap(imageBitmapData, pRenderer.Renderer);
+            if (_stringLayout == null)
+                _stringLayout = pRenderer.CreateStringLayout(_textStyle.Face, _textStyle.Size);
 
-            if (LinearGradient == null)
-            {
-                if (LinearGradient == null)
-                    LinearGradient = pRenderer.Renderer.CreateLinearGradientBrush(
-                            new LinearGradientBrushProperties()
-                            {
-                                StartPoint = new Point2F(0, 0),
-                                EndPoint = new Point2F(0, _bounds.Height)
-                            },
-                            pRenderer.Renderer.CreateGradientStopCollection(new GradientStop[] {
-                                new GradientStop
-                                    {
-                                        Color = new ColorF(Colors.Gray, 1),
-                                        Position = 0
-                                    }
-                                    ,
-                                new GradientStop
-                                    {
-                                        Color = new ColorF(Colors.White, 1),
-                                        Position = 1
-                                    }
-                                },
-                                Gamma.Gamma_10,
-                                ExtendMode.Clamp
-                        ));
+            if (_imageBitmap == null)
+                _imageBitmap = pRenderer.CreateImage(_imageBitmapPath);
 
-            }
+            if (_stringBrush == null)
+                _stringBrush = pRenderer.CreateBrush(Color.Gray);
+            // TODO: Gradients ? IGradientBrush? Or bitmaps?
+            //if (LinearGradient == null)
+            //{
+            //    if (LinearGradient == null)
+            //        LinearGradient = pRenderer.Renderer.CreateLinearGradientBrush(
+            //                new LinearGradientBrushProperties()
+            //                {
+            //                    StartPoint = new Point(0, 0),
+            //                    EndPoint = new Point(0, _bounds.Height)
+            //                },
+            //                pRenderer.Renderer.CreateGradientStopCollection(new GradientStop[] {
+            //                    new GradientStop
+            //                        {
+            //                            Color = new ColorF(Colors.Gray, 1),
+            //                            Position = 0
+            //                        }
+            //                        ,
+            //                    new GradientStop
+            //                        {
+            //                            Color = new ColorF(Colors.White, 1),
+            //                            Position = 1
+            //                        }
+            //                    },
+            //                    Gamma.Gamma_10,
+            //                    ExtendMode.Clamp
+            //            ));
 
-            LinearGradient.EndPoint = new Point2F(0, 0);
-            LinearGradient.StartPoint = new Point2F(0, _bounds.Height);
+            //}
 
-            pRenderer.DrawTextLayout(new Point2F(4, 0), StringLayout, LinearGradient);
+            //LinearGradient.EndPoint = new Point(0, 0);
+            //LinearGradient.StartPoint = new Point(0, _bounds.Height);
+
+            pRenderer.DrawString(new Point(4, 0), _stringLayout, _stringBrush);
 
             // Call base which will draw the selection is selected
             base.OnRender(pRenderer);

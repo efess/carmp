@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
 
 namespace CarMP.Reactive.Touch
 {
@@ -20,7 +20,7 @@ namespace CarMP.Reactive.Touch
     {
         public GestureType Gesture { get; private set; }
 
-        public TouchGesture(GestureType pGesture, Point2F pLocation)
+        public TouchGesture(GestureType pGesture, Point pLocation)
             : base(pLocation)
         {
             Gesture = pGesture;

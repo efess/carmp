@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
 using System.IO;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using CarMP.Skinning;
+using CarMP.Graphics;
 
 namespace CarMP.Settings
 {
@@ -65,14 +66,14 @@ namespace CarMP.Settings
         /// <summary>
         /// Start location of this screen
         /// </summary>
-        public Point2F WindowLocation {get;set;}
+        public Point WindowLocation {get;set;}
         /// <summary>
         /// Screen resolution (size of this window)
         /// </summary>
-        public SizeF ScreenResolution { get;  set; }
+        public Size ScreenResolution { get;  set; }
 
-        public ColorF DefaultFontColor { get;  set; }
-        public ColorF DefaultFontSpecialColor { get;  set; }
+        public Color DefaultFontColor { get;  set; }
+        public Color DefaultFontSpecialColor { get;  set; }
 
         public string SkinName { get;  set; }
         public Skin CurrentSkin { get; private set; }
@@ -111,10 +112,10 @@ namespace CarMP.Settings
             Debug = false;
             DatabaseLocation = @".\database.db";
             SettingsXmlLocation = @".\settings.xml";
-            WindowLocation = new Point2F(0, 0);
-            ScreenResolution = new SizeF(800, 480);
-            DefaultFontColor = new ColorF(198 / 256, 198 / 256, 198 / 256,1);
-            DefaultFontSpecialColor = new ColorF(205 / 256, 117 / 256, 2 / 256, 1);
+            WindowLocation = new Point(0, 0);
+            ScreenResolution = new Size(800, 480);
+            DefaultFontColor = new Color(198 / 256, 198 / 256, 198 / 256,1);
+            DefaultFontSpecialColor = new Color(205 / 256, 117 / 256, 2 / 256, 1);
             SkinName = "BMW";
             SkinPath = @"..\..\..\Images\Skins";        
             MusicPath = @"C:\Music";
@@ -243,7 +244,7 @@ namespace CarMP.Settings
                     case XML_WINDOW_LOCATION_NODE:
                         try
                         {
-                            WindowLocation = new Point2F(Convert.ToInt32(node.Attribute(XML_XCOORD_ATTR).Value), Convert.ToInt32(node.Attribute(XML_YCOORD_ATTR).Value));
+                            WindowLocation = new Point(Convert.ToInt32(node.Attribute(XML_XCOORD_ATTR).Value), Convert.ToInt32(node.Attribute(XML_YCOORD_ATTR).Value));
                         }
                         catch(Exception ex)
                         {
@@ -254,7 +255,7 @@ namespace CarMP.Settings
                     case XML_SCREEN_SIZE_NODE:
                         try
                         {
-                            ScreenResolution = new SizeF(Convert.ToInt32(node.Attribute(XML_WIDTH_ATTR).Value), Convert.ToInt32(node.Attribute(XML_HEIGHT_ATTR).Value));
+                            ScreenResolution = new Size(Convert.ToInt32(node.Attribute(XML_WIDTH_ATTR).Value), Convert.ToInt32(node.Attribute(XML_HEIGHT_ATTR).Value));
                         }
                         catch (Exception ex)
                         {

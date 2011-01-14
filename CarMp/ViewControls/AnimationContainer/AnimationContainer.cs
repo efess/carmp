@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
 using System.Xml;
 using CarMP.Reactive.Messaging;
+using CarMP.Graphics.Interfaces;
 
 namespace CarMP.ViewControls
 {
@@ -71,19 +72,19 @@ namespace CarMP.ViewControls
                 _currentPath.AnimationSetReverse();
         }
 
-        protected void SetLocation(Point2F pPoint)
+        protected void SetLocation(Point pPoint)
         {
-            Bounds = new RectF(pPoint.X, pPoint.Y, Bounds.Width + pPoint.X, Bounds.Height + pPoint.Y);
+            Bounds = new Rectangle(pPoint.X, pPoint.Y, Bounds.Width, Bounds.Height);
         }
 
-        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
+        protected override void OnRender(IRenderer pRenderer)
         {
-            base.OnRender(pRenderTarget);
+            base.OnRender(pRenderer);
         }
 
         protected override void PreRender()
         {
-            Point2F currentPoint = _currentPath.GetCurrentPoint();
+            Point currentPoint = _currentPath.GetCurrentPoint();
             SetLocation(currentPoint);
         }
 

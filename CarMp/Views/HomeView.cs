@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using CarMP.ViewControls;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
 
 namespace CarMP.Views
 {
     public class HomeView : D2DView
     {
         
-        internal HomeView(SizeF pWindowSize)
+        internal HomeView(Size pWindowSize)
             : base(pWindowSize) {}
         
         public override string Name

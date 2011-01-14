@@ -3,24 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using CarMP.Direct2D;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
-using Microsoft.WindowsAPICodePack.DirectX;
+using CarMP.Graphics.Geometry;
+using CarMP.Graphics;
+using CarMP.Graphics.Interfaces;
 
 namespace CarMP.ViewControls
 {
     public class SingleOptionRadio : Text
     {
-        private Brush _outlineBrush;
-        private Point2F _centerPoint;
+        private IBrush _outlineBrush;
+        private Point _centerPoint;
 
         public bool Checked { get; set; }
 
         public SingleOptionRadio()
         {
             // Defaults
-            this.Bounds = new RectF(0, 0, 150, 25);
-            this.TextStyle = new TextStyle(_bounds.Height - 3, "Arial", new[] { 255.0f, 255.0f, 255.0f, 255.0f }, null, true, Microsoft.WindowsAPICodePack.DirectX.DirectWrite.TextAlignment.Leading);
+            this.Bounds = new Rectangle(0, 0, 150, 25);
+            this.TextStyle = new TextStyle(_bounds.Height - 3, "Arial", Color.White, null, true, StringAlignment.Left);
         }
 
         public override void OnSizeChanged(object sender, EventArgs e)
@@ -28,20 +28,20 @@ namespace CarMP.ViewControls
             SetSize();
         }
 
-        protected override void OnRender(RenderTargetWrapper pRenderTarget)
+        protected override void OnRender(IRenderer pRenderer)
         {
             if(_outlineBrush == null)
-                _outlineBrush = pRenderTarget.Renderer.CreateSolidColorBrush(new ColorF(Colors.White));
+                _outlineBrush = pRenderer.CreateBrush(Color.White);
 
             float stroke = _bounds.Height / 8;
             float outerWidth = _bounds.Height / 2 - stroke;
             float innerWidth = outerWidth - stroke - 1;
 
-            pRenderTarget.DrawEllipse(new Ellipse(_centerPoint, outerWidth, outerWidth), _outlineBrush, stroke);
+            pRenderer.DrawEllipse(new Ellipse(_centerPoint, outerWidth, outerWidth),  _outlineBrush, stroke);
             if (Checked) 
-                pRenderTarget.FillEllipse(new Ellipse(_centerPoint, innerWidth, innerWidth), _outlineBrush);
+                pRenderer.FillEllipse(new Ellipse(_centerPoint, innerWidth, innerWidth), _outlineBrush);
             
-            base.OnRender(pRenderTarget);
+            base.OnRender(pRenderer);
         }
 
         protected override void OnTouchGesture(Reactive.Touch.TouchGesture pTouchGesture)
@@ -56,8 +56,8 @@ namespace CarMP.ViewControls
 
         private void SetSize()
         {
-            this.TextPosition = new Point2F(_bounds.Height + 3, 1);
-            _centerPoint = new Point2F(_bounds.Height / 2, _bounds.Height / 2);
+            this.TextPosition = new Point(_bounds.Height + 3, 1);
+            _centerPoint = new Point(_bounds.Height / 2, _bounds.Height / 2);
         }
 
         private void ControlClicked()

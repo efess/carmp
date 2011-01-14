@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
+using CarMP.Graphics.Interfaces;
+using CarMP.Helpers;
 
 namespace CarMP.ViewControls
 {
@@ -25,7 +27,7 @@ namespace CarMP.ViewControls
         {
             Clear();
 
-            SkinningHelper.XmlRectangleFEntry(XPATH_BOUNDS, pSkinNode, ref _bounds);
+            SkinningHelper.XmlRectangleEntry(XPATH_BOUNDS, pSkinNode, ref _bounds);
             _internalList.SelectedItemChanged += (sender, e) =>
             {
                 var listItem = e.SelectedItem as ShortcutListItem;
@@ -61,7 +63,7 @@ namespace CarMP.ViewControls
 
         }
 
-        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
+        protected override void OnRender(IRenderer pRenderer)
         {
         }
         

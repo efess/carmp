@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
-using Microsoft.WindowsAPICodePack.DirectX;
+using CarMP.Graphics.Geometry;
 using System.Windows.Forms;
 using CarMP.ViewControls.Interfaces;
+using CarMP.Graphics.Interfaces;
+using CarMP.Helpers;
 
 namespace CarMP.ViewControls
 {
@@ -15,12 +15,12 @@ namespace CarMP.ViewControls
     {
         private const string XPATH_TEXT_POSITION = "TextPosition";
         private const string XPATH_TEXT_STYLE = "TextStyle";
-        private Font _font;
 
-        private Point2F _textPosition;
-        protected Point2F TextPosition { get { return _textPosition; } set { _textPosition = value; } }
+        private Point _textPosition;
+        protected Point TextPosition { get { return _textPosition; } set { _textPosition = value; } }
         
-        private TextLayout StringLayout = null;
+        private IStringLayout _stringLayout = null;
+        private IBrush _stringBrush = null;
 
         private object stringLayoutLock = new Object();
         
@@ -31,27 +31,24 @@ namespace CarMP.ViewControls
         private TextStyle _textStyle;
         public TextStyle TextStyle { get { return _textStyle; }  set { _textStyle = value; _invalidateTextLayout = true; }}
 
+
         public void Dispose()
         {
-            if(StringLayout != null) StringLayout.Dispose();
-            if(_font != null) _font.Dispose();
-            if(_textStyle != null) _textStyle.Dispose();
+            if(_stringLayout != null) GraphicsHelper.DisposeIfImplementsIDisposable(_stringLayout);
             base.Dispose();
         }
-
-        private TextFormat StringDrawFormat = null;
         
         public Text()
         {
-            TextPosition = new Point2F(0, 0);
+            TextPosition = new Point(0, 0);
         }
 
         public override void ApplySkin(XmlNode pSkinNode, string pSkinPath)
         {
             base.ApplySkin(pSkinNode, pSkinPath);
 
-            TextPosition = new Point2F(0, 0);
-            SkinningHelper.XmlPointFEntry(XPATH_TEXT_POSITION, pSkinNode,ref _textPosition);
+            TextPosition = new Point(0, 0);
+            SkinningHelper.XmlPointEntry(XPATH_TEXT_POSITION, pSkinNode, ref _textPosition);
             if (SkinningHelper.XmlTextStyleEntry(XPATH_TEXT_STYLE, pSkinNode, ref _textStyle))
                 _invalidateTextLayout = true;
         }
@@ -70,43 +67,40 @@ namespace CarMP.ViewControls
         public float GetWidthAtCharPosition(int pCharPosition)
         {
             float xPixelLocation = 0.0f;
-            if (StringLayout != null)
+            if (_stringLayout != null)
             {
-                float yPixelLocation = 0.0f;
-                StringLayout.HitTestTextPosition((uint)pCharPosition, false, out xPixelLocation, out yPixelLocation);
+                _stringLayout.GetPointAtCharPosition(pCharPosition);
             }
             return xPixelLocation;
         }
 
-        public int GetTextPositionAtPoint(Point2F pPoint)
+        public int GetTextPositionAtPoint(Point pPoint)
         {
-            if (StringLayout != null)
+            if (_stringLayout != null)
             {
-                bool isTrailingHit;
-                bool isInside;
-                var metrics = StringLayout.HitTestPoint(pPoint.X, pPoint.Y, out isTrailingHit, out isInside);
-                if (!isInside && TextString.Length == (int)metrics.TextPosition + 1)
-                    return TextString.Length;
-                return (int)metrics.TextPosition;
+                return _stringLayout.GetCharPositionAtPoint(pPoint);
+
             }
             return 0;
         }
 
-        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
+        protected override void OnRender(IRenderer pRenderer)
         {
-            base.OnRender(pRenderTarget);
+            base.OnRender(pRenderer);
 
             if (_textString == null
                 || _textStyle == null) return;
 
-            if (_textStyle.Format == null)
-                _textStyle.Initialize(D2DStatic.StringFactory);
+            if(_stringBrush == null)
+                _stringBrush = pRenderer.CreateBrush(_textStyle.Color1);
+            //if (_textStyle.Format == null)
+            //    _textStyle.Initialize(D2DStatic.StringFactory);
 
             
-            if (StringLayout == null || _invalidateTextLayout)
-                StringLayout = D2DStatic.StringFactory.CreateTextLayout(_textString, _textStyle.Format, Bounds.Width, Bounds.Height);
+            if (_stringLayout == null || _invalidateTextLayout)
+                _stringLayout = pRenderer.CreateStringLayout(_textStyle.Face, _textStyle.Size);//D2DStatic.StringFactory.CreateTextLayout(_textString, _textStyle.Format, Bounds.Width, Bounds.Height);
 
-            pRenderTarget.DrawTextLayout(TextPosition, StringLayout, _textStyle.GetBrush(pRenderTarget));
+            pRenderer.DrawString(TextPosition, _stringLayout,  _stringBrush);
         }
 
         public override void SendUpdate(Reactive.ReactiveUpdate pReactiveUpdate)

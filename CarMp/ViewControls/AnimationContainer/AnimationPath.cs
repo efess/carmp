@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
 
 namespace CarMP.ViewControls
 {
     public class AnimationPath
     {
         private AnimationPathPoint _currentStartPoint;
-        private Point2F _lastPoint;
+        private Point _lastPoint;
         private long _lastTicks;
         private int _increment;
         private AnimationPathPoint _currentEndPoint;
@@ -33,7 +33,7 @@ namespace CarMP.ViewControls
             get { return PointCollection.Count; }
         }
 
-        public Point2F GetCurrentPoint()
+        public Point GetCurrentPoint()
         {
             if(CurrentState == AnimationState.Started)
                 IncrementAnimation();
@@ -101,7 +101,7 @@ namespace CarMP.ViewControls
             _lastTicks = currentTicks;
         }
 
-        private Point2F CalculateCurrentPoint(long pTicks)
+        private Point CalculateCurrentPoint(long pTicks)
         {
 
             //// GEOMETRY AND SHIT
@@ -115,7 +115,7 @@ namespace CarMP.ViewControls
             float velocity = totalDistance / _currentEndPoint.MoveTime; // pixels per ms (ppm)
             float additionalDistance = velocity * diffMs;
 
-            Point2F point = new Point2F(
+            Point point = new Point(
                 _lastPoint.X + additionalDistance * (float)Math.Cos(angleStartToEnd),
                 _lastPoint.Y + additionalDistance * (float)Math.Sin(angleStartToEnd));
 

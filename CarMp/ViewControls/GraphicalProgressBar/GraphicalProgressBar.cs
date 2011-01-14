@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
-using Microsoft.WindowsAPICodePack.DirectX;
+using CarMP.Graphics.Geometry;
+using CarMP.Graphics.Interfaces;
+using CarMP.Graphics;
 
 namespace CarMP.ViewControls
 {
@@ -15,16 +16,15 @@ namespace CarMP.ViewControls
         private const string XPATH_BOUNDS = "Bounds";
         private const string XPATH_HANDLE_IMAGE = "HandleImg";
 
-        private Point2F _mouseOffsetOnHandle;
+        private Point _mouseOffsetOnHandle;
         private bool _mouseHasHandle;
 
-        private RectF _currentHandleBounds;
+        private Rectangle _currentHandleBounds;
 
-        private static SolidColorBrush GrayBrush = null;
+        private static IBrush _grayBrush = null;
 
-        private Direct2D.BitmapData _scrollBarHandleImageData;
-        
-        private D2DBitmap ScrollBarHandle = null;
+        private string _scrollBarHandleImagePath;
+        private IImage _scrollBarHandle = null;
 
         private int _maximumValue;
         public int MaximumValue { get { return _maximumValue; } set { _maximumValue = value; } }
@@ -45,37 +45,47 @@ namespace CarMP.ViewControls
             {
                 Bounds = XmlHelper.GetBoundsRectangle(xmlNode.InnerText);
             }
-            xmlNode = pXmlNode.SelectSingleNode(XPATH_HANDLE_IMAGE);
-            if (xmlNode != null)
-                _scrollBarHandleImageData = new Direct2D.BitmapData(System.IO.Path.Combine(pSkinPath, xmlNode.InnerText));
+            
+            Helpers.SkinningHelper.XmlValidFilePath(
+                XPATH_HANDLE_IMAGE,
+                pXmlNode,
+                pSkinPath,
+                ref _scrollBarHandleImagePath);
         }
 
-        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
+        protected override void OnRender(IRenderer pRenderer)
         {
-            if(GrayBrush == null)
-                GrayBrush= pRenderTarget.Renderer.CreateSolidColorBrush(new ColorF(Colors.Gray, 1f));
+            if(_grayBrush == null)
+                _grayBrush= pRenderer.CreateBrush(Color.Gray);
 
-            if (ScrollBarHandle == null
-                && _scrollBarHandleImageData.Data != null)
+            if (_scrollBarHandle == null
+                && !string.IsNullOrEmpty(_scrollBarHandleImagePath))
             {
-                ScrollBarHandle = D2DStatic.GetBitmap(_scrollBarHandleImageData, pRenderTarget.Renderer);
+                _scrollBarHandle = pRenderer.CreateImage(_scrollBarHandleImagePath);
             }
+
+            if (_scrollBarHandle == null)
+                return;
+            
             float currentPosition = CurrentHandleXPosition();
-            _currentHandleBounds = new RectF(currentPosition,
+            _currentHandleBounds = new Rectangle(currentPosition,
                     0,
-                    currentPosition + _scrollBarHandleImageData.Width,
-                    _scrollBarHandleImageData.Height);
+                    _scrollBarHandle.Size.Width,
+                    _scrollBarHandle.Size.Height);
                     
 
-            pRenderTarget.DrawBitmap(ScrollBarHandle, _currentHandleBounds);
+            pRenderer.DrawImage(_currentHandleBounds, _scrollBarHandle, 1F);
 
-            pRenderTarget.DrawRectangle(GrayBrush, new RectF(0, 0, Bounds.Width, Bounds.Height), 2F);
+            pRenderer.DrawRectangle(_grayBrush, new Rectangle(0, 0, Bounds.Width, Bounds.Height), 2F);
         }
 
         private int CurrentHandleXPosition()
         {
+            if (_scrollBarHandle == null)
+                return 0;
+
             return Convert.ToInt32(((float)Value / (float)(MaximumValue - MinimumValue))
-            * (this.Bounds.Width - (float)_scrollBarHandleImageData.Width));
+            * (this.Bounds.Width - (float)_scrollBarHandle.Size.Width));
         }
         //protected override void OnMouseMove(System.Windows.Forms.MouseEventArgs e)
         //{

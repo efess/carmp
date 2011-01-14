@@ -4,8 +4,9 @@ using System;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using CarMP.Reactive.KeyInput;
 using CarMP.Reactive.Touch;
-using CarMP.Direct2D;
 using CarMP.Reactive;
+using CarMP.Graphics.Interfaces;
+using CarMP.Graphics.Geometry;
 
 namespace CarMP.Tests
 {
@@ -70,7 +71,7 @@ namespace CarMP.Tests
 
         internal class D2DViewControlStub : D2DViewControl
         {
-            protected override void OnRender(RenderTargetWrapper pRenderTarget)
+            protected override void OnRender(IRenderer pRenderTarget)
             {
                 throw new NotImplementedException();
             }
@@ -115,9 +116,9 @@ namespace CarMP.Tests
         public void ConvertScreenToControlPointTest()
         {
             D2DViewControl target = CreateD2DViewControl(); // TODO: Initialize to an appropriate value
-            Point2F pPointToConvert = new Point2F(); // TODO: Initialize to an appropriate value
-            Point2F expected = new Point2F(); // TODO: Initialize to an appropriate value
-            Point2F actual;
+            Point pPointToConvert = new Point(); // TODO: Initialize to an appropriate value
+            Point expected = new Point(); // TODO: Initialize to an appropriate value
+            Point actual;
             actual = target.ConvertScreenToControlPoint(pPointToConvert);
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
@@ -141,19 +142,19 @@ namespace CarMP.Tests
         public void GetAllowedRenderingAreaTest()
         {
             D2DViewControl root = CreateD2DViewControl();
-            root.Bounds = new RectF(0, 0, 5, 5);
+            root.Bounds = new Rectangle(0, 0, 5, 5);
              
             D2DViewControl immediateParent = CreateD2DViewControl();
-            immediateParent.Bounds = new RectF(2, -2, 7, 3);
+            immediateParent.Bounds = new Rectangle(2, -2, 5, 5);
             root.AddViewControl(immediateParent);
 
             D2DViewControl child = CreateD2DViewControl();
-            child.Bounds = new RectF(-4, 0, 1, 5);
+            child.Bounds = new Rectangle(-4, 0, 5, 5);
             immediateParent.AddViewControl(child);
 
-            RectF actual = child.GetAllowedScreenRenderingArea();
-            RectF expected = new RectF(4, 2, 5, 5);
-
+            Rectangle actual = child.GetAllowedScreenRenderingArea();
+            Rectangle expected = new Rectangle(4, 2, 1, 3);
+            
             Assert.AreEqual(expected, actual);
         }
 
@@ -164,8 +165,8 @@ namespace CarMP.Tests
         public void GetScreenBoundsTest()
         {
             D2DViewControl target = CreateD2DViewControl(); // TODO: Initialize to an appropriate value
-            RectF expected = new RectF(); // TODO: Initialize to an appropriate value
-            RectF actual;
+            Rectangle expected = new Rectangle(); // TODO: Initialize to an appropriate value
+            Rectangle actual;
             actual = target.GetScreenBounds();
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
@@ -178,8 +179,8 @@ namespace CarMP.Tests
         public void GetScreenPointTest()
         {
             D2DViewControl target = CreateD2DViewControl(); // TODO: Initialize to an appropriate value
-            Point2F expected = new Point2F(); // TODO: Initialize to an appropriate value
-            Point2F actual;
+            Point expected = new Point(); // TODO: Initialize to an appropriate value
+            Point actual;
             actual = target.GetScreenPoint();
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
@@ -192,9 +193,9 @@ namespace CarMP.Tests
         public void GetScreenPointTest1()
         {
             D2DViewControl target = CreateD2DViewControl(); // TODO: Initialize to an appropriate value
-            Point2F pPointToAdd = new Point2F(); // TODO: Initialize to an appropriate value
-            Point2F expected = new Point2F(); // TODO: Initialize to an appropriate value
-            Point2F actual;
+            Point pPointToAdd = new Point(); // TODO: Initialize to an appropriate value
+            Point expected = new Point(); // TODO: Initialize to an appropriate value
+            Point actual;
             actual = target.GetScreenPoint(pPointToAdd);
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
@@ -208,7 +209,7 @@ namespace CarMP.Tests
         {
             D2DViewControl target = CreateD2DViewControl(); // TODO: Initialize to an appropriate value
             D2DViewControl pViewControl = null; // TODO: Initialize to an appropriate value
-            Point2F pPoint = new Point2F(); // TODO: Initialize to an appropriate value
+            Point pPoint = new Point(); // TODO: Initialize to an appropriate value
             D2DViewControl expected = null; // TODO: Initialize to an appropriate value
             D2DViewControl actual;
             actual = target.GetViewControlContainingPoint(pViewControl, pPoint);
@@ -223,7 +224,7 @@ namespace CarMP.Tests
         public void GetViewControlContainingPointTest1()
         {
             D2DViewControl target = CreateD2DViewControl(); // TODO: Initialize to an appropriate value
-            Point2F pPoint = new Point2F(); // TODO: Initialize to an appropriate value
+            Point pPoint = new Point(); // TODO: Initialize to an appropriate value
             D2DViewControl expected = null; // TODO: Initialize to an appropriate value
             D2DViewControl actual;
             actual = target.GetViewControlContainingPoint(pPoint);
@@ -391,7 +392,7 @@ namespace CarMP.Tests
         public void RenderTest()
         {
             D2DViewControl target = CreateD2DViewControl(); // TODO: Initialize to an appropriate value
-            RenderTargetWrapper pRenderTarget = null; // TODO: Initialize to an appropriate value
+            IRenderer pRenderTarget = null; // TODO: Initialize to an appropriate value
             target.Render(pRenderTarget);
             Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }

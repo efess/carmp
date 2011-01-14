@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using System.Drawing;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
 using CarMP.Reactive.KeyInput;
 using CarMP.Win32;
 using System.Diagnostics;
@@ -20,10 +19,10 @@ namespace CarMP.Reactive
         private bool _isDownHolding;
         private bool _isDown;
         private bool _isInSwipe;
-        private Point2F _downPoint;
+        private Point _downPoint;
         private DateTime _downTime;
-        private Point2F _previousPoint;
-        private Point2F _startHighVelocityPoint;
+        private Point _previousPoint = new Point();
+        private Point _startHighVelocityPoint;
         private DateTime _previousPointTime;
         private System.Threading.Timer _waitTimer;
 
@@ -138,7 +137,7 @@ namespace CarMP.Reactive
             SendKeyInput(new Key(pChar, pKeyChar));
         }
 
-        private void ProcessMouseUp(Point2F pMouseCoordinate)
+        private void ProcessMouseUp(Point pMouseCoordinate)
         {
             // Check for Click
             _isDown = false;
@@ -154,7 +153,7 @@ namespace CarMP.Reactive
             }
         }
 
-        private void ProcessMouseDown(Point2F pMouseCoordinate)
+        private void ProcessMouseDown(Point pMouseCoordinate)
         {
             _isInSwipe = false;
             _isDown = true;
@@ -171,10 +170,10 @@ namespace CarMP.Reactive
                 System.Threading.Timeout.Infinite);
         }
 
-        private void ProcessMouseMove(Point2F pMouseCoordinate)
+        private void ProcessMouseMove(Point pMouseCoordinate)
         {
             DateTime dt = DateTime.Now;
-            Point2F mousePoint = pMouseCoordinate;
+            Point mousePoint = pMouseCoordinate;
 
             if (dt == _previousPointTime) return;
 
@@ -256,9 +255,9 @@ namespace CarMP.Reactive
             _previousPoint = mousePoint;
         }
 
-        private Point2F GetMouseCoordFromLParam(int pLParam)
+        private Point GetMouseCoordFromLParam(int pLParam)
         {
-            return new Point2F((pLParam & 0xFFFF), pLParam >> 16);
+            return new Point((pLParam & 0xFFFF), pLParam >> 16);
         }
 
         private void ProcessVelocity(object pStateObject)

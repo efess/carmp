@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CarMP.Direct2D;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
-using Microsoft.WindowsAPICodePack.DirectX;
+using CarMP.Graphics.Geometry;
+using CarMP.Graphics.Interfaces;
+using CarMP.Graphics;
 
 namespace CarMP.ViewControls
 {
     public class Container : ViewControlCommonBase, IDisposable
     {
-        private Brush _borderBrush;
+        private IBrush _borderBrush;
         public Container()
         {
             // Defaults
@@ -18,21 +18,22 @@ namespace CarMP.ViewControls
 
         public override void Dispose()
         {
-            if (_borderBrush != null) _borderBrush.Dispose();
+            if (_borderBrush != null)
+                Helpers.GraphicsHelper.DisposeIfImplementsIDisposable(_borderBrush);
             base.Dispose();
         }
 
         public bool UseBorder { get; set; }
 
-        protected override void OnRender(RenderTargetWrapper pRenderTarget)
+        protected override void OnRender(IRenderer pRenderer)
         {
-            base.OnRender(pRenderTarget);
+            base.OnRender(pRenderer);
 
             if (UseBorder && _borderBrush == null)
-                pRenderTarget.Renderer.CreateSolidColorBrush(new ColorF(Colors.LightGray));
+                pRenderer.CreateBrush(Color.LightGray);
 
             if(UseBorder)
-                pRenderTarget.DrawRectangle(_borderBrush, new RectF(this.Bounds.Left + 1, this.Bounds.Top + 1, this.Bounds.Right - 2, this.Bounds.Bottom - 2), 1);
+                pRenderer.DrawRectangle(_borderBrush, new Rectangle(this.Bounds.Left + 1, this.Bounds.Top + 1, this.Bounds.Width - 2, this.Bounds.Height - 2), 1);
         }        
     }
 }

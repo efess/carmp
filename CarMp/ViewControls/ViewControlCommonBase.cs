@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
 using System.Xml;
+using CarMP.Graphics.Interfaces;
+using CarMP.Graphics;
+using CarMP.Helpers;
 
 namespace CarMP.ViewControls
 {
@@ -13,15 +16,17 @@ namespace CarMP.ViewControls
         private const string XPATH_BACKGROUND_COLOR = "BackgroundColor";
         private const string XPATH_BOUNDS = "Bounds";
 
-        private D2DBitmap _backGroundBitmap;
-        private Direct2D.BitmapData _backGroundBitmapData;
-        private ColorF _backgroundColor;
-        private SolidColorBrush _backgroundColorBrush;
+        private IImage _backGroundBitmap;
+        private string _backGroundBitmapPath;
+        private Color _backgroundColor;
+        private IBrush _backgroundColorBrush;
 
         public virtual void Dispose()
         {
-            if (_backgroundColorBrush != null) _backgroundColorBrush.Dispose();
-            if (_backGroundBitmap != null) _backGroundBitmap.Dispose();
+            if (_backgroundColorBrush != null) 
+                Helpers.GraphicsHelper.DisposeIfImplementsIDisposable(_backgroundColorBrush);
+            if (_backGroundBitmap != null) 
+                Helpers.GraphicsHelper.DisposeIfImplementsIDisposable(_backGroundBitmap);
         }
 
         public virtual string Name { get; private set; }
@@ -34,9 +39,9 @@ namespace CarMP.ViewControls
             
             Name = pXmlNode.Name;
 
-            if (SkinningHelper.XmlRectangleFEntry(XPATH_BOUNDS, pXmlNode, ref _bounds))
+            if (SkinningHelper.XmlRectangleEntry(XPATH_BOUNDS, pXmlNode, ref _bounds))
                 OnSizeChanged(null, null);
-            if (SkinningHelper.XmlBitmapEntry(XPATH_BACKGROUND_IMAGE, pXmlNode, pSkinPath, ref _backGroundBitmapData))
+            if (SkinningHelper.XmlValidFilePath(XPATH_BACKGROUND_IMAGE, pXmlNode, pSkinPath, ref _backGroundBitmapPath))
                 _backGroundBitmap = null;
 
             _hasColor = SkinningHelper.XmlColorEntry(XPATH_BACKGROUND_COLOR, pXmlNode, ref _backgroundColor);
@@ -57,33 +62,33 @@ namespace CarMP.ViewControls
             }
         }
 
-        public virtual void SetBackground(Direct2D.BitmapData pBitmap)
+        public virtual void SetBackground(string pBitmapPath)
         {
-            _backGroundBitmapData = pBitmap;
+            _backGroundBitmapPath = pBitmapPath;
             _backGroundBitmap = null;
         }
 
-        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
+        protected override void OnRender(IRenderer pRenderer)
         {
             if (_hasColor &&
                 _backgroundColorBrush == null)
             {
-                _backgroundColorBrush = pRenderTarget.Renderer.CreateSolidColorBrush(_backgroundColor);
+                _backgroundColorBrush = pRenderer.CreateBrush(_backgroundColor);
             }
             if (_backgroundColorBrush != null)
             {
-                pRenderTarget.FillRectangle(_backgroundColorBrush, new RectF(0,0,_bounds.Width,_bounds.Height));
+                pRenderer.FillRectangle(_backgroundColorBrush, new Rectangle(0,0,_bounds.Width,_bounds.Height));
             }
 
             if (_backGroundBitmap == null
-                && _backGroundBitmapData.Data != null)
+                && !string.IsNullOrEmpty(_backGroundBitmapPath))
             {
-                _backGroundBitmap = D2DStatic.GetBitmap(_backGroundBitmapData, pRenderTarget.Renderer);
+                _backGroundBitmap = pRenderer.CreateImage(_backGroundBitmapPath);
             }
 
             if (_backGroundBitmap != null)
             {
-                pRenderTarget.DrawBitmap(_backGroundBitmap, new RectF(0, 0, Bounds.Width, Bounds.Height));
+                pRenderer.DrawImage(new Rectangle(0, 0, Bounds.Width, Bounds.Height), _backGroundBitmap, 1F);
             }
         }
     }

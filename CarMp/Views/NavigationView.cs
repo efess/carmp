@@ -4,8 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using CarMP.ViewControls;
-using CarMP.Direct2D;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
 
 namespace CarMP.Views
 {
@@ -15,7 +14,7 @@ namespace CarMP.Views
         private const string XPATH_NAVIGATION_NODE = "NavigationBar";
         private const string XPATH_BUTTONS = "Buttons/*";
 
-        public NavigationView(SizeF pWindowSize)
+        public NavigationView(Size pWindowSize)
             : base(pWindowSize) { }
 
         //public virtual void ApplySkin(XmlNode pSkinNode, string pSkinPath)

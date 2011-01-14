@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
-using Microsoft.WindowsAPICodePack.DirectX;
+using CarMP.Graphics.Geometry;
+using CarMP.Graphics.Interfaces;
+using CarMP.Helpers;
+using CarMP.Graphics;
 
 namespace CarMP.ViewControls
 {
@@ -13,14 +14,14 @@ namespace CarMP.ViewControls
     {
         public event EventHandler ScrollChanged;
 
-        // Direct2d Resources
-        private D2DBitmap OverlayMask = null;
-        private D2DBitmap Background = null;
-        private SolidColorBrush ProgressBrush = null;
+        // Graphics Resources
+        private IImage OverlayMask = null;
+        private IImage Background = null;
+        private IBrush ProgressBrush = null;
 
-        private Direct2D.BitmapData _background;
-        private Direct2D.BitmapData _overlayMask;
-        private RectF _progressBounds;
+        private string _backgroundPath;
+        private string _overlayMaskPath;
+        private Rectangle _progressBounds;
 
         private const string XPATH_BOUNDS = "Bounds";
         private const string XPATH_OVERLAY_MASK = "OverlayMask";
@@ -41,44 +42,45 @@ namespace CarMP.ViewControls
 
         public void ApplySkin(XmlNode pXmlNode, string pSkinPath)
         {
-            SkinningHelper.XmlRectangleFEntry(XPATH_BOUNDS, pXmlNode, ref _bounds);
-            SkinningHelper.XmlBitmapEntry(XPATH_OVERLAY_MASK, pXmlNode, pSkinPath, ref _overlayMask);
-            SkinningHelper.XmlBitmapEntry(XPATH_BACKGROUND, pXmlNode, pSkinPath, ref _background);
+            SkinningHelper.XmlRectangleEntry(XPATH_BOUNDS, pXmlNode, ref _bounds);
+            SkinningHelper.XmlValidFilePath(XPATH_OVERLAY_MASK, pXmlNode, pSkinPath, ref _overlayMaskPath);
+            SkinningHelper.XmlValidFilePath(XPATH_BACKGROUND, pXmlNode, pSkinPath, ref _backgroundPath);
         }
 
-        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
+        protected override void OnRender(IRenderer pRenderer)
         {
             if (Background == null
-                && _background.Data != null)
+                && !string.IsNullOrEmpty(_backgroundPath))
             {
-                Background = D2DStatic.GetBitmap(_background, pRenderTarget.Renderer);
+                Background = pRenderer.CreateImage(_backgroundPath);
             }
 
             if (OverlayMask == null
-                && _overlayMask.Data != null)
+                && !string.IsNullOrEmpty(_overlayMaskPath))
             {
-                OverlayMask = D2DStatic.GetBitmap(_overlayMask, pRenderTarget.Renderer);
+                OverlayMask = pRenderer.CreateImage(_overlayMaskPath);
             }
 
 
             if(ProgressBrush == null)
             {
-                ProgressBrush = pRenderTarget.Renderer.CreateSolidColorBrush(new ColorF(Colors.OrangeRed, 1f));
+                ProgressBrush = pRenderer.CreateBrush(new Color(.8f,.2f,.2f));
             }
 
-            _progressBounds = new RectF(0,
+            _progressBounds = new Rectangle(0,
                 0,
                 CurrentValueXPosition(),
                 Bounds.Height);
 
             if (Background != null)
-                pRenderTarget.DrawBitmap(Background, new RectF(0, 0, Bounds.Width, Bounds.Height));
+                pRenderer.DrawImage(new Rectangle(0, 0, Bounds.Width, Bounds.Height), Background, 1f);
 
-            pRenderTarget.FillRectangle(ProgressBrush, _progressBounds);
+            pRenderer.FillRectangle(ProgressBrush, _progressBounds);
 
             if(OverlayMask != null)
-                pRenderTarget.DrawBitmap(OverlayMask, new RectF(0,0,Bounds.Width, Bounds.Height));
-            //pRenderTarget.DrawRectangle(GrayBrush, new Rectangle(0, 0, (int)Bounds.Width, (int)Bounds.Height));
+                pRenderer.DrawImage(new Rectangle(0, 0, Bounds.Width, Bounds.Height), OverlayMask, 1f);
+
+            //pRenderer.DrawRectangle(_grayBrush, new Rectangle(0, 0, (int)Bounds.Width, (int)Bounds.Height));
         }
 
         private float CurrentValueXPosition()

@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Drawing;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
 
 namespace CarMP.ViewControls
 {
@@ -12,7 +11,7 @@ namespace CarMP.ViewControls
         /// <summary>
         /// Location of control at this point
         /// </summary>
-        public Point2F Location { get; private set;}
+        public Point Location { get; private set;}
         /// <summary>
         /// Opacity of controls at this point
         /// </summary>
@@ -25,7 +24,7 @@ namespace CarMP.ViewControls
 
         public AnimationPathPoint(float pX, float pY, int pMoveTime, float pOpacity)
         {
-            Location = new Point2F(pX, pY);
+            Location = new Point(pX, pY);
             Opacity = pOpacity;
             MoveTime = pMoveTime;
         }

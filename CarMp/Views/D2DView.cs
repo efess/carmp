@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CarMP.ViewControls;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
 
 namespace CarMP.Views
 {
     public abstract class D2DView : ViewControlCommonBase
     {
         public abstract string Name { get; }
-        protected D2DView(SizeF pWindowSize)
+        protected D2DView(Size pWindowSize)
         {
-            Bounds = new RectF(0, 0, pWindowSize.Width, pWindowSize.Height);
+            Bounds = new Rectangle(0, 0, pWindowSize.Width, pWindowSize.Height);
         }
     }
 }

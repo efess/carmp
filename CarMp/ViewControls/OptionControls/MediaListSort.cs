@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using CarMP.Graphics.Geometry;
+using CarMP.Graphics.Interfaces;
 
 namespace CarMP.ViewControls.OptionControls
 {
@@ -19,7 +21,7 @@ namespace CarMP.ViewControls.OptionControls
             MediaSort currentSort = AppMain.Settings.SortMedia;
 
             var option = new SingleOptionRadio();
-            option.Bounds = new Microsoft.WindowsAPICodePack.DirectX.Direct2D1.RectF(5, 5, 200, 30);
+            option.Bounds = new Rectangle(5, 5, 195, 25);
             AddViewControl(option);
             option.TextString = "Track";
             option.Checked = currentSort == MediaSort.Track;
@@ -27,7 +29,7 @@ namespace CarMP.ViewControls.OptionControls
             option.InputLeave += () => SetFormat(MediaSort.Track);
 
             option = new SingleOptionRadio();
-            option.Bounds = new Microsoft.WindowsAPICodePack.DirectX.Direct2D1.RectF(5, 40, 200, 65);
+            option.Bounds = new Rectangle(5, 40, 195, 25);
             AddViewControl(option);
             option.TextString = "FileName";
             option.StartRender();
@@ -35,7 +37,7 @@ namespace CarMP.ViewControls.OptionControls
             option.InputLeave += () => SetFormat(MediaSort.FileName);
 
             option = new SingleOptionRadio();
-            option.Bounds = new Microsoft.WindowsAPICodePack.DirectX.Direct2D1.RectF(5, 75, 200, 100);
+            option.Bounds = new Rectangle(5, 75, 195, 25);
             AddViewControl(option);
             option.TextString = "Title";
             option.Checked = currentSort == MediaSort.Title;
@@ -49,7 +51,7 @@ namespace CarMP.ViewControls.OptionControls
             AppMain.Settings.SaveXml();
         }
 
-        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
+        protected override void OnRender(IRenderer pRenderer)
         {
         }
     }

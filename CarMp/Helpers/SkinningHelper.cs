@@ -2,44 +2,47 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Drawing;
 using System.Xml;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
+using CarMP.Graphics;
 
-namespace CarMP
+namespace CarMP.Helpers
 {
     public static class SkinningHelper
     {
 
-        public static bool XmlBitmapEntry(string pXpath, XmlNode pXmlNode, string pSkinPath, ref Direct2D.BitmapData pBitmap)
+        public static bool XmlValidFilePath(string pXpath, XmlNode pXmlNode, string pSkinPath, ref string pFilePath)
         {
             XmlNode xmlNode = pXmlNode.SelectSingleNode(pXpath);
             if (xmlNode != null)
             {
-                pBitmap = new Direct2D.BitmapData(System.IO.Path.Combine(pSkinPath, xmlNode.InnerText));
-                return true;
-            }
-            pBitmap = pBitmap;
-            return false;
-        }
-
-        public static bool XmlRectangleFEntry(string pXpath, XmlNode pXmlNode, ref RectF pRectangleF)
-        {
-            XmlNode xmlNode = pXmlNode.SelectSingleNode(pXpath);
-            if (xmlNode != null)
-            {
-                pRectangleF = XmlHelper.GetBoundsRectangle(xmlNode.InnerText);
-                return true;
+                string tempPath = System.IO.Path.Combine(pSkinPath, xmlNode.InnerText);
+                if (System.IO.File.Exists(tempPath))
+                {
+                    pFilePath = System.IO.Path.Combine(pSkinPath, xmlNode.InnerText);
+                    return true;
+                }
             }
             return false;
         }
 
-        public static bool XmlPointFEntry(string pXpath, XmlNode pXmlNode, ref Point2F pPointF)
+        public static bool XmlRectangleEntry(string pXpath, XmlNode pXmlNode, ref Rectangle pRectangle)
         {
             XmlNode xmlNode = pXmlNode.SelectSingleNode(pXpath);
             if (xmlNode != null)
             {
-                pPointF = XmlHelper.GetPoint(xmlNode.InnerText);
+                pRectangle = XmlHelper.GetBoundsRectangle(xmlNode.InnerText);
+                return true;
+            }
+            return false;
+        }
+
+        public static bool XmlPointEntry(string pXpath, XmlNode pXmlNode, ref Point pPoint)
+        {
+            XmlNode xmlNode = pXmlNode.SelectSingleNode(pXpath);
+            if (xmlNode != null)
+            {
+                pPoint = XmlHelper.GetPoint(xmlNode.InnerText);
                 return true;
             }
             return false;
@@ -56,12 +59,12 @@ namespace CarMP
             return false;
         }
 
-        public static bool XmlColorEntry(string pXpath, XmlNode pXmlNode, ref ColorF pColor)
+        public static bool XmlColorEntry(string pXpath, XmlNode pXmlNode, ref Color pColor)
         {
             XmlNode xmlNode = pXmlNode.SelectSingleNode(pXpath);
             if (xmlNode != null)
             {
-                pColor = D2DStatic.ConvertToColorF(XmlHelper.ConvertColor(xmlNode.InnerText));
+                pColor = GraphicsHelper.ConvertFloatArrayToColor(XmlHelper.ConvertColor(xmlNode.InnerText));
                 
                 return true;
             }

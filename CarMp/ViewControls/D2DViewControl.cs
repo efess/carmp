@@ -5,10 +5,11 @@ using System.Text;
 using System.Windows.Forms;
 using CarMP.Views;
 using CarMP.Reactive.Touch;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
 using CarMP.Reactive;
 using CarMP.Reactive.KeyInput;
 using CarMP.Reactive.Messaging;
+using CarMP.Graphics.Interfaces;
 
 namespace CarMP.ViewControls
 {
@@ -35,7 +36,7 @@ namespace CarMP.ViewControls
             OnRenderStop();
         }
 
-        public D2DViewControl GetViewControlContainingPoint(Point2F pPoint)
+        public D2DViewControl GetViewControlContainingPoint(Point pPoint)
         {
             D2DViewControl control = GetViewControlContainingPoint(this, pPoint);
 
@@ -45,7 +46,7 @@ namespace CarMP.ViewControls
             return control == this ? null : control;
         }
 
-        public D2DViewControl GetViewControlContainingPoint(D2DViewControl pViewControl, Point2F pPoint)
+        public D2DViewControl GetViewControlContainingPoint(D2DViewControl pViewControl, Point pPoint)
         {
             if(pViewControl != null)
             {
@@ -65,16 +66,16 @@ namespace CarMP.ViewControls
             return pViewControl;
         }
 
-        public Point2F Location
+        public Point Location
         {
             get
             {
-                return new Point2F(Bounds.Left, Bounds.Top);
+                return new Point(Bounds.Left, Bounds.Top);
             }
         }
 
-        protected RectF _bounds;
-        public RectF Bounds
+        protected Rectangle _bounds;
+        public Rectangle Bounds
         {
             get { return _bounds; }
             set { 
@@ -94,55 +95,56 @@ namespace CarMP.ViewControls
 
         protected virtual void PreRender() { }
 
-        public void Render(Direct2D.RenderTargetWrapper pRenderTarget)
+        public void Render(IRenderer pRenderer)
         {
             if (_canRender)
             {
                 PreRender();
 
-                pRenderTarget.CurrentBounds = GetScreenBounds();
-                pRenderTarget.Renderer.PushAxisAlignedClip(GetAllowedScreenRenderingArea() , AntialiasMode.PerPrimitive);
+                pRenderer.CurrentBounds = GetScreenBounds();
+                //pRenderer.Renderer.PushAxisAlignedClip(GetAllowedScreenRenderingArea() , AntialiasMode.PerPrimitive);
+                pRenderer.PushClip(GetAllowedScreenRenderingArea());
 
-                OnRender(pRenderTarget);
+                OnRender(pRenderer);
 
-                pRenderTarget.Renderer.PopAxisAlignedClip();
+                pRenderer.PopClip();
 
                 lock(_viewControls)
                     for(int i = _viewControls.Count-1; i >= 0; i--)
                     {
                         if(!Bounds.Intersect(_viewControls[i].Bounds).IsEmpty())
-                            _viewControls[i].Render(pRenderTarget);
+                            _viewControls[i].Render(pRenderer);
                     }
             }
         }
 
-        internal RectF GetAllowedScreenRenderingArea()
+        internal Rectangle GetAllowedScreenRenderingArea()
         {
             return GetAllowedScreenRenderingArea(GetScreenBounds());
         }
 
-        private RectF GetAllowedScreenRenderingArea(RectF pOtherBounds)
+        private Rectangle GetAllowedScreenRenderingArea(Rectangle pOtherBounds)
         {
             if (Parent == null)
                 return pOtherBounds;
 
-            RectF newRectf = Parent.GetScreenBounds().Intersect(pOtherBounds);
+            Rectangle newRectf = Parent.GetScreenBounds().Intersect(pOtherBounds);
 
             return newRectf.IsEmpty() ? newRectf : Parent.GetAllowedScreenRenderingArea(newRectf);
         }
 
-        internal RectF GetScreenBounds()
+        internal Rectangle GetScreenBounds()
         {
             return GetScreenBounds(Bounds);
         }
 
-        private RectF GetScreenBounds(RectF pBounds)
+        private Rectangle GetScreenBounds(Rectangle pBounds)
         {
-            Point2F screenPoint = GetScreenPoint();
-            return new RectF(screenPoint.X, screenPoint.Y, screenPoint.X + pBounds.Width, screenPoint.Y + pBounds.Height);
+            Point screenPoint = GetScreenPoint();
+            return new Rectangle(screenPoint.X, screenPoint.Y, pBounds.Width, pBounds.Height);
         }
 
-        internal Point2F GetScreenPoint()
+        internal Point GetScreenPoint()
         {
             if (Parent == null)
                 return Location;
@@ -150,20 +152,20 @@ namespace CarMP.ViewControls
             return GetScreenPoint(Location);
         }
 
-        internal Point2F GetScreenPoint(Point2F pPointToAdd)
+        internal Point GetScreenPoint(Point pPointToAdd)
         {
             if (Parent == null)
                 return pPointToAdd;
 
             return Parent.GetScreenPoint(
-                new Point2F(
+                new Point(
                     pPointToAdd.X + Parent.Bounds.Left, 
                     pPointToAdd.Y + Parent.Bounds.Top));
         }
 
-        internal Point2F ConvertScreenToControlPoint(Point2F pPointToConvert)
+        internal Point ConvertScreenToControlPoint(Point pPointToConvert)
         {
-            Point2F newPoint = new Point2F(pPointToConvert.X - Bounds.Left, pPointToConvert.Y - Bounds.Top);
+            Point newPoint = new Point(pPointToConvert.X - Bounds.Left, pPointToConvert.Y - Bounds.Top);
             if (Parent != null)
             {
                 return Parent.ConvertScreenToControlPoint(newPoint);
@@ -172,10 +174,10 @@ namespace CarMP.ViewControls
         }
 
 
-        protected abstract void OnRender(Direct2D.RenderTargetWrapper pRenderTarget);
+        protected abstract void OnRender(IRenderer pRenderer);
 
         public event Action InputLeave;
-        public SizeF Size { get { return new SizeF(_bounds.Width, _bounds.Height); } }
+        public Size Size { get { return new Size(_bounds.Width, _bounds.Height); } }
         public float Width { get { return _bounds.Width; } }
         public float Height { get { return _bounds.Height; } }
         public float X { get { return _bounds.Left; } }
@@ -205,7 +207,7 @@ namespace CarMP.ViewControls
         {
             if (pReactiveUpdate is Touch)
             {
-                Point2F newPoint = ConvertScreenToControlPoint((pReactiveUpdate as Touch).Location);
+                Point newPoint = ConvertScreenToControlPoint((pReactiveUpdate as Touch).Location);
 
                 if (pReactiveUpdate is TouchMove)
                 {

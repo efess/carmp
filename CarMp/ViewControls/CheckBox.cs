@@ -2,24 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
-using CarMP.Direct2D;
-using Microsoft.WindowsAPICodePack.DirectX;
+using CarMP.Graphics.Geometry;
+using CarMP.Graphics.Interfaces;
+using CarMP.Graphics;
 
 namespace CarMP.ViewControls
 {
     public class CheckBox : Text
     {
-        private Brush _outlineBrush;
-        private Point2F _centerPoint;
+        private IBrush _outlineBrush;
+        private Point _centerPoint;
 
         public bool Checked { get; set; }
 
         public CheckBox()
         {
             // Defaults
-            this.Bounds = new RectF(0, 0, 150, 25);
-            this.TextStyle = new TextStyle(_bounds.Height - 3, "Arial", new[] { 255.0f, 255.0f, 255.0f, 255.0f }, null, true, Microsoft.WindowsAPICodePack.DirectX.DirectWrite.TextAlignment.Leading);
+            this.Bounds = new Rectangle(0, 0, 150, 25);
+            this.TextStyle = new TextStyle(_bounds.Height - 3, "Arial", Color.White, null, true, StringAlignment.Left);
         }
 
         public override void OnSizeChanged(object sender, EventArgs e)
@@ -27,27 +27,27 @@ namespace CarMP.ViewControls
             SetSize();
         }
 
-        protected override void OnRender(RenderTargetWrapper pRenderTarget)
+        protected override void OnRender(IRenderer pRenderer)
         {
             if(_outlineBrush == null)
-                _outlineBrush = pRenderTarget.Renderer.CreateSolidColorBrush(new ColorF(Colors.White));
+                _outlineBrush = pRenderer.CreateBrush(Color.White);
 
             float stroke = _bounds.Height / 8;
-            RectF boxBorder = new RectF(stroke, stroke, this.Height - stroke * 2, this.Height - stroke * 2);
+            Rectangle boxBorder = new Rectangle(stroke, stroke, stroke * 2, stroke * 2);
 
-            var firstPoint = new Point2F(stroke + 3, _bounds.Height / 2 - 2);
-            var secondPoint = new Point2F(_bounds.Height / 2 - 4, _bounds.Height - stroke - 6);
-            var thirdPoint = new Point2F(_bounds.Height - stroke - 6,  stroke + 3);
+            var firstPoint = new Point(stroke + 3, _bounds.Height / 2 - 2);
+            var secondPoint = new Point(_bounds.Height / 2 - 4, _bounds.Height - stroke - 6);
+            var thirdPoint = new Point(_bounds.Height - stroke - 6,  stroke + 3);
 
             
-            pRenderTarget.DrawRectangle(_outlineBrush, boxBorder, stroke);
+            pRenderer.DrawRectangle(_outlineBrush, boxBorder, stroke);
             if (Checked)
             {
-                pRenderTarget.DrawLine(firstPoint, secondPoint, _outlineBrush, stroke);
-                pRenderTarget.DrawLine(secondPoint, thirdPoint, _outlineBrush, stroke);
+                pRenderer.DrawLine(firstPoint, secondPoint, _outlineBrush, stroke);
+                pRenderer.DrawLine(secondPoint, thirdPoint, _outlineBrush, stroke);
             }
 
-            base.OnRender(pRenderTarget);
+            base.OnRender(pRenderer);
         }
 
         protected override void OnTouchGesture(Reactive.Touch.TouchGesture pTouchGesture)
@@ -62,8 +62,8 @@ namespace CarMP.ViewControls
 
         private void SetSize()
         {
-            this.TextPosition = new Point2F(_bounds.Height + 3, 1);
-            _centerPoint = new Point2F(_bounds.Height / 2, _bounds.Height / 2);
+            this.TextPosition = new Point(_bounds.Height + 3, 1);
+            _centerPoint = new Point(_bounds.Height / 2, _bounds.Height / 2);
         }
 
         private void ControlClicked()

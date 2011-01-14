@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using CarMP.Graphics.Interfaces;
 
 namespace CarMP.ViewControls.OptionControls
 {
@@ -37,9 +38,9 @@ namespace CarMP.ViewControls.OptionControls
 
         }
 
-        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
+        protected override void OnRender(IRenderer pRenderer)
         {
-            base.OnRender(pRenderTarget);
+            base.OnRender(pRenderer);
         }
 
     }

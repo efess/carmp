@@ -5,6 +5,7 @@ using System.Text;
 using CarMP.Graphics.Interfaces;
 using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
 
 namespace CarMP.Graphics.Implementation.Direct2D
 {
@@ -91,6 +92,30 @@ namespace CarMP.Graphics.Implementation.Direct2D
             }
         }
 
+        public Point GetPointAtCharPosition(int pCharPosition)
+        {
+            float x;
+            float y;
+
+            var metrics = TextLayoutResource.HitTestTextPosition((uint)pCharPosition, false, out x, out y);
+
+            return new Point(x, y);
+        }
+
+        public int GetCharPositionAtPoint(Point pPoint)
+        {
+            bool isTrailingHit;
+            bool isInside;
+            var metrics = TextLayoutResource.HitTestPoint(pPoint.X, pPoint.Y, out isTrailingHit, out isInside);
+
+            return isInside ? (int)metrics.TextPosition : -1;
+        }
+
+        public Size GetStringSize()
+        {
+            return new Size(TextLayoutResource.Metrics.Width, TextLayoutResource.Metrics.Height);
+        }
+
         private void UpdateTextFormat()
         {
             _textFormat = StringFactory.CreateTextFormat(
@@ -101,9 +126,13 @@ namespace CarMP.Graphics.Implementation.Direct2D
 
         private void UpdateTextLayout()
         {
+            string tempStr = _string;
+            if (tempStr == null)
+                tempStr = string.Empty;
+
             // TODO: Should there be a string size restriction? (for word wrap I think so!)
             TextLayoutResource = StringFactory.CreateTextLayout(
-                _string,
+                tempStr,
                 _textFormat,
                 9000,
                 9000);
@@ -119,5 +148,12 @@ namespace CarMP.Graphics.Implementation.Direct2D
             UpdateTextLayout();
         }
         
+        internal D2DStringLayout(RenderTarget pRenderer, string pFont, float pSize)
+        {
+            _size = pSize;
+            _font = pFont;
+            UpdateTextFormat();
+            UpdateTextLayout();
+        }
     }
 }

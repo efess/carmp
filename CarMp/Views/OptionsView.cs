@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
 using CarMP.ViewControls;
 using CarMP.ViewControls.OptionControls;
+using CarMP.Helpers;
 
 namespace CarMP.Views
 {
@@ -20,7 +21,7 @@ namespace CarMP.Views
 
         private List<D2DViewControl> _optionsViewList;
 
-        public OptionsView(SizeF pWindowSize) : base(pWindowSize)
+        public OptionsView(Size pWindowSize) : base(pWindowSize)
         {
             _currentOptionsView = new Container();
             _optionsViewList = new List<D2DViewControl>();
@@ -62,7 +63,7 @@ namespace CarMP.Views
         {
             _currentOptionsView.Clear();
             _currentOptionsView.AddViewControl(pControl);
-            pControl.Bounds = new RectF(0, 0, _currentOptionsView.Width, _currentOptionsView.Height);
+            pControl.Bounds = new Rectangle(0, 0, _currentOptionsView.Width, _currentOptionsView.Height);
             pControl.StartRender();
         }
 

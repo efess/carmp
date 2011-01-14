@@ -5,7 +5,7 @@ using System.Text;
 using CarMP.ViewControls;
 using System.Xml;
 using System.Runtime.Remoting.Messaging;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
 using CarMP.MediaEntities;
 
 namespace CarMP.Views
@@ -20,11 +20,11 @@ namespace CarMP.Views
         private const string XPATH_SHORTCUT_LIST = "ShortcutList";
         private const string XPATH_HISTORY_BAR = "HistoryBar";
 
-        internal MediaView(SizeF pWindowSize)
+        internal MediaView(Size pWindowSize)
             : base(pWindowSize)
         {
             MediaList = new SwapableDragableList();
-            MediaList.Bounds = new RectF(20, 40, this.Width - 80, this.Height - 120);
+            MediaList.Bounds = new Rectangle(20, 40, this.Width - 60, this.Height - 80);
             MediaList.SelectedItemChanged += new DragableList.SelectedItemChangedEventHandler(MediaList_SelectedItemChanged);
 
             AppMain.MediaManager.ListChangeRequest += (sender, e) => MediaList.ChangeList(e.ListIndex);

@@ -6,12 +6,26 @@ using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using CarMP.Graphics.Geometry;
 using CarMP.Graphics.Interfaces;
 using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
+using System.Windows.Forms;
+using Microsoft.WindowsAPICodePack.DirectX;
 
 namespace CarMP.Graphics.Implementation.Direct2D
 {
     public class Direct2DRenderer : IRenderer
     {
         public delegate void WindowResizeHandler(Size Size);
+        
+        private static D2DFactory _factory;
+        public static D2DFactory D2DFactory
+        {
+            get
+            {
+                if (_factory == null)
+                    _factory = D2DFactory.CreateFactory(D2DFactoryType.MultiThreaded);
+                return _factory;
+            }
+        }
+
         private RenderTarget _renderer;
         public Rectangle CurrentBounds { get; set; }
 
@@ -20,10 +34,34 @@ namespace CarMP.Graphics.Implementation.Direct2D
             if (_renderer is HwndRenderTarget)
                 (_renderer as HwndRenderTarget).Resize(new SizeU((uint)pSize.Width, (uint)pSize.Height));
         }
-        public void EndDraw() { _renderer.EndDraw(); }
-        public void BeginDraw() { _renderer.BeginDraw(); }
+        public void Flush()
+        {
+            _renderer.Flush();
+        }
+        public void EndDraw() 
+        { 
+            _renderer.EndDraw(); 
+        }
+        public void BeginDraw() 
+        {
+            _renderer.BeginDraw();
+            _renderer.Transform = Matrix3x2F.Identity;
+        }
         public void Clear(Color pColor) { _renderer.Clear(new ColorF(pColor.Red, pColor.Green, pColor.Blue, pColor.Alpha)); }
+
+        public void PushClip(Rectangle pRectangle)
+        {
+            _renderer.PushAxisAlignedClip(TransformRectangle(pRectangle), AntialiasMode.PerPrimitive);
+        }
+
+        public void PopClip()
+        {
+            _renderer.PopAxisAlignedClip();
+        }
+
         public Matrix3x2F Transform { get { return _renderer.Transform; } set { _renderer.Transform = value; } }
+        
+
         public bool IsOccluded
         {
             get
@@ -33,18 +71,39 @@ namespace CarMP.Graphics.Implementation.Direct2D
                     (_renderer as HwndRenderTarget).IsOccluded : true;
             }
         }
-        public Direct2DRenderer(RenderTarget pRenderTarget)
+
+
+        public Direct2DRenderer(IntPtr pWindowHandle)
         {
-            _renderer = pRenderTarget;
+            Control control = Control.FromHandle(pWindowHandle);
+
+            var renderProps = new RenderTargetProperties
+            {
+                PixelFormat = new PixelFormat(
+                    Microsoft.WindowsAPICodePack.DirectX.DXGI.Format.B8G8R8A8_UNORM,
+                    AlphaMode.Ignore),
+                Usage = RenderTargetUsage.None,
+                Type = RenderTargetType.Default // Software type is required to allow resource 
+                // sharing between hardware (HwndRenderTarget) 
+                // and software (WIC Bitmap render Target).
+            };
+
+            _renderer = D2DFactory.CreateHwndRenderTarget(
+                renderProps,
+                new HwndRenderTargetProperties(pWindowHandle, new SizeU(Convert.ToUInt32(control.ClientSize.Width), Convert.ToUInt32(control.ClientSize.Height)),
+                    PresentOptions.Immediately));
         }
+
         public void DrawRectangle(IBrush pBrush, Rectangle pRectangle, float pStrokeWidth)
         {
             _renderer.DrawRectangle(TransformRectangle(pRectangle), GetBrush(pBrush), pStrokeWidth);
         }
+
         public void DrawLine(Point pPoint1, Point pPoint2, IBrush pBrush, float pStrokeWidth)
         {
             _renderer.DrawLine(TransformPoint(pPoint1), TransformPoint(pPoint2), GetBrush(pBrush), pStrokeWidth);
         }
+
         public void FillRectangle(IBrush pBrush, Rectangle pRectangle)
         {
             _renderer.FillRectangle(TransformRectangle(pRectangle), GetBrush(pBrush));
@@ -113,7 +172,8 @@ namespace CarMP.Graphics.Implementation.Direct2D
 
         private TextLayout GetTextLayout(IStringLayout pStringLayout)
         {
-            return null;
+            return (pStringLayout as D2DStringLayout).TextLayoutResource;
+
         }
 
         private D2DBitmap GetBitmap(IImage pImage)
@@ -136,9 +196,9 @@ namespace CarMP.Graphics.Implementation.Direct2D
             return new D2DImage(_renderer, pData, pStride);
         }
 
-        public IStringLayout CreateStringLayout()
+        public IStringLayout CreateStringLayout(string pFont, float pSize)
         {
-            return new D2DStringLayout(_renderer);
+            return new D2DStringLayout(_renderer, pFont, pSize);
         }
     }
 }

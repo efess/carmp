@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using CarMP.Graphics.Geometry;
 using System.Threading;
 using System.Xml;
+using CarMP.Graphics.Interfaces;
 
 namespace CarMP.ViewControls
 {
@@ -45,6 +46,7 @@ namespace CarMP.ViewControls
 
         public SwapableDragableList()
         {
+            ItemSize = new Size();
         }
 
         public int CurrentListIndex
@@ -52,13 +54,13 @@ namespace CarMP.ViewControls
             get { return _currentListIndex; }
         }
 
-        private SizeF _itemSize;
-        public SizeF ItemSize
+        private Size _itemSize;
+        public Size ItemSize
         {
             get { return _itemSize; }
             set
             {
-                _itemSize = new SizeF(value.Width <= 0 ? this.Width : value.Width,
+                _itemSize = new Size(value.Width <= 0 ? this.Width : value.Width,
                     value.Height <= 0 ? this.Height : value.Height);
                 foreach (var list in _listCollection)
                     list.ItemSize = _itemSize;
@@ -101,7 +103,7 @@ namespace CarMP.ViewControls
         {
             foreach (var dl in _listCollection)
             {
-                dl.Bounds = new RectF(dl.Bounds.Left, dl.Bounds.Top, dl.Bounds.Left + Bounds.Width, dl.Bounds.Top + Bounds.Height);
+                dl.Bounds = new Rectangle(dl.Bounds.Left, dl.Bounds.Top, Bounds.Width, Bounds.Height);
             }
         }
 
@@ -349,31 +351,31 @@ namespace CarMP.ViewControls
                 {
                     float transitionShift = _listShiftPx - (this.Width * Math.Sign(_listShiftPx));
 
-                    currentList.Bounds = new RectF(_listShiftPx, 0, listShift + length, this.Height);
-                    transitionList.Bounds = new RectF(transitionShift, 0, transitionShift + length, this.Height);
+                    currentList.Bounds = new Rectangle(_listShiftPx, 0, length, this.Height);
+                    transitionList.Bounds = new Rectangle(transitionShift, 0, length, this.Height);
                 }
                 else
                 {
                     float transitionShift = _listShiftPx - (this.Height * Math.Sign(_listShiftPx));
 
-                    currentList.Bounds = new RectF(0, _listShiftPx, this.Width, listShift + length);
-                    transitionList.Bounds = new RectF(0, transitionShift, this.Width, transitionShift + length);
+                    currentList.Bounds = new Rectangle(0, _listShiftPx, this.Width, length);
+                    transitionList.Bounds = new Rectangle(0, transitionShift, this.Width, length);
                 }
                 Thread.Sleep(10);
             }
 
-            currentList.Bounds = new RectF(this.Width, 0, this.Width, this.Height);
+            currentList.Bounds = new Rectangle(this.Width, 0, this.Width, this.Height);
 
-            transitionList.Bounds = new RectF(0, 0, this.Width, this.Height); 
+            transitionList.Bounds = new Rectangle(0, 0, this.Width, this.Height); 
 
             currentList.StopRenderer();
             FutureListTransition = null;
             _currentListIndex = pNewIndex;
             _listShiftPx = 0;
         }
-        protected override void OnRender(Direct2D.RenderTargetWrapper pRenderTarget)
+        protected override void OnRender(IRenderer pRenderer)
         {
-            base.OnRender(pRenderTarget);
+            base.OnRender(pRenderer);
         }
     }
 

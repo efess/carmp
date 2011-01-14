@@ -5,8 +5,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Xml;
 using CarMP.Reactive.Touch;
-using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
-using Microsoft.WindowsAPICodePack.DirectX;
+using CarMP.Graphics.Geometry;
 using System.Runtime.Remoting.Messaging;
 
 
@@ -71,17 +70,17 @@ namespace CarMP.ViewControls
         /// </summary>
         private float scrollableListLengthPx;
         private float scrollableItemLengthPx;
-        private SizeF itemSize;
+        private Size itemSize;
         /// <summary>
         /// Size of each item in list. 
         /// Use -1 to specify length or width of window
         /// </summary>
-        public SizeF ItemSize
+        public Size ItemSize
         {
             get { return itemSize; }
             set 
             { 
-                itemSize = new SizeF(value.Width <= 0 ? this.Width : value.Width,
+                itemSize = new Size(value.Width <= 0 ? this.Width : value.Width,
                     value.Height <= 0 ? this.Height : value.Height);
                 UpdateLengths();
             }
@@ -330,24 +329,24 @@ namespace CarMP.ViewControls
 
                     float shiftPx = (_listItemSize * row) - ListLocOffsetPx;
                     
-                    RectF currentRect ;
+                    Rectangle currentRect ;
                     if (ListOrientation == Orientation.Vertical)
                     {
                         float left = col * control.Width;
-                        currentRect = new RectF(
+                        currentRect = new Rectangle(
                             left,
                             shiftPx,
-                            left + ItemSize.Width,
-                            ItemSize.Height + shiftPx);
+                            ItemSize.Width,
+                            ItemSize.Height);
                     }
                     else
                     {
                         float top = col * control.Height;
-                        currentRect = new RectF(
+                        currentRect = new Rectangle(
                             shiftPx,
                             top,
-                            ItemSize.Width + shiftPx,
-                            top + ItemSize.Height);
+                            ItemSize.Width,
+                            ItemSize.Height);
                     }
 
                     control.Bounds = currentRect;

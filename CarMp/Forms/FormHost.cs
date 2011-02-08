@@ -236,7 +236,7 @@ namespace CarMP.Forms
                 //if (!_renderTarget.IsOccluded)
                 //{
                     _renderer.BeginDraw();
-                    _renderer.Clear(new Color(Color.Black, 1f));
+                    _renderer.Clear(Color.Black);
 
                     _currentView.Render(_renderer);
                     _overlayViewControls.Render(_renderer);

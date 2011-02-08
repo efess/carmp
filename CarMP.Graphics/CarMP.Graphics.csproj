@@ -36,6 +36,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\Microsoft.WindowsAPICodePack.DirectX.dll</HintPath>
     </Reference>
+    <Reference Include="OpenTK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -48,6 +49,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Color.cs" />
+    <Compile Include="Implementation\OpenTk\OpenTkRenderer.cs" />
+    <Compile Include="Implementation\OpenTk\OTKBrush.cs" />
+    <Compile Include="Implementation\OpenTk\OTKImage.cs" />
+    <Compile Include="Implementation\OpenTk\OTKStringLayout.cs" />
     <Compile Include="RendererFactory.cs" />
     <Compile Include="Implementation\Direct2D\D2DBrush.cs" />
     <Compile Include="Implementation\Direct2D\D2DImage.cs" />
@@ -68,7 +73,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Implementation\OpenGL\" />
-    <Folder Include="Implementation\OpenTk\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

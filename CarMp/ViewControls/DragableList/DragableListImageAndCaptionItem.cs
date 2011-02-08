@@ -55,7 +55,7 @@ namespace CarMP.ViewControls
         protected override void OnRender(IRenderer pRenderer)
         {
             if (_stringLayout == null)
-                _stringLayout = pRenderer.CreateStringLayout(_textStyle.Face, _textStyle.Size);
+                _stringLayout = pRenderer.CreateStringLayout(string.Empty, _textStyle.Face, _textStyle.Size);
 
             if (_imageBitmap == null)
                 _imageBitmap = pRenderer.CreateImage(_imageBitmapPath);

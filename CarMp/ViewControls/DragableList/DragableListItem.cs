@@ -9,6 +9,7 @@ using CarMP.Graphics.Geometry;
 using System.Xml;
 using CarMP.Graphics.Interfaces;
 using CarMP.Helpers;
+using CarMP.Graphics;
 
 namespace CarMP.ViewControls
 {
@@ -105,7 +106,10 @@ namespace CarMP.ViewControls
         {
             if (_selected)
             {
+                if (_selectionBoxBrush == null)
+                    _selectionBoxBrush = pRenderer.CreateBrush(Color.RoyalBlue);
                 // TODO: Gradients?
+
                 //if (SelectionGradient == null)
                 //    SelectionGradient = pRenderer.Renderer.CreateLinearGradientBrush(
                 //            new LinearGradientBrushProperties()

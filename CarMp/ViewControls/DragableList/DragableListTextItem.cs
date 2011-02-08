@@ -64,7 +64,8 @@ namespace CarMP.ViewControls
         {
             if(_stringLayout == null)
             {
-                _stringLayout = pRenderer.CreateStringLayout(_textStyle.Face, _textStyle.Size);
+                _stringLayout = pRenderer.CreateStringLayout(_displayString, _textStyle.Face, _textStyle.Size);
+                
                 //_stringLayout = D2DStatic.StringFactory.CreateTextLayout(DisplayString, StringDrawFormat, _bounds.Width, _bounds.Height);
             }
 

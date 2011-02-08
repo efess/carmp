@@ -51,7 +51,7 @@ namespace CarMP.Graphics.Implementation.Direct2D
 
         public void PushClip(Rectangle pRectangle)
         {
-            _renderer.PushAxisAlignedClip(TransformRectangle(pRectangle), AntialiasMode.PerPrimitive);
+            _renderer.PushAxisAlignedClip(new RectF(pRectangle.Left, pRectangle.Top, pRectangle.Right, pRectangle.Bottom), AntialiasMode.PerPrimitive);
         }
 
         public void PopClip()
@@ -196,9 +196,9 @@ namespace CarMP.Graphics.Implementation.Direct2D
             return new D2DImage(_renderer, pData, pStride);
         }
 
-        public IStringLayout CreateStringLayout(string pFont, float pSize)
+        public IStringLayout CreateStringLayout(string pString, string pFont, float pSize)
         {
-            return new D2DStringLayout(_renderer, pFont, pSize);
+            return new D2DStringLayout(_renderer, pString, pFont, pSize);
         }
     }
 }

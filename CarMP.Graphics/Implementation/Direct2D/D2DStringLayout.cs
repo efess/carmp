@@ -148,8 +148,9 @@ namespace CarMP.Graphics.Implementation.Direct2D
             UpdateTextLayout();
         }
         
-        internal D2DStringLayout(RenderTarget pRenderer, string pFont, float pSize)
+        internal D2DStringLayout(RenderTarget pRenderer, string pString, string pFont, float pSize)
         {
+            _string = pString;
             _size = pSize;
             _font = pFont;
             UpdateTextFormat();

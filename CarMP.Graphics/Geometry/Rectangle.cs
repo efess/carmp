@@ -168,16 +168,18 @@ namespace CarMP.Graphics.Geometry
 
         public string ToString()
         {
-            return (this.Left + ", " + this.Top + ", " + this.Right + ", " + this.Bottom);
+            return (this.Left + ", " + this.Top + ", " + this.Width + ", " + this.Height);
         }
 
         public Rectangle Intersect(Rectangle pRectTwo)
         {
-            Rectangle rect = new Rectangle(
-                Math.Max(this.Left, pRectTwo.Left),
-                Math.Max(this.Top, pRectTwo.Top),
-                Math.Min(this.Right, pRectTwo.Right),
-                Math.Min(this.Bottom, pRectTwo.Bottom));
+            Rectangle rect = new Rectangle
+            {
+                Left = Math.Max(this.Left, pRectTwo.Left),
+                Right = Math.Min(this.Right, pRectTwo.Right),
+                Top = Math.Max(this.Top, pRectTwo.Top),
+                Bottom = Math.Min(this.Bottom, pRectTwo.Bottom)
+            };
 
             if (rect.Right > rect.Left
                 && rect.Bottom > rect.Top)

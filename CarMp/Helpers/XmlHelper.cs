@@ -81,10 +81,10 @@ namespace CarMP
                 {
                     float left = (float)Convert.ToDouble(bounds[0]);
                     float top = (float)Convert.ToDouble(bounds[1]);
-                    float right =  (float)Convert.ToDouble(bounds[2]);
-                    float bottom =  (float)Convert.ToDouble(bounds[3]);
+                    float width =  (float)Convert.ToDouble(bounds[2]);
+                    float height =  (float)Convert.ToDouble(bounds[3]);
 
-                    return new Rectangle(left, top, right, bottom);
+                    return new Rectangle(left, top, width, height);
                 }
                 catch (Exception ex)
                 {

@@ -39,7 +39,7 @@ namespace CarMP.Graphics.Interfaces
 
         IBrush CreateBrush(Color pColor);
 
-        IStringLayout CreateStringLayout(string pFont, float pSize);
+        IStringLayout CreateStringLayout(string pString, string pFont, float pSize);
 
         IImage CreateImage(byte[] pData, int pStride);
         IImage CreateImage(string pPath);

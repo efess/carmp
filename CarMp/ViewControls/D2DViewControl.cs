@@ -103,6 +103,9 @@ namespace CarMP.ViewControls
 
                 pRenderer.CurrentBounds = GetScreenBounds();
                 //pRenderer.Renderer.PushAxisAlignedClip(GetAllowedScreenRenderingArea() , AntialiasMode.PerPrimitive);
+                Rectangle renderingBounds = GetAllowedScreenRenderingArea();
+
+                //Console.WriteLine("Rendering " + this.ToString() + " at " + renderingBounds.ToString());
                 pRenderer.PushClip(GetAllowedScreenRenderingArea());
 
                 OnRender(pRenderer);

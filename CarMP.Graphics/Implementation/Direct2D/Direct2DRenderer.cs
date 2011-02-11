@@ -29,7 +29,7 @@ namespace CarMP.Graphics.Implementation.Direct2D
         private RenderTarget _renderer;
         public Rectangle CurrentBounds { get; set; }
 
-        public void Resize(Size pSize)
+        public void Resize(SizeI pSize)
         {
             if (_renderer is HwndRenderTarget)
                 (_renderer as HwndRenderTarget).Resize(new SizeU((uint)pSize.Width, (uint)pSize.Height));
@@ -144,6 +144,7 @@ namespace CarMP.Graphics.Implementation.Direct2D
             //}
             _renderer.DrawTextLayout(TransformPoint(pPoint), pTextLayout, pBrush);
         }
+
         private Point2U TransformPoint(Point2U pPoint)
         {
             return new Point2U(Convert.ToUInt32(pPoint.X + CurrentBounds.Left), Convert.ToUInt32(pPoint.Y + CurrentBounds.Top));

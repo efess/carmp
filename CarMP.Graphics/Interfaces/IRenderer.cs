@@ -13,7 +13,7 @@ namespace CarMP.Graphics.Interfaces
         /// Resize rendering area
         /// </summary>
         /// <param name="pSize"></param>
-        void Resize(Size pSize);
+        void Resize(SizeI pSize);
         void BeginDraw();
         void EndDraw();
         void Clear(Color pColor);

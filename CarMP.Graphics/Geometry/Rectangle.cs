@@ -191,5 +191,25 @@ namespace CarMP.Graphics.Geometry
         {
             return this.Bottom < this.Top || this.Left > this.Right;
         }
+
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Rectangle)
+            {
+                var rect2 = (Rectangle)obj;
+                return rect2.X == this.X 
+                    && rect2.Y == this.Y 
+                    && rect2.Height == this.Height 
+                    && rect2.Width == this.Width;
+            }
+
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

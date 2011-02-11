@@ -3,104 +3,147 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CarMP.Graphics.Interfaces;
+using OpenTK.Graphics.OpenGL;
+using CarMP.Graphics.Geometry;
+using OpenTK;
+using OpenTK.Graphics;
+using OpenTK.Platform;
+using System.Threading;
 
 namespace CarMP.Graphics.Implementation.OpenTk
 {
+    /// <summary>
+    ///  Much of the OpenTK rendering implementation's code is barrowed from the engine
+    ///  specified here: http://www.opentk.com/node/257
+    /// </summary>
     public class OpenTkRenderer : IRenderer
     {
+        GraphicsContext context;
+        IWindowInfo _windowInfo;
+        ManualResetEvent _initialize;
+
+        public OpenTkRenderer(IntPtr pWindowHandle)
+        {
+            _initialize = new ManualResetEvent(false);
+            _windowInfo = OpenTK.Platform.Utilities.CreateWindowsWindowInfo(pWindowHandle);
+
+            context = new GraphicsContext(GraphicsMode.Default, _windowInfo);
+
+            context.MakeCurrent(_windowInfo);
+            context.LoadAll();
+
+            InitializeGL();
+            context.MakeCurrent(null);
+            _initialize.Set();
+        }
+
+        private void InitializeGL()
+        {
+            int[] viewPort = new int[4];
+
+            GL.GetInteger(GetPName.Viewport, viewPort);
+
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.PushMatrix();
+            GL.LoadIdentity();
+
+            GL.Ortho(viewPort[0], viewPort[0] + viewPort[2], viewPort[1] + viewPort[3], viewPort[1], -1, 1);
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.PushMatrix();
+            GL.LoadIdentity();
+            GL.Translate(0.375, 0.375, 0.0);
+
+            GL.PushAttrib(AttribMask.DepthBufferBit);
+            GL.Disable(EnableCap.DepthTest);
+
+            GL.Enable(EnableCap.Texture2D);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+        }
+
 
         #region IRenderer Members
 
         public Geometry.Rectangle CurrentBounds
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
-        public void Resize(Geometry.Size pSize)
+        public void Resize(Geometry.SizeI pSize)
         {
-            throw new NotImplementedException();
+            GL.Viewport(0, 0, pSize.Width, pSize.Height);
         }
 
         public void BeginDraw()
         {
-            throw new NotImplementedException();
+            _initialize.WaitOne();
+            context.MakeCurrent(_windowInfo);
         }
 
         public void EndDraw()
         {
-            throw new NotImplementedException();
+            context.SwapBuffers();
         }
 
         public void Clear(Color pColor)
         {
-            throw new NotImplementedException();
+            GL.ClearColor(Color4.Black);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         }
 
         public void Flush()
         {
-            throw new NotImplementedException();
+            //GL.Flush();
         }
 
         public void PushClip(Geometry.Rectangle pRectangle)
         {
-            throw new NotImplementedException();
         }
 
         public void PopClip()
         {
-            throw new NotImplementedException();
         }
 
         public void DrawRectangle(IBrush pBrush, Geometry.Rectangle pRectangle, float pLineWidth)
         {
-            throw new NotImplementedException();
         }
 
         public void DrawLine(Geometry.Point pPoint1, Geometry.Point pPoint2, IBrush pBrush, float pLineWidth)
         {
-            throw new NotImplementedException();
         }
 
         public void FillRectangle(IBrush pBrush, Geometry.Rectangle pRectangle)
         {
-            throw new NotImplementedException();
         }
 
         public void DrawImage(Geometry.Rectangle pRectangle, IImage pImage, float pAlpha)
         {
-            throw new NotImplementedException();
+            OTKImage image = pImage as OTKImage;
+            image.SetDimensions(TransformRectangle(pRectangle));
+            image.SetBlending(pAlpha);
+            image.Draw();
         }
 
         public void DrawEllipse(Geometry.Ellipse pEllipse, IBrush pBrush, float pLineWidth)
         {
-            throw new NotImplementedException();
         }
 
         public void FillEllipse(Geometry.Ellipse pEllipse, IBrush pBrush)
         {
-            throw new NotImplementedException();
         }
 
         public void DrawString(Geometry.Point pPoint, IStringLayout pStringLayout, IBrush pBrush)
         {
-            throw new NotImplementedException();
         }
 
         public IBrush CreateBrush(Color pColor)
         {
-            throw new NotImplementedException();
+            return new OTKBrush();
         }
 
         public IStringLayout CreateStringLayout(string pText, string pFont, float pSize)
         {
-            throw new NotImplementedException();
+            return new OTKStringLayout(pFont, pSize);
         }
 
         public IImage CreateImage(byte[] pData, int pStride)
@@ -110,9 +153,28 @@ namespace CarMP.Graphics.Implementation.OpenTk
 
         public IImage CreateImage(string pPath)
         {
-            throw new NotImplementedException();
+            return new OTKImage(pPath);
         }
 
         #endregion
+
+
+
+        private Point TransformPoint(Point pPoint)
+        {
+            return new Point(pPoint.X + CurrentBounds.Left, pPoint.Y + CurrentBounds.Top);
+        }
+        private Rectangle TransformRectangle(Rectangle pRectangle)
+        {
+            return new Rectangle(pRectangle.Left + CurrentBounds.Left,
+                pRectangle.Top + CurrentBounds.Top,
+                pRectangle.Width,
+                pRectangle.Height);
+        }
+
+        private Ellipse TransformEllipse(Geometry.Ellipse pEllipse)
+        {
+            return new Ellipse(TransformPoint(pEllipse.Point), pEllipse.RadiusX, pEllipse.RadiusY);
+        }
     }
 }

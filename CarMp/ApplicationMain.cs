@@ -61,10 +61,11 @@ namespace CarMP
 
             AppFormHost.ShowView(CarMP.Views.D2DViewFactory.HOME);
             AppFormHost.StartPosition = FormStartPosition.Manual;
+            AppFormHost.Show();
 
             try
             {
-                Application.Run(AppFormHost);
+                Application.Run();
             }
             finally
             {

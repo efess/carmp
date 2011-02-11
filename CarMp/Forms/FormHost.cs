@@ -78,9 +78,9 @@ namespace CarMP.Forms
                 ControlStyles.AllPaintingInWmPaint |
                 ControlStyles.UserPaint, true);
 
-            _renderer = new RendererFactory().GetRenderer("Direct2D", this.Handle);
+            _renderer = new RendererFactory().GetRenderer("opentk", this.Handle);
             
-            this.ClientSizeChanged += (o, e) => { _renderer.Resize(new Size(ClientSize.Width, ClientSize.Height)); };
+            this.ClientSizeChanged += (o, e) => { _renderer.Resize(new SizeI(ClientSize.Width, ClientSize.Height)); };
             
             InitializeComponent();
 
@@ -236,6 +236,7 @@ namespace CarMP.Forms
                 //if (!_renderTarget.IsOccluded)
                 //{
                     _renderer.BeginDraw();
+                    
                     _renderer.Clear(Color.Black);
 
                     _currentView.Render(_renderer);
@@ -250,7 +251,7 @@ namespace CarMP.Forms
 
                     _renderer.EndDraw();
 
-                    this.Invalidate();
+                    //this.Invalidate();
                 //}
             }
             catch (Exception ex)
@@ -259,6 +260,7 @@ namespace CarMP.Forms
                 _renderer.Flush();
             }
         }
+
 
         protected override void OnPaintBackground(PaintEventArgs pevent)
         {

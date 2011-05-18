@@ -73,16 +73,16 @@
     </Reference>
     <Reference Include="System.CoreEx, Version=1.0.2563.102, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Program Files (x86)\Microsoft Cloud Programmability\Reactive Extensions\v1.0.2563.0\Net35\System.CoreEx.dll</HintPath>
+      <HintPath>..\Libraries\Rx\System.CoreEx.dll</HintPath>
     </Reference>
     <Reference Include="System.Management" />
     <Reference Include="System.Observable, Version=1.0.0.102, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Program Files (x86)\Microsoft Cloud Programmability\Reactive Extensions\v1.0.2563.0\Net35\System.Observable.dll</HintPath>
+      <HintPath>..\Libraries\Rx\System.Observable.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive, Version=1.0.2563.102, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Program Files (x86)\Microsoft Cloud Programmability\Reactive Extensions\v1.0.2563.0\Net35\System.Reactive.dll</HintPath>
+      <HintPath>..\Libraries\Rx\System.Reactive.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -312,6 +312,10 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy $(SolutionDir)Libraries\SQLite.Interop.Dll $(TargetDir) /Y</PostBuildEvent>
+    <PostBuildEvent>copy $(SolutionDir)Libraries\SQLite.Interop.Dll $(TargetDir) /Y
+copy $(SolutionDir)Libraries\NHibernate_NonReferenced\*.dll $(TargetDir) /Y
+copy $(SolutionDir)Libraries\NHibernate_NonReferenced\*.DLL $(TargetDir) /Y
+copy $(SolutionDir)Libraries\NHibernate_NonReferenced\*.PDB $(TargetDir) /Y
+copy $(SolutionDir)Database\database.db $(TargetDir) /Y</PostBuildEvent>
   </PropertyGroup>
 </Project>

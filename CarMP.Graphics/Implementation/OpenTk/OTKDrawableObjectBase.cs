@@ -30,6 +30,7 @@ namespace CarMP.Graphics.Implementation.OpenTk
                 _blendingAlpha = 0x00;
 
             _blendingAlpha = (byte)(255 * pAlpha);
+            _enableBlending = true;
         }
 
         private void BeginDraw()
@@ -39,6 +40,9 @@ namespace CarMP.Graphics.Implementation.OpenTk
                 GL.Enable(EnableCap.Blend);
                 GL.Color4((byte)0xFF, (byte)0xFF, (byte)0xFF, _blendingAlpha);
             }
+
+
+            GL.Scale(1.0f, 1.0f, 0.0f);
         }
 
         private void EndDraw()

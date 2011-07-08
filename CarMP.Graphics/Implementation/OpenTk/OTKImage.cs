@@ -20,16 +20,21 @@ namespace CarMP.Graphics.Implementation.OpenTk
 
         internal int TextureId { get { return _textureId; } }
 
-        internal OTKImage(string pImagePath)
+        internal OTKImage(string pImagePath) 
+            : this()
         {
             if (string.IsNullOrEmpty(pImagePath))
                 throw new ArgumentNullException("pImagePath");
             
             _path = pImagePath;
+            LoadBitmapFromPath();
+        }
+
+        internal OTKImage()
+        {
             _vbo = new Vbo();
             _vbo.VertexArray = new Vertex[4];
             _vbo.TexCoordArray = new TexCoord[4];
-            Load();
         }
 
         internal void SetDimensions(Rectangle pImagePosition)
@@ -47,6 +52,7 @@ namespace CarMP.Graphics.Implementation.OpenTk
             /// <param name="imgH">Height of image part to be drawn.</param>
             // Texture coordinates
             float u1 = 0.0f, u2 = 1.0f, v1 = 0.0f, v2 = 1.0f;
+
 
             if (!_lastDrawDimension.Equals(pImagePosition))
             {
@@ -124,39 +130,59 @@ namespace CarMP.Graphics.Implementation.OpenTk
             _vbo.CreateVertexVbo();
         }
 
-        private void Load()
+        protected virtual void LoadBitmapFromPath()
         {
             using (System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(_path))
             {
-                System.Drawing.Imaging.BitmapData bmpData =
-                    bitmap.LockBits(
-                        new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height),
-                        System.Drawing.Imaging.ImageLockMode.WriteOnly,
-                        bitmap.PixelFormat
-                );
+                LoadBitmap(bitmap);
+            }
+        }
 
-                Size = new Size(bitmap.Width, bitmap.Height);
+        protected virtual void LoadBitmap(System.Drawing.Bitmap pBitmap)
+        {
+            System.Drawing.Imaging.BitmapData bmpData =
+                pBitmap.LockBits(
+                    new System.Drawing.Rectangle(0, 0, pBitmap.Width, pBitmap.Height),
+                    System.Drawing.Imaging.ImageLockMode.WriteOnly,
+                    pBitmap.PixelFormat
+            );
 
-                //// Declare an array to hold the bytes of the bitmap.
-                //IntPtr ptr = bmpData.Scan0;
+            Load(bmpData);
 
-                //byte[] bytes = new byte[bmpData.Stride * bitmap.Height];
+            pBitmap.UnlockBits(bmpData);
+        }
 
-                // Generate texture
-                GL.GenTextures(1, out _textureId);
+        protected virtual void Load(BitmapData pBitmapData)
+        {
+            Size = new Size(pBitmapData.Width, pBitmapData.Height);
+
+            _vbo.VertexArray = new Vertex[4];
+            _vbo.TexCoordArray = new TexCoord[4];
+
+            //// Declare an array to hold the bytes of the bitmap.
+            //IntPtr ptr = bmpData.Scan0;
+
+            //byte[] bytes = new byte[bmpData.Stride * bitmap.Height];
+
+            // Generate texture
+            GL.GenTextures(1, out _textureId);
                 
-                GL.BindTexture(TextureTarget.Texture2D, TextureId);
+            GL.BindTexture(TextureTarget.Texture2D, TextureId);
 
-                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, bmpData.Width, bmpData.Height, 0,
-                    OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, bmpData.Scan0);
-
-                bitmap.UnlockBits(bmpData);
-
-                // Setup filtering
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            try
+            {
+                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, pBitmapData.Width, pBitmapData.Height, 0,
+                    OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, pBitmapData.Scan0);
+            }
+            catch(Exception ex)
+            {
 
             }
+                
+            // Setup filtering
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+   
         }
 
         public void Dispose()

@@ -22,8 +22,11 @@ namespace CarMP.Graphics.Implementation.OpenTk
         IWindowInfo _windowInfo;
         ManualResetEvent _initialize;
 
+        Queue<Action> _openGlCommandQueue;
+
         public OpenTkRenderer(IntPtr pWindowHandle)
         {
+            _openGlCommandQueue = new Queue<Action>();
             _initialize = new ManualResetEvent(false);
             _windowInfo = OpenTK.Platform.Utilities.CreateWindowsWindowInfo(pWindowHandle);
 
@@ -60,6 +63,14 @@ namespace CarMP.Graphics.Implementation.OpenTk
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
         }
 
+        private void ProcessActionQueue()
+        {
+            lock (_openGlCommandQueue)
+            {
+                while (_openGlCommandQueue.Count > 0)
+                    _openGlCommandQueue.Dequeue().Invoke();
+            }
+        }
 
         #region IRenderer Members
 
@@ -68,16 +79,22 @@ namespace CarMP.Graphics.Implementation.OpenTk
             get;
             set;
         }
-
+        
         public void Resize(Geometry.SizeI pSize)
         {
-            GL.Viewport(0, 0, pSize.Width, pSize.Height);
+            _openGlCommandQueue.Enqueue(() => GL.Viewport(0, 0, pSize.Width, pSize.Height));
+
+            _openGlCommandQueue.Enqueue(() => GL.MatrixMode(MatrixMode.Projection));
+            _openGlCommandQueue.Enqueue(() => GL.LoadIdentity());
+            _openGlCommandQueue.Enqueue(() => GL.Ortho(0.0, pSize.Width, pSize.Height, 0.0, -1, 1));
+            _openGlCommandQueue.Enqueue(() => GL.MatrixMode(MatrixMode.Modelview));
         }
 
         public void BeginDraw()
         {
             _initialize.WaitOne();
             context.MakeCurrent(_windowInfo);
+            ProcessActionQueue();
         }
 
         public void EndDraw()
@@ -86,6 +103,19 @@ namespace CarMP.Graphics.Implementation.OpenTk
         }
 
         public void Clear(Color pColor)
+        {
+            if (context.IsCurrent)
+            {
+                ClearInternal(pColor);
+            }
+            else
+            {
+                lock(_openGlCommandQueue)
+                    _openGlCommandQueue.Enqueue(() => ClearInternal(pColor));
+            }
+        }
+
+        private void ClearInternal(Color pColor)
         {
             GL.ClearColor(Color4.Black);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -134,16 +164,23 @@ namespace CarMP.Graphics.Implementation.OpenTk
 
         public void DrawString(Geometry.Point pPoint, IStringLayout pStringLayout, IBrush pBrush)
         {
+            var otkStringLayout = pStringLayout as OTKStringLayout;
+            otkStringLayout.SetDimensions(new CarMP.Graphics.Geometry.Rectangle(TransformPoint(pPoint), otkStringLayout.TextSize));
+            otkStringLayout.SetBrush(pBrush);
+            otkStringLayout.Draw();
         }
 
         public IBrush CreateBrush(Color pColor)
         {
-            return new OTKBrush();
+            return new OTKBrush
+                {
+                    Color = pColor
+                };
         }
 
         public IStringLayout CreateStringLayout(string pText, string pFont, float pSize)
         {
-            return new OTKStringLayout(pFont, pSize);
+            return new OTKStringLayout(pText, pFont, pSize);
         }
 
         public IImage CreateImage(byte[] pData, int pStride)
@@ -157,8 +194,6 @@ namespace CarMP.Graphics.Implementation.OpenTk
         }
 
         #endregion
-
-
 
         private Point TransformPoint(Point pPoint)
         {

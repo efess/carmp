@@ -78,7 +78,7 @@ namespace CarMP.Forms
                 ControlStyles.AllPaintingInWmPaint |
                 ControlStyles.UserPaint, true);
 
-            _renderer = new RendererFactory().GetRenderer("opentk", this.Handle);
+            _renderer = new RendererFactory().GetRenderer("direct2d", this.Handle);
             
             this.ClientSizeChanged += (o, e) => { _renderer.Resize(new SizeI(ClientSize.Width, ClientSize.Height)); };
             
@@ -170,7 +170,7 @@ namespace CarMP.Forms
                 _viewChanging.Set();
             }
 
-            
+           
             return _currentView;
         }
 

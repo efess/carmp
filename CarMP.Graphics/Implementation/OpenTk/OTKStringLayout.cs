@@ -10,10 +10,13 @@ using OpenTK.Graphics.OpenGL;
 
 namespace CarMP.Graphics.Implementation.OpenTk
 {
-    public class OTKStringLayout : IStringLayout
+    public class OTKStringLayout : OTKImage, IStringLayout, IDisposable
     {
-        Bitmap _textBitmap;
+        private Bitmap _textBitmap;
+        private Color _currentColor = Color.Black;
 
+        private CarMP.Graphics.Geometry.Size _textSize;
+        public CarMP.Graphics.Geometry.Size TextSize { get { return _textSize; } }
         private float _size;
         public float Size
         {
@@ -117,7 +120,7 @@ namespace CarMP.Graphics.Implementation.OpenTk
 
         public CarMP.Graphics.Geometry.Size GetStringSize()
         {
-            return new CarMP.Graphics.Geometry.Size(3,3);
+            return _textSize;
         }
 
         private void UpdateBitmap()
@@ -125,7 +128,32 @@ namespace CarMP.Graphics.Implementation.OpenTk
             string tempStr = _string;
             if (tempStr == null)
                 tempStr = string.Empty;
+            
+            SizeF size;
+            
+            using(System.Drawing.Font font = new System.Drawing.Font(_font, _size))
+            {
+                using (Bitmap tmpBitmap = new Bitmap(1,1))
+                using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(tmpBitmap))
+                {
+                    size = g.MeasureString(tempStr, font);
+                    _textSize = new Geometry.Size(size.Width, size.Height);
+                }
 
+                Bitmap bitmap = new Bitmap((int)Math.Ceiling(size.Width), 
+                    (int)Math.Ceiling(size.Height));
+                using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(bitmap))
+                using(System.Drawing.Brush brush = new System.Drawing.SolidBrush(
+                    System.Drawing.Color.FromArgb(
+                        (int)(255 * _currentColor.Red),
+                        (int)(255 * _currentColor.Green), 
+                        (int)(255 * _currentColor.Blue))))
+                {
+                    g.DrawString(tempStr, font, brush, new PointF(0,0));
+                }
+
+                LoadBitmap(bitmap);
+            }
            // System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(new Image
             // TODO: Should there be a string size restriction? (for word wrap I think so!)
             //TextLayoutResource = StringFactory.CreateTextLayout(
@@ -135,6 +163,16 @@ namespace CarMP.Graphics.Implementation.OpenTk
             //    9000);
         }
 
+        internal void SetBrush(IBrush pBrush)
+        {
+            if (_currentColor != pBrush.Color)
+            {
+                _currentColor = pBrush.Color;
+                UpdateBitmap();
+            }
+        }
+
+
         internal Bitmap BitmapResource { get; private set; }
 
         internal OTKStringLayout()
@@ -142,9 +180,18 @@ namespace CarMP.Graphics.Implementation.OpenTk
             UpdateBitmap();
         }
 
-        internal OTKStringLayout(string pFont, float pSize)
+        internal OTKStringLayout(string pString, string pFont, float pSize)
         {
+            _string = pString;
+            _font = pFont;
+            _size = pSize;
             UpdateBitmap();
+        }
+
+        public void Dispose()
+        {
+            if (_textBitmap != null)
+                _textBitmap.Dispose();
         }
     }
 }

@@ -162,10 +162,10 @@ namespace CarMP.Graphics.Implementation.OpenTk
         {
         }
 
-        public void DrawString(Geometry.Point pPoint, IStringLayout pStringLayout, IBrush pBrush)
+        public void DrawString(Geometry.Rectangle pRectangle, IStringLayout pStringLayout, IBrush pBrush)
         {
             var otkStringLayout = pStringLayout as OTKStringLayout;
-            otkStringLayout.SetDimensions(new CarMP.Graphics.Geometry.Rectangle(TransformPoint(pPoint), otkStringLayout.TextSize));
+            otkStringLayout.SetDimensions(pRectangle);
             otkStringLayout.SetBrush(pBrush);
             otkStringLayout.Draw();
         }
@@ -181,6 +181,11 @@ namespace CarMP.Graphics.Implementation.OpenTk
         public IStringLayout CreateStringLayout(string pText, string pFont, float pSize)
         {
             return new OTKStringLayout(pText, pFont, pSize);
+        }
+
+        public IStringLayout CreateStringLayout(string pText, string pFont, float pSize, StringAlignment pAlignment)
+        {
+            return new OTKStringLayout(pText, pFont, pSize, pAlignment);
         }
 
         public IImage CreateImage(byte[] pData, int pStride)

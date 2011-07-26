@@ -75,6 +75,7 @@ namespace CarMP.ViewControls
             {
                 _backgroundColorBrush = pRenderer.CreateBrush(_backgroundColor);
             }
+
             if (_backgroundColorBrush != null)
             {
                 pRenderer.FillRectangle(_backgroundColorBrush, new Rectangle(0,0,_bounds.Width,_bounds.Height));
@@ -86,9 +87,10 @@ namespace CarMP.ViewControls
                 _backGroundBitmap = pRenderer.CreateImage(_backGroundBitmapPath);
             }
 
-            if (_backGroundBitmap != null)
+            var background = _backGroundBitmap;
+            if (background != null)
             {
-                pRenderer.DrawImage(new Rectangle(0, 0, Bounds.Width, Bounds.Height), _backGroundBitmap, 1F);
+                pRenderer.DrawImage(new Rectangle(0, 0, Bounds.Width, Bounds.Height), background, 1F);
             }
         }
     }

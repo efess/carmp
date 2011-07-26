@@ -98,7 +98,7 @@ namespace CarMP.Views
                     MediaList.ChangeListForward();
                     break;
                 case MediaListItemType.Song:
-                    AppMain.MediaManager.PlayMediaListItem(e.SelectedIndex);
+                    AppMain.MediaManager.PlayMediaListItem(selectedItem);
                     break;
             }
         }

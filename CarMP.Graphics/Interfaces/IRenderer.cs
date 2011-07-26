@@ -35,9 +35,11 @@ namespace CarMP.Graphics.Interfaces
 
         void FillEllipse(Ellipse pEllipse, IBrush pBrush);
 
-        void DrawString(Point pPoint, IStringLayout pStringLayout, IBrush pBrush);
+        void DrawString(Rectangle pRectangle, IStringLayout pStringLayout, IBrush pBrush);
 
         IBrush CreateBrush(Color pColor);
+
+        IStringLayout CreateStringLayout(string pString, string pFont, float pSize, StringAlignment pAlignment);
 
         IStringLayout CreateStringLayout(string pString, string pFont, float pSize);
 

@@ -181,10 +181,16 @@ namespace CarMP.Graphics.Implementation.OpenTk
         }
 
         internal OTKStringLayout(string pString, string pFont, float pSize)
+            : this(pString, pFont, pSize, StringAlignment.Left)
+        {
+        }
+
+        internal OTKStringLayout(string pString, string pFont, float pSize, StringAlignment pAlignment)
         {
             _string = pString;
             _font = pFont;
             _size = pSize;
+            _alignment = pAlignment;
             UpdateBitmap();
         }
 

@@ -46,7 +46,6 @@ namespace CarMP.ViewControls
 
         public SwapableDragableList()
         {
-            ItemSize = new Size();
         }
 
         public int CurrentListIndex
@@ -54,7 +53,7 @@ namespace CarMP.ViewControls
             get { return _currentListIndex; }
         }
 
-        private Size _itemSize;
+        private Size _itemSize = new Size(100, 25);
         public Size ItemSize
         {
             get { return _itemSize; }
@@ -180,8 +179,8 @@ namespace CarMP.ViewControls
 
                     dragableList.ClearList();
 
-                    if (i != pListIndex)
-                        RemoveList(dragableList);
+                    //if (i != pListIndex)
+                    RemoveList(dragableList);
                 }
             }
         }
@@ -204,6 +203,7 @@ namespace CarMP.ViewControls
         private DragableList CreateList()
         {
             var newList = new DragableList();
+            newList.Bounds = Bounds;
             newList.SelectedItemChanged += OnSelectItem;
             AddViewControl(newList);
             newList.ListOrientation = ListOrientation;

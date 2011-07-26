@@ -11,7 +11,7 @@ namespace CarMP.DataObjects.View.Mappings
         public AlbumArtPathMapping()
         {
             ReadOnly();
-            Table("AlbumArtPaths");
+            Table("AlbumArtPath");
             Id(x => x.Path);
             Map(x => x.Album);
             Map(x => x.Artist);

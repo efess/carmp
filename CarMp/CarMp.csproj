@@ -315,7 +315,6 @@
     <PostBuildEvent>copy $(SolutionDir)Libraries\SQLite.Interop.Dll $(TargetDir) /Y
 copy $(SolutionDir)Libraries\NHibernate_NonReferenced\*.dll $(TargetDir) /Y
 copy $(SolutionDir)Libraries\NHibernate_NonReferenced\*.DLL $(TargetDir) /Y
-copy $(SolutionDir)Libraries\NHibernate_NonReferenced\*.PDB $(TargetDir) /Y
-copy $(SolutionDir)Database\database.db $(TargetDir) /Y</PostBuildEvent>
+</PostBuildEvent>
   </PropertyGroup>
 </Project>

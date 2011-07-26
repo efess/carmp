@@ -106,7 +106,7 @@ namespace CarMP.ViewControls
             //_linearGradient.EndPoint = new Point(0, 0);
             //_linearGradient.StartPoint = new Point(0, _bounds.Height);
 
-            pRenderer.DrawString(new Point(4, 0), _stringLayout, _linearGradient);
+            pRenderer.DrawString(new Rectangle(4, 0, _bounds.Width, this.Height), _stringLayout, _linearGradient);
             
             // Call base which will draw the selection is selected
             base.OnRender(pRenderer);

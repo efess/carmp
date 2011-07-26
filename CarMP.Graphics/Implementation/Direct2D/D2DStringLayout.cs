@@ -121,7 +121,11 @@ namespace CarMP.Graphics.Implementation.Direct2D
             _textFormat = StringFactory.CreateTextFormat(
                 _font,
                 _size);
-
+            _textFormat.TextAlignment =
+                Alignment == StringAlignment.Left ? TextAlignment.Leading :
+                Alignment == StringAlignment.Right ? TextAlignment.Trailing :
+                TextAlignment.Center;
+            UpdateTextLayout();
         }
 
         private void UpdateTextLayout()
@@ -133,9 +137,7 @@ namespace CarMP.Graphics.Implementation.Direct2D
             // TODO: Should there be a string size restriction? (for word wrap I think so!)
             TextLayoutResource = StringFactory.CreateTextLayout(
                 tempStr,
-                _textFormat,
-                9000,
-                9000);
+                _textFormat,900,900);
         }
 
         private TextFormat _textFormat;
@@ -149,10 +151,15 @@ namespace CarMP.Graphics.Implementation.Direct2D
         }
         
         internal D2DStringLayout(RenderTarget pRenderer, string pString, string pFont, float pSize)
+            :this(pRenderer, pString, pFont, pSize, StringAlignment.Left)
+        {
+        }
+        internal D2DStringLayout(RenderTarget pRenderer, string pString, string pFont, float pSize, StringAlignment pAlignment)
         {
             _string = pString;
             _size = pSize;
             _font = pFont;
+            _alignment = pAlignment;
             UpdateTextFormat();
             UpdateTextLayout();
         }

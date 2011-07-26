@@ -52,7 +52,6 @@ namespace CarMP.ViewControls
         /// Current displayed list
         /// </summary>
         private DragableListCollection _listItemCollection = new DragableListCollection(); // SHould base class these items
-        private float _currentListLoc_px;
 
         private int _listItemCollectionIndex;
 
@@ -69,8 +68,8 @@ namespace CarMP.ViewControls
         /// Current List scrollable height in pixles (ListCount - ViewAble) * ItemSize
         /// </summary>
         private float scrollableListLengthPx;
-        private float scrollableItemLengthPx;
-        private Size itemSize;
+
+        private Size itemSize = new Size(100,25);
         /// <summary>
         /// Size of each item in list. 
         /// Use -1 to specify length or width of window
@@ -268,13 +267,7 @@ namespace CarMP.ViewControls
 
         private void UpdateLengths()
         {
-            scrollableItemLengthPx = ListOrientation == Orientation.Vertical
-                ? ItemSize.Height
-                : ItemSize.Width;
-
-            this.scrollableListLengthPx = (_listItemCollection.Count / itemPerScrollaleRow)
-                * scrollableItemLengthPx;
-            
+            this.scrollableListLengthPx = ((int)Math.Ceiling((float)_listItemCollection.Count / itemPerScrollaleRow) * ItemScrollingRowHeight) - this.Bounds.Height;
         }
 
         // Private Methods
@@ -437,7 +430,17 @@ namespace CarMP.ViewControls
 
         public override void OnSizeChanged(object sender, EventArgs e)
         {
-            this._listDisplayCount = Convert.ToInt32(this.Size.Height / _listItemSize + 1);
+            this._listDisplayCount = Convert.ToInt32(this.Size.Height / ItemScrollingRowHeight + 1);
+        }
+
+        public virtual float ItemScrollingRowHeight
+        {
+            get
+            {
+                return ListOrientation == Orientation.Vertical
+                    ? ItemSize.Height
+                    : ItemSize.Width;
+            }
         }
     }
     

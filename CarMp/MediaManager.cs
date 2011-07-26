@@ -265,16 +265,22 @@ namespace CarMP
             _audioController.PausePlayback();
         }
 
-        public void PlayMediaListItem(int pPlayListIndex)
-            {
+        public void PlayMediaListItem(MediaListItem pMediaListItem)
+        {
             SetPlayList();
-            PlayMediaListItemInternal(pPlayListIndex);
+            PlayMediaListItemInternal(pMediaListItem);
         }
 
-        private void PlayMediaListItemInternal(int pPlaylistIndex)
+        private void PlayMediaListItemInternal(MediaListItem pMediaListItem)
         {
-            _currentMediaIndex = pPlaylistIndex;
-            PlayCurrentMediaItem();
+            MediaItem? mediaItem = _currentPlayList.FirstOrDefault(item => item.InternalKey == pMediaListItem.Key);
+            if (mediaItem != null)
+            {
+                var index = _currentPlayList.IndexOf(mediaItem.Value);
+
+                _currentMediaIndex = index;
+                PlayCurrentMediaItem();
+            }
         }
 
         private void PlayCurrentMediaItem()
@@ -315,7 +321,6 @@ namespace CarMP
             else
                 item = GetDigitalMedia(pMediaItem.TargetId);
             MediaItem mediaItem = new MediaItem();
-            mediaItem.DisplayName = pMediaItem.DisplayString;
             mediaItem.Artist = item.Artist;
             mediaItem.Album = item.Album;
             mediaItem.Title = item.Title;
@@ -334,31 +339,17 @@ namespace CarMP
             OnMediaChanged(mediaItem);
         }
 
-        private void PlayFromMediaLibrary(int pTargetId)
-        {
-            DigitalMediaLibrary item = GetDigitalMedia(pTargetId);
-
-            if (item == null)
-                return;
-            
-            StartPlayback(item.Path);
-
-            MediaItem mediaItem = new MediaItem();
-            mediaItem.DisplayName = item.Title;
-            mediaItem.Artist = item.Artist;
-            mediaItem.Album = item.Album;
-            mediaItem.Title = item.Title;
-
-            OnMediaChanged(mediaItem);
-        }
-
         private void SetPlayList()
         {
             List<MediaItem> mediaListItems = new List<MediaItem>();
 
             for (int i = 0; i < _currentViewedList.Count; i++)
             {
-                mediaListItems.Add(GetMediaItem(_currentViewedList[i]));
+                var item = GetMediaItem(_currentViewedList[i]);
+                item.InternalKey = _currentViewedList[i].Key;
+                item.DisplayName = _currentViewedList[i].DisplayString;
+
+                mediaListItems.Add(item);
             }
             _currentPlayList = mediaListItems;
         }
@@ -614,5 +605,6 @@ namespace CarMP
         public int Frequency { get; set; }
         public string Genre { get; set; }
         public string Track { get; set; }
+        public string InternalKey { get; set; }
     }
 }

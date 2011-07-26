@@ -96,11 +96,11 @@ namespace CarMP.ViewControls
             //if (_textStyle.Format == null)
             //    _textStyle.Initialize(D2DStatic.StringFactory);
 
-            
-            if (_stringLayout == null || _invalidateTextLayout)
-                _stringLayout = pRenderer.CreateStringLayout(_textString, _textStyle.Face, _textStyle.Size);//D2DStatic.StringFactory.CreateTextLayout(_textString, _textStyle.Format, Bounds.Width, Bounds.Height);
 
-            pRenderer.DrawString(TextPosition, _stringLayout,  _stringBrush);
+            if (_stringLayout == null || _invalidateTextLayout)
+                _stringLayout = pRenderer.CreateStringLayout(_textString, _textStyle.Face, _textStyle.Size,_textStyle.Alignment);//D2DStatic.StringFactory.CreateTextLayout(_textString, _textStyle.Format, Bounds.Width, Bounds.Height);
+
+            pRenderer.DrawString(new Rectangle(TextPosition, Bounds.Size), _stringLayout,  _stringBrush);
         }
 
         public override void SendUpdate(Reactive.ReactiveUpdate pReactiveUpdate)

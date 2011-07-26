@@ -66,13 +66,15 @@ namespace CarMP.Background
         }
         private void CreateAndSaveArt(string pArtist, string pAlbum, string pPath, NHibernate.ISession pDataSession, ArtType pType)
         {
+            var key = pArtist + "|" + pAlbum;
+            
             var art = new Art();
             art.ArtType = (int)pType;
-            art.Key = pArtist + "|" + pAlbum;
+            art.Key = key;
             art.Path = pPath;
             try
             {
-                pDataSession.Save(art);
+                pDataSession.SaveOrUpdate(art);
             }
             catch { } // ignore.
         }
@@ -85,6 +87,8 @@ namespace CarMP.Background
             WindowsMediaPlayerClass WMP = new WindowsMediaPlayerClass();
             IWMPMediaCollection mc = WMP.mediaCollection;
             IWMPStringCollection strings = mc.getAttributeStringCollection("AlbumID", "audio");
+
+            var albumArtistLookup = new System.Collections.Hashtable();
 
             int WmpCount = strings.count;
             if (WmpCount > 0)
@@ -104,11 +108,14 @@ namespace CarMP.Background
                             string guid = mMedia.getItemInfo("WM/WMCollectionID");
                             string albumTitle = mMedia.getItemInfo("WM/AlbumTitle");
                             string albumArtist = mMedia.getItemInfo("WM/AlbumArtist");
-                            
+
+                            FileInfo file = new FileInfo(mMedia.sourceURL);
+
                             //Add to array if not found
-                            if (!string.IsNullOrEmpty(guid) && !string.IsNullOrEmpty(albumTitle))
+                            if (!string.IsNullOrEmpty(guid) && !string.IsNullOrEmpty(albumTitle)
+                                && !albumArtistLookup.ContainsKey(file.DirectoryName))
                             {
-                                FileInfo file = new FileInfo(mMedia.sourceURL);
+                                albumArtistLookup[file.DirectoryName] = true;
 
                                 string filePathLarge = System.IO.Path.Combine(file.DirectoryName, string.Format(WMP_LARGE_GUID, guid));
                                 string filePathSmall = System.IO.Path.Combine(file.DirectoryName, string.Format(WMP_SMALL_GUID, guid));

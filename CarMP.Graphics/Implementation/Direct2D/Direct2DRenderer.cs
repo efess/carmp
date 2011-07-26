@@ -129,9 +129,10 @@ namespace CarMP.Graphics.Implementation.Direct2D
             _renderer.FillEllipse(TransformEllipse(pEllipse), GetBrush(pBrush));
         }
 
-        public void DrawString(Point pPoint, IStringLayout pStringLayout, IBrush pBrush)
+        public void DrawString(Rectangle pRectangle, IStringLayout pStringLayout, IBrush pBrush)
         {
-            _renderer.DrawTextLayout(TransformPoint(pPoint), GetTextLayout(pStringLayout), GetBrush(pBrush));
+           
+            _renderer.DrawTextLayout(TransformPoint(pRectangle.Location), GetTextLayout(pStringLayout, pRectangle), GetBrush(pBrush));
         }
 
         public void DrawTextLayout(Point pPoint, TextLayout pTextLayout, Brush pBrush)
@@ -171,10 +172,16 @@ namespace CarMP.Graphics.Implementation.Direct2D
             return (pBrush as D2DBrush).BrushResource;
         }
 
-        private TextLayout GetTextLayout(IStringLayout pStringLayout)
+        private TextLayout GetTextLayout(IStringLayout pStringLayout, Rectangle pRectangle)
         {
-            return (pStringLayout as D2DStringLayout).TextLayoutResource;
-
+            var textLayout = (pStringLayout as D2DStringLayout).TextLayoutResource;
+            if (textLayout.MaxHeight != pRectangle.Width
+                || textLayout.MaxWidth != pRectangle.Height)
+            {
+                textLayout.MaxWidth = pRectangle.Width;
+                textLayout.MaxHeight = pRectangle.Height;
+            }
+            return textLayout;
         }
 
         private D2DBitmap GetBitmap(IImage pImage)
@@ -200,6 +207,10 @@ namespace CarMP.Graphics.Implementation.Direct2D
         public IStringLayout CreateStringLayout(string pString, string pFont, float pSize)
         {
             return new D2DStringLayout(_renderer, pString, pFont, pSize);
+        }
+        public IStringLayout CreateStringLayout(string pString, string pFont, float pSize, StringAlignment pAlignment)
+        {
+            return new D2DStringLayout(_renderer, pString, pFont, pSize, pAlignment);
         }
     }
 }

@@ -19,6 +19,7 @@ namespace CarMP.Graphics
                 case "CLUTTER":
                     return null;
                 case "OPENTK":
+                case "OPENGL":
                     return new OpenTkRenderer(pWindowHandle);
                 default:
                     return null;

@@ -51,9 +51,12 @@ namespace CarMP.ViewControls
 
             foreach (XmlNode childNode in pXmlNode.ChildNodes)
             {
-                var viewControl = ViewControlFactory.GetViewControlAndApplySkin(childNode.Name, pSkinPath, childNode);
-                if (viewControl != null)
-                    AddViewControl(viewControl);
+                if (childNode.NodeType == XmlNodeType.Element)
+                {
+                    var viewControl = ViewControlFactory.GetViewControlAndApplySkin(childNode.Name, pSkinPath, childNode);
+                    if (viewControl != null)
+                        AddViewControl(viewControl);
+                }
 
                 //if (viewControl is ThermometerProgressBar)
                 //{

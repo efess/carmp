@@ -42,7 +42,9 @@ namespace CarMP
         public MediaItem? CurrentMediaItem
         {
             get{
-                if(_currentMediaIndex >= 0 && _currentMediaIndex < _currentPlayList.Count)
+                if (_currentPlayList != null
+                    && _currentMediaIndex >= 0 
+                    && _currentMediaIndex < _currentPlayList.Count)
                     return _currentPlayList[_currentMediaIndex];
                 return null;
             }

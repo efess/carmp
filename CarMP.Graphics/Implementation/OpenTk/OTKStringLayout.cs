@@ -150,8 +150,9 @@ namespace CarMP.Graphics.Implementation.OpenTk
                         (int)(255 * _currentColor.Blue))))
                 {
                     g.DrawString(tempStr, font, brush, new PointF(0,0));
+                    //bitmap.Save("C:\\bin\\lol.bmp");
                 }
-
+                
                 LoadBitmap(bitmap);
             }
            // System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(new Image

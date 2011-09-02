@@ -132,7 +132,10 @@ namespace CarMP.Graphics.Implementation.Direct2D
         public void DrawString(Rectangle pRectangle, IStringLayout pStringLayout, IBrush pBrush)
         {
            
-            _renderer.DrawTextLayout(TransformPoint(pRectangle.Location), GetTextLayout(pStringLayout, pRectangle), GetBrush(pBrush));
+            _renderer.DrawTextLayout(
+                TransformPoint(pRectangle.Location), 
+                GetTextLayout(pStringLayout, pRectangle.Size), 
+                GetBrush(pBrush));
         }
 
         public void DrawTextLayout(Point pPoint, TextLayout pTextLayout, Brush pBrush)
@@ -172,16 +175,9 @@ namespace CarMP.Graphics.Implementation.Direct2D
             return (pBrush as D2DBrush).BrushResource;
         }
 
-        private TextLayout GetTextLayout(IStringLayout pStringLayout, Rectangle pRectangle)
+        private TextLayout GetTextLayout(IStringLayout pStringLayout, Size pSize)
         {
-            var textLayout = (pStringLayout as D2DStringLayout).TextLayoutResource;
-            if (textLayout.MaxHeight != pRectangle.Width
-                || textLayout.MaxWidth != pRectangle.Height)
-            {
-                textLayout.MaxWidth = pRectangle.Width;
-                textLayout.MaxHeight = pRectangle.Height;
-            }
-            return textLayout;
+            return (pStringLayout as D2DStringLayout).GetTextLayout(pSize);
         }
 
         private D2DBitmap GetBitmap(IImage pImage)

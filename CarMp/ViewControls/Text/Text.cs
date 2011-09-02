@@ -69,7 +69,7 @@ namespace CarMP.ViewControls
             float xPixelLocation = 0.0f;
             if (_stringLayout != null)
             {
-                _stringLayout.GetPointAtCharPosition(pCharPosition);
+                xPixelLocation = _stringLayout.GetPointAtCharPosition(pCharPosition).X;
             }
             return xPixelLocation;
         }

@@ -54,7 +54,8 @@ namespace CarMP.Graphics.Implementation.OpenTk
             GL.MatrixMode(MatrixMode.Modelview);
             GL.PushMatrix();
             GL.LoadIdentity();
-            GL.Translate(0.375, 0.375, 0.0);
+            //GL.Translate(0.375, 0.375, 0.0);
+            GL.Translate(0.1, 0.3, 0.0);
 
             GL.PushAttrib(AttribMask.DepthBufferBit);
             GL.Disable(EnableCap.DepthTest);

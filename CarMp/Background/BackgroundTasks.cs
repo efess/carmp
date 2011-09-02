@@ -15,13 +15,6 @@ namespace CarMP.Background
 
         public void ScanMedia(bool pFullScan)
         {
-            new MediaGroupCreater().ReCreateArtistAlbumGroupCreation();
-            var artScanner = new AlbumArtScanner();
-            _runningTasks.Add(artScanner);
-            artScanner.StartScan();
-
-            return;
-
             if(pFullScan)
                 AppMain.MediaManager.ClearMediaLibrary();
             var scanner = new DigitalMediaScanner();
@@ -36,7 +29,7 @@ namespace CarMP.Background
                 {
                     DebugHandler.DebugPrint("Finished with " + e.TotalCount + " total items " + e.TotalTime.TotalSeconds + " total seconds");
                     new MediaGroupCreater().ReCreateArtistAlbumGroupCreation();
-                    //var artScanner = new AlbumArtScanner();
+                    var artScanner = new AlbumArtScanner();
                     _runningTasks.Add(artScanner);
                     artScanner.StartScan();
                 };

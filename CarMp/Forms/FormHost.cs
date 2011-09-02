@@ -78,7 +78,7 @@ namespace CarMP.Forms
                 ControlStyles.AllPaintingInWmPaint |
                 ControlStyles.UserPaint, true);
 
-            _renderer = new RendererFactory().GetRenderer("direct2d", this.Handle);
+            _renderer = new RendererFactory().GetRenderer("opengl", this.Handle);
             
             this.ClientSizeChanged += (o, e) => { _renderer.Resize(new SizeI(ClientSize.Width, ClientSize.Height)); };
             
@@ -94,8 +94,6 @@ namespace CarMP.Forms
 
             ApplySkin();
 
-            Action renderingLoop = new Action(() => RenderingLoop());
-            renderingLoop.BeginInvoke(null, null);
         }
 
         public void RouteKeyInputEvents(Key pKeyInput)
@@ -225,7 +223,7 @@ namespace CarMP.Forms
                     _fpsCalcDate = DateTime.Now;
                 }
 
-                System.Threading.Thread.Sleep(5);
+                System.Threading.Thread.Sleep(10);
             }
         }
 

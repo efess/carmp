@@ -11,7 +11,9 @@ namespace CarMP.Graphics.Implementation.Direct2D
 {
     public class D2DStringLayout : IStringLayout
     {
+        private Rectangle _bounds;
         private float _size;
+
         public float Size
         {
             get
@@ -97,23 +99,26 @@ namespace CarMP.Graphics.Implementation.Direct2D
             float x;
             float y;
 
-            var metrics = TextLayoutResource.HitTestTextPosition((uint)pCharPosition, false, out x, out y);
+            var metrics = _textLayoutResource.HitTestTextPosition((uint)pCharPosition, false, out x, out y);
 
-            return new Point(x, y);
+            return new Point(x,  y);
         }
 
         public int GetCharPositionAtPoint(Point pPoint)
         {
             bool isTrailingHit;
             bool isInside;
-            var metrics = TextLayoutResource.HitTestPoint(pPoint.X, pPoint.Y, out isTrailingHit, out isInside);
 
-            return isInside ? (int)metrics.TextPosition : -1;
+            //var transformedPoint = TransformPoint(pPoint);
+            var metrics = _textLayoutResource.HitTestPoint(pPoint.X, pPoint.Y, out isTrailingHit, out isInside);
+
+            return isInside ? (int)metrics.TextPosition : 
+                isTrailingHit ? _textLayoutResource.Text.Length : -1;
         }
 
         public Size GetStringSize()
         {
-            return new Size(TextLayoutResource.Metrics.Width, TextLayoutResource.Metrics.Height);
+            return new Size(_textLayoutResource.Metrics.Width, _textLayoutResource.Metrics.Height);
         }
 
         private void UpdateTextFormat()
@@ -135,14 +140,26 @@ namespace CarMP.Graphics.Implementation.Direct2D
                 tempStr = string.Empty;
 
             // TODO: Should there be a string size restriction? (for word wrap I think so!)
-            TextLayoutResource = StringFactory.CreateTextLayout(
+            _textLayoutResource = StringFactory.CreateTextLayout(
                 tempStr,
                 _textFormat,900,900);
         }
 
         private TextFormat _textFormat;
 
-        internal TextLayout TextLayoutResource;
+        private TextLayout _textLayoutResource;
+        
+        internal TextLayout GetTextLayout(Size pSize)
+        {
+            if (_textLayoutResource.MaxHeight != pSize.Width
+                || _textLayoutResource.MaxWidth != pSize.Height)
+            {
+                _textLayoutResource.MaxWidth = pSize.Width;
+                _textLayoutResource.MaxHeight = pSize.Height;
+            }
+
+            return _textLayoutResource;
+        }
 
         internal D2DStringLayout(RenderTarget pRenderer)
         {
@@ -162,6 +179,11 @@ namespace CarMP.Graphics.Implementation.Direct2D
             _alignment = pAlignment;
             UpdateTextFormat();
             UpdateTextLayout();
+        }
+        
+        private Point2F TransformPoint(Point pPoint)
+        {
+            return new Point2F(pPoint.X + _bounds.Left, pPoint.Y + _bounds.Top);
         }
     }
 }

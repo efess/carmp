@@ -31,7 +31,7 @@
       </NavigationBar>
 	  </Home>
     <Media>
-      <BackgroundImg>Jp-Solberg1920x1200.jpg</BackgroundImg>
+      <BackgroundImg>BMWBackground.bmp</BackgroundImg><!--Jp-Solberg1920x1200.jpg</BackgroundImg>-->
       <NavigationBar Type="CarMP.ViewControls.Container">
         <Bounds>0,0,90,480</Bounds>
         <BackgroundImg>NavigationBar.png</BackgroundImg>

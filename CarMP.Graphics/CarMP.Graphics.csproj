@@ -52,6 +52,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Color.cs" />
+    <Compile Include="Implementation\OpenGL\OpenGLImage.cs" />
+    <Compile Include="Implementation\OpenGL\OpenGLRenderer.cs" />
     <Compile Include="Implementation\OpenTk\OpenTkRenderer.cs" />
     <Compile Include="Implementation\OpenTk\OTKBrush.cs" />
     <Compile Include="Implementation\OpenTk\OTKDrawableObjectBase.cs" />
@@ -78,9 +80,7 @@
     <Compile Include="Geometry\Size.cs" />
     <Compile Include="StringAlignment.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Implementation\OpenGL\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

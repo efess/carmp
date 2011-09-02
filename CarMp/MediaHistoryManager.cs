@@ -35,9 +35,7 @@ namespace CarMP
             lock (_lockObject)
             {
                 while (_mediaHistoryStack.Count > pListIndex)
-                {
                     _mediaHistoryStack.Pop();
-                }
 
                 MediaHistory newHistoryItem = new MediaHistory()
                 {

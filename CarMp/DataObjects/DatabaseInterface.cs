@@ -5,6 +5,10 @@ using System.Text;
 using NHibernate;
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
+using NHibernate.Cfg;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 namespace CarMP.DataObjects
 {
@@ -41,14 +45,39 @@ namespace CarMP.DataObjects
         private static ISessionFactory _SessionFactory;
         public static void InitializeDatabase(string pDatabaseFile)
         {
-            _SessionFactory = Fluently.Configure()
-              .Database(
-                SQLiteConfiguration.Standard
-                  .UsingFile(pDatabaseFile)
-              )
-            .Mappings(m =>
-                m.FluentMappings.AddFromAssemblyOf<AppMain>())
-            .BuildSessionFactory();
+            string configurationFile = "Configuration.serialized";
+            
+            Configuration cfg = null;
+            IFormatter serializer = new BinaryFormatter();
+            
+            if(File.Exists(configurationFile))
+            {
+                //other times
+                using (Stream stream = File.OpenRead(configurationFile))
+                {
+                    cfg = serializer.Deserialize(stream) as Configuration;
+                }
+            }
+            else
+            {
+                cfg = Fluently.Configure()
+                      .Database(
+                        SQLiteConfiguration.Standard
+                          .UsingFile(pDatabaseFile)
+                      )
+                    .Mappings(m =>
+                        m.FluentMappings.AddFromAssemblyOf<AppMain>())
+                        .BuildConfiguration();
+                
+                using (Stream stream = File.OpenWrite(configurationFile))
+                {
+                    serializer.Serialize(stream, cfg);
+                }
+            }
+             
+
+            _SessionFactory = 
+                cfg.BuildSessionFactory();
         }
 
         private static bool InitializedCheck()

@@ -22,20 +22,18 @@ namespace GraphicsTest
         {
             //_renderer = new RendererFactory().GetRenderer("opengl", this.Handle);
             InitializeComponent();
-
+                
             _controlForm = new ControlForm();
             _controlForm.StartPosition = FormStartPosition.Manual;
             _controlForm.Location = new System.Drawing.Point(Location.X + Size.Width, Location.Y);
             _controlForm.Show();
-            
 
+            
             _renderer = new OpenGLRenderer();
 
             var renderDelegate = new CarMP.Graphics.Implementation.OpenGL.OpenGLRenderer.RenderEventHandler(RenderEvent);
 
             new Action(() => ((OpenGLRenderer)_renderer).DoesItWork(renderDelegate)).BeginInvoke(null, null);
-            
-            
             
             //Action renderingLoop = new Action(() => RenderingLoop());
             //renderingLoop.BeginInvoke(null, null);
@@ -46,9 +44,15 @@ namespace GraphicsTest
         private void RenderEvent()
         {
             if (imageResource == null)
-                imageResource = _renderer.CreateImage(@"C:\source\CarMp\trunk\Images\Skins\BMW\World64.bmp");
+                imageResource = _renderer.CreateImage(@"C:\source\CarMp\trunk\Images\Skins\BMW\pause.png");
 
-            _renderer.DrawImage(new Rectangle(), imageResource, 1);
+            _renderer.DrawImage(new Rectangle(100, 30, 50, 51), imageResource, 1);
+
+            _renderer.DrawRectangle(new OpenGLBrush
+            {
+                Color = new Color(Color.RoyalBlue, .5f)
+            }, new Rectangle(30,30, 50,50), 18);
+
             // DrawDirect2D();
             _fpsCalcFramesCurrent++;
             if (DateTime.Now > _fpsCalcDate)

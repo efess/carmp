@@ -48,7 +48,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <NoEntryPoint>true</NoEntryPoint>
-      <AdditionalDependencies>C:\source\CarMp\trunk\native\lib\GLUT\glut32.lib;DevIL.lib;Ilu.lib;glew32d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>C:\source\CarMp\trunk\native\lib\GLUT\glut32.lib;ilut.lib;DevIL.lib;Ilu.lib;glew32d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\source\CarMp\trunk\native\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -71,7 +71,7 @@
     <ClInclude Include="GLResourceBase.h" />
     <ClInclude Include="OpenGLManager.h" />
     <ClInclude Include="Shader.h" />
-    <ClInclude Include="Texture.h" />
+    <ClInclude Include="OGLTexture.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
@@ -80,7 +80,7 @@
     <ClCompile Include="GLResourceBase.cpp" />
     <ClCompile Include="OpenGLManager.cpp" />
     <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="OGLTexture.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>

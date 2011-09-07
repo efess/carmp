@@ -71,7 +71,7 @@ namespace CarMP.ViewControls
 
             if (_linearGradient == null)
             {
-                _linearGradient = pRenderer.CreateBrush(_textStyle.Color1);
+                _linearGradient = pRenderer.CreateBrush(_textStyle.Color1 ?? Color.White);
             }
             // TODO: Gradients?
 

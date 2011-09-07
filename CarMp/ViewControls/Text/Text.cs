@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using CarMP.ViewControls.Interfaces;
 using CarMP.Graphics.Interfaces;
 using CarMP.Helpers;
+using CarMP.Graphics;
 
 namespace CarMP.ViewControls
 {
@@ -92,7 +93,7 @@ namespace CarMP.ViewControls
                 || _textStyle == null) return;
 
             if(_stringBrush == null)
-                _stringBrush = pRenderer.CreateBrush(_textStyle.Color1);
+                _stringBrush = pRenderer.CreateBrush(_textStyle.Color1 ?? Color.White);
             //if (_textStyle.Format == null)
             //    _textStyle.Initialize(D2DStatic.StringFactory);
 

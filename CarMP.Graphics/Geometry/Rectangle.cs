@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Runtime.InteropServices;
 
 namespace CarMP.Graphics.Geometry
 {
+    [StructLayout(LayoutKind.Sequential)]
     public struct RectangleI
     {
         public int X { get; set; }
@@ -99,12 +101,14 @@ namespace CarMP.Graphics.Geometry
         }
     }
 
-    public struct  Rectangle
+    [StructLayout(LayoutKind.Sequential, Pack=1)]
+    public struct Rectangle
     {
         public float X { get; set;}
         public float Y { get; set;}
         public float Width { get; set;}
         public float Height { get; set;}
+
         public float Left
         {
             get { return X;}

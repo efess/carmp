@@ -13,15 +13,16 @@ OpenGLManager::~OpenGLManager(void)
 {
 }
 
-int OpenGLManager::CreateWindow(void)
+int OpenGLManager::CreateOGLWindow(OGL_RECT pRectangle)
 {
 	// "Main()" Arguments
 	int argc = 1;
 	char* argv[1] = {"nothing"};	
 
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
-    glutInitWindowSize(400, 300);
+    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
+	glutInitWindowPosition(pRectangle.x, pRectangle.y);
+    glutInitWindowSize(pRectangle.width, pRectangle.height);
 
     glutCreateWindow("Hello World");
  
@@ -37,11 +38,26 @@ int OpenGLManager::CreateWindow(void)
         //fprintf(stderr, "OpenGL 2.0 not available\n");
         return 1;
     }
+	
+	glClearColor(0.0, 0.0, 0.0, 0.0);  //Set the cleared screen colour to black
+	glViewport(0, 0, pRectangle.width, pRectangle.width);   //This sets up the viewport so that the coordinates (0, 0) are at the top left of the window
 
+	
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, pRectangle.width, pRectangle.width, 0, -10, 10);
+
+	//Back to the modelview so we can draw stuff 
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	//glTranslatef(0.375, 0.375, 0);
+	
+/*
 	if (!_instance->MakeShaders()) {
         fprintf(stderr, "Failed to load resources\n");
         return 1;
-    }
+    }*/
 
 
     glutMainLoop();
@@ -111,7 +127,7 @@ void OpenGLManager::OnMouseEvent(int button, int state,
 	if(_instance->m_mouseHandler == NULL)
 		return;
 
-	MOUSE_EVENT newEvent;
+	OGL_MOUSE_EVENT newEvent;
 	newEvent.x = x;
 	newEvent.y = y;
 
@@ -123,7 +139,7 @@ void OpenGLManager::OnMouseMotionEvent(int x, int y)
 	if(_instance->m_mouseHandler == NULL)
 		return;
 
-	MOUSE_EVENT newEvent;
+	OGL_MOUSE_EVENT newEvent;
 	newEvent.x = x;
 	newEvent.y = y;
 
@@ -136,18 +152,18 @@ void OpenGLManager::OnKeyboardEvent(unsigned char key,
 	if(_instance->m_keyboardHandler == NULL)
 		return;
 
-	KEYBOARD_EVENT newEvent;
+	OGL_KEYBOARD_EVENT newEvent;
 	newEvent.c = key;
 
 	_instance->m_keyboardHandler(newEvent);
 }
 
-void OpenGLManager::RegisterMouseCallback(void (__stdcall *phandler)(MOUSE_EVENT))
+void OpenGLManager::RegisterMouseCallback(void (__stdcall *phandler)(OGL_MOUSE_EVENT))
 {	
 	m_mouseHandler = phandler;
 }
 
-void OpenGLManager::RegisterKeyboardCallback(void (__stdcall *phandler)(KEYBOARD_EVENT))
+void OpenGLManager::RegisterKeyboardCallback(void (__stdcall *phandler)(OGL_KEYBOARD_EVENT))
 {	
 	m_keyboardHandler = phandler;
 }
@@ -157,34 +173,54 @@ void OpenGLManager::RegisterRenderCallback(void (__stdcall *pHandler)(void))
 	m_renderHandler = pHandler;
 }
 
-void OpenGLManager::TestFunction()
+int OpenGLManager::DrawRectangle(OGL_COLOR pBrush, OGL_RECT pRect, float pLineWidth)
 {
-	if(_resourceMap.size() > 0)
-	{
-		GLRECT lol;
-		
-		GLResourceBase * resource = _resourceMap.begin()->second;;
-		Texture * texture = static_cast<Texture *>(resource);
-		DrawImage(lol, texture->GetTextureId(), 1);
-	}
+
+	float x2 = pRect.x + pRect.width;
+	float y2 = pRect.y + pRect.height;
+	float extend = pLineWidth / 2;
+	
+	glLineWidth(pLineWidth);
+	
+	glBegin(GL_LINES);   //We want to draw a quad, i.e. shape with four sides
+	glColor4f(pBrush.r, pBrush.g, pBrush.b, pBrush.a); //Set the colour to red 
+
+	glVertex2f(pRect.x - extend, pRect.y); 
+	glVertex2f(x2 + extend, pRect.y); 
+
+	glVertex2f(x2, pRect.y); 
+	glVertex2f(x2, y2); 
+
+	glVertex2f(x2 + extend, y2); 
+	glVertex2f(pRect.x - extend, y2);
+	
+	glVertex2f(pRect.x, y2);
+	glVertex2f(pRect.x, pRect.y); 
+
+	glEnd();
+	//glPopMatrix();
+
+	return 1;
 }
 
-int OpenGLManager::DrawImage(GLRECT pRectangle, int pResourceId, float pAlpha)
+int OpenGLManager::DrawImage(OGL_RECT pRectangle, int pResourceId, float pAlpha)
 {
 	if(_resourceMap.count(pResourceId) > 0)
 	{
 		map<int, GLResourceBase*>::iterator item = _resourceMap.find(pResourceId);
 		
 		GLResourceBase * resource = item->second;
-		Texture * texture = static_cast<Texture *>(resource);
-		texture->Draw();
+		OGLTexture * texture = static_cast<OGLTexture *>(resource);
+		
+		texture->SetDimensions(pRectangle);
+		resource->Draw();
 	}
 	return 1;
 }
 
 int OpenGLManager::CreateImage(const char* pPath)
 {
-	Texture* resource = new Texture(pPath);
+	OGLTexture* resource = new OGLTexture(pPath);
 	GLint textureId = resource->GetTextureId();
 
 	_resourceMap[textureId] = resource;

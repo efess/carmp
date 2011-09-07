@@ -166,7 +166,7 @@ namespace CarMP.Graphics.Implementation.OpenTk
 
         internal void SetBrush(IBrush pBrush)
         {
-            if (_currentColor != pBrush.Color)
+            if (!_currentColor.Equals(pBrush.Color))
             {
                 _currentColor = pBrush.Color;
                 UpdateBitmap();

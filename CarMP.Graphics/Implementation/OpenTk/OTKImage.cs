@@ -39,7 +39,7 @@ namespace CarMP.Graphics.Implementation.OpenTk
 
         internal void SetDimensions(Rectangle pImagePosition)
         {
-            /// <summary>
+            /// <summary> 
             /// (FROM ENGINE) Draws a part of image with specified size.
             /// </summary>
             /// <param name="x">X position of left-upper corner.</param>

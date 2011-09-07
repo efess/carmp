@@ -20,8 +20,8 @@ namespace CarMP
 
         public float Size { get; private set; }
         public string Face { get; private set; }
-        public Color Color1 { get; private set; }
-        public Color Color2 { get; private set; }
+        public Color? Color1 { get; private set; }
+        public Color? Color2 { get; private set; }
         public bool WordWrap { get; private set; }
 
         public StringAlignment Alignment { get; private set;}
@@ -54,7 +54,7 @@ namespace CarMP
             }
         }
 
-        public TextStyle(float pSize, string pFace, Color pColor1, Color pColor2, bool pWordWrap, StringAlignment pAlignment)
+        public TextStyle(float pSize, string pFace, Color? pColor1, Color? pColor2, bool pWordWrap, StringAlignment pAlignment)
         {
             Size = pSize;
             Face = pFace;

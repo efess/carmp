@@ -11,7 +11,11 @@ OpenGLManager::OpenGLManager(void)
 
 OpenGLManager::~OpenGLManager(void)
 {
+	// iterate and free resources
+	/*for(int i = 0; i < _resourceMap.count; i++)
+		_resourceMap.A*/
 }
+
 
 int OpenGLManager::CreateOGLWindow(OGL_RECT pRectangle)
 {
@@ -20,11 +24,11 @@ int OpenGLManager::CreateOGLWindow(OGL_RECT pRectangle)
 	char* argv[1] = {"nothing"};	
 
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_ALPHA);
 	glutInitWindowPosition(pRectangle.x, pRectangle.y);
     glutInitWindowSize(pRectangle.width, pRectangle.height);
 
-    glutCreateWindow("Hello World");
+    glutCreateWindow("OPENGL WINDOW");
  
 	glutDisplayFunc(&Render);
 	glutMouseFunc(&OnMouseEvent);
@@ -39,13 +43,16 @@ int OpenGLManager::CreateOGLWindow(OGL_RECT pRectangle)
         return 1;
     }
 	
-	glClearColor(0.0, 0.0, 0.0, 0.0);  //Set the cleared screen colour to black
-	glViewport(0, 0, pRectangle.width, pRectangle.width);   //This sets up the viewport so that the coordinates (0, 0) are at the top left of the window
-
-	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0, pRectangle.width, pRectangle.width, 0, -10, 10);
+	
+
+	GLint viewPort[4];
+	glGetIntegerv(GL_VIEWPORT, viewPort);
+	glOrtho(viewPort[0],viewPort[0]+viewPort[2],viewPort[1]+viewPort[3],viewPort[1],-1,1);
+		
+
+	//glOrtho(0, pRectangle.width, pRectangle.width, 0, -1, 1);
 
 	//Back to the modelview so we can draw stuff 
 	glMatrixMode(GL_MODELVIEW);
@@ -53,51 +60,21 @@ int OpenGLManager::CreateOGLWindow(OGL_RECT pRectangle)
 
 	//glTranslatef(0.375, 0.375, 0);
 	
+	glEnable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_LIGHTING);
 /*
 	if (!_instance->MakeShaders()) {
         fprintf(stderr, "Failed to load resources\n");
         return 1;
     }*/
+	   //GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	//glBlendFunc(GL_ONE_MINUS_DST_ALPHA,GL_DST_ALPHA);
 
     glutMainLoop();
 	return 0;
-}
-
-
-
-///////////////////// C /////////////////////////////
-
-bool OpenGLManager::MakeShaders(void)
-{
-	Shader* vertexShader = new Shader(
-        GL_VERTEX_SHADER,
-        "CarMP_OpenGL.v.glsl"
-    );
-
-    Shader* fragmentShader = new Shader(
-        GL_FRAGMENT_SHADER,
-        "CarMP_OpenGL.f.glsl"
-    );
-
-	// link shader
-	GLint program_ok;
-	
-	GLuint program = glCreateProgram();
-    glAttachShader(program, vertexShader->GetId());
-    glAttachShader(program, fragmentShader->GetId());
-    glLinkProgram(program);
-
-	glGetProgramiv(program, GL_LINK_STATUS, &program_ok);
-    if (!program_ok) {
-        fprintf(stderr, "Failed to link shader program:\n");
-        Utils::ShowInfoLog(program, glGetProgramiv, glGetProgramInfoLog);
-        glDeleteProgram(program);
-        return 0;
-    }
-    return program;
-
-	return 1;
 }
 
 void OpenGLManager::OnIdle(void)
@@ -107,13 +84,17 @@ void OpenGLManager::OnIdle(void)
 
 void OpenGLManager::Render(void)
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    //glClear(GL_COLOR_BUFFER_BIT);
 	
 	if(_instance->m_renderHandler != NULL)
 		_instance->m_renderHandler();
 
+
+	//TEMP
     glutSwapBuffers();
+
+
 }
 
 //void OpenGLManager::DrawImage(Rectangle pRectangle, int pTextureId, float pAlpha)
@@ -175,7 +156,8 @@ void OpenGLManager::RegisterRenderCallback(void (__stdcall *pHandler)(void))
 
 int OpenGLManager::DrawRectangle(OGL_COLOR pBrush, OGL_RECT pRect, float pLineWidth)
 {
-
+	glEnable(GL_BLEND);
+	
 	float x2 = pRect.x + pRect.width;
 	float y2 = pRect.y + pRect.height;
 	float extend = pLineWidth / 2;
@@ -188,18 +170,18 @@ int OpenGLManager::DrawRectangle(OGL_COLOR pBrush, OGL_RECT pRect, float pLineWi
 	glVertex2f(pRect.x - extend, pRect.y); 
 	glVertex2f(x2 + extend, pRect.y); 
 
-	glVertex2f(x2, pRect.y); 
-	glVertex2f(x2, y2); 
+	glVertex2f(x2, pRect.y + extend); 
+	glVertex2f(x2, y2 - extend); 
 
 	glVertex2f(x2 + extend, y2); 
 	glVertex2f(pRect.x - extend, y2);
 	
-	glVertex2f(pRect.x, y2);
-	glVertex2f(pRect.x, pRect.y); 
+	glVertex2f(pRect.x, y2 - extend);
+	glVertex2f(pRect.x, pRect.y + extend); 
 
 	glEnd();
 	//glPopMatrix();
-
+	glDisable(GL_BLEND);
 	return 1;
 }
 

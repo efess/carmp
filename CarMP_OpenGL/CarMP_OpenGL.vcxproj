@@ -43,13 +43,13 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\source\CarMp\trunk\native\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)native\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <NoEntryPoint>true</NoEntryPoint>
-      <AdditionalDependencies>C:\source\CarMp\trunk\native\lib\GLUT\glut32.lib;ilut.lib;DevIL.lib;Ilu.lib;glew32d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\source\CarMp\trunk\native\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(SolutionDir)native\lib\GLUT\glut32.lib;ilut.lib;DevIL.lib;Ilu.lib;glew32d.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)native\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -69,6 +69,7 @@
     <ClInclude Include="CarMPInterface.h" />
     <ClInclude Include="GLBuffer.h" />
     <ClInclude Include="GLResourceBase.h" />
+    <ClInclude Include="OGLTextLayout.h" />
     <ClInclude Include="OpenGLManager.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="OGLTexture.h" />
@@ -78,6 +79,7 @@
     <ClCompile Include="CarMPInterface.cpp" />
     <ClCompile Include="GLBuffer.cpp" />
     <ClCompile Include="GLResourceBase.cpp" />
+    <ClCompile Include="OGLTextLayout.cpp" />
     <ClCompile Include="OpenGLManager.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="OGLTexture.cpp" />

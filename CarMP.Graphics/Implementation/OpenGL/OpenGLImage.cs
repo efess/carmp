@@ -33,7 +33,7 @@ namespace CarMP.Graphics.Implementation.OpenGL
 
         public void Dispose()
         {
-            OpenGLRenderer.DeleteResource(TextureId);
+            OpenGLRenderer.NativeDeleteResource(TextureId);
         }
 
     }

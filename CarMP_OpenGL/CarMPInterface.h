@@ -10,6 +10,7 @@ extern "C" _declspec(dllexport) int CreateOGLWindow(OGL_RECT pRectangle);
 
 // Drawing stuff
 extern "C" _declspec(dllexport) int DrawImage(OGL_RECT, int, float);
+extern "C" _declspec(dllexport) int DrawRectangle(OGL_COLOR pBrush, OGL_RECT pRect, float pLineWidth);
 
 // Resource Stuff
 extern "C" _declspec(dllexport) int CreateImage(const char*);

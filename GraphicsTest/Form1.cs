@@ -9,6 +9,7 @@ using CarMP.Graphics;
 using CarMP.Graphics.Interfaces;
 using CarMP.Graphics.Geometry;
 using CarMP.Graphics.Implementation.OpenGL;
+using CarMP.Graphics.Implementation.SFML;
 
 namespace GraphicsTest
 {
@@ -28,46 +29,88 @@ namespace GraphicsTest
             _controlForm.Location = new System.Drawing.Point(Location.X + Size.Width, Location.Y);
             _controlForm.Show();
 
+            _renderer = new SFMLRenderer();
             
-            _renderer = new OpenGLRenderer();
+            // OPEN GL RENDERER LOL
+            //_renderer = new OpenGLRenderer();
 
-            var renderDelegate = new CarMP.Graphics.Implementation.OpenGL.OpenGLRenderer.RenderEventHandler(RenderEvent);
+            //var renderDelegate = new CarMP.Graphics.Implementation.OpenGL.OpenGLRenderer.RenderEventHandler(RenderEvent);
 
-            new Action(() => ((OpenGLRenderer)_renderer).DoesItWork(renderDelegate)).BeginInvoke(null, null);
+            //new Action(() => ((OpenGLRenderer)_renderer).DoesItWork(renderDelegate)).BeginInvoke(null, null);
             
-            //Action renderingLoop = new Action(() => RenderingLoop());
-            //renderingLoop.BeginInvoke(null, null);
+            Action renderingLoop = new Action(() => RenderingLoop());
+            renderingLoop.BeginInvoke(null, null);
         }
 
         private static IImage imageResource;
 
         private void RenderEvent()
         {
-            if (imageResource == null)
-                imageResource = _renderer.CreateImage(@"C:\source\CarMp\trunk\Images\Skins\BMW\pause.png");
-
-            _renderer.DrawImage(new Rectangle(100, 30, 50, 51), imageResource, 1);
+            _renderer.DrawRectangle(new OpenGLBrush
+            {
+                Color = new Color(Color.Gray, 1f)
+            }, new Rectangle(20,20,200,500),50);
 
             _renderer.DrawRectangle(new OpenGLBrush
             {
-                Color = new Color(Color.RoyalBlue, .5f)
+                Color = new Color(Color.White, 1f)
             }, new Rectangle(30,30, 50,50), 18);
 
-            // DrawDirect2D();
-            _fpsCalcFramesCurrent++;
-            if (DateTime.Now > _fpsCalcDate)
+            _renderer.DrawRectangle(new OpenGLBrush
             {
-                _controlForm.FPS = _fpsCalcFramesCurrent;
-                _fpsCalcFramesCurrent = 0;
-                _fpsCalcDate = DateTime.Now.AddSeconds(1);
-            }
+                Color = new Color(Color.White, .75f)
+            }, new Rectangle(30, 130, 50, 50), 18);
+
+            _renderer.DrawRectangle(new OpenGLBrush
+            {
+                Color = new Color(Color.White, .55f)
+            }, new Rectangle(30, 230, 50, 50), 18);
+
+            _renderer.DrawRectangle(new OpenGLBrush
+            {
+                Color = new Color(Color.White, .25f)
+            }, new Rectangle(30, 330, 50, 50), 18);
+
+
+            //if (imageResource == null)
+            //    imageResource = _renderer.CreateImage(@"C:\source\CarMp\trunk\Images\Skins\BMW\pause.png");
+
+            //_renderer.DrawImage(new Rectangle(100, 30, 50, 51), imageResource, 1);
+
+            // DrawDirect2D();
+            //_fpsCalcFramesCurrent++;
+            //if (DateTime.Now > _fpsCalcDate)
+            //{
+            //    _controlForm.FPS = _fpsCalcFramesCurrent;
+            //    _fpsCalcFramesCurrent = 0;
+            //    _fpsCalcDate = DateTime.Now.AddSeconds(1);
+            //}
             
         }
+
+        private void RenderingLoop()
+        {
+            System.Threading.Thread.CurrentThread.Name = "Rendering Loop";
+            while (true)
+            {
+                DoRender();
+                _fpsCalcFramesCurrent++;
+                if (DateTime.Now > _fpsCalcDate)
+                {
+                    _controlForm.FPS = _fpsCalcFramesCurrent;
+                    _fpsCalcFramesCurrent = 0;
+                    _fpsCalcDate = DateTime.Now.AddSeconds(1);
+                }
+
+                System.Threading.Thread.Sleep(10);
+            }
+        }
+
 
         IStringLayout stringLayout;
         IBrush stringBrush;
 
-        private void DrawDirect2D()
+        private void DoRender()
         {
             try
             {
@@ -77,13 +120,15 @@ namespace GraphicsTest
 
                 _renderer.Clear(CarMP.Graphics.Color.Black);
 
-                if(stringBrush == null)
-                    stringBrush = _renderer.CreateBrush(CarMP.Graphics.Color.RoyalBlue);
-                if (stringLayout == null)
-                    stringLayout = _renderer.CreateStringLayout("Hello World!", "Arial", 25);
+                RenderEvent();
 
-                _renderer.DrawRectangle(stringBrush, new Rectangle(1, 1, this.Width - 2, this.Height - 2), 1);
-                _renderer.DrawString(new Rectangle(50, 50, 100, 50), stringLayout, stringBrush);
+                //if(stringBrush == null)
+                //    stringBrush = _renderer.CreateBrush(CarMP.Graphics.Color.RoyalBlue);
+                //if (stringLayout == null)
+                //    stringLayout = _renderer.CreateStringLayout("Hello World!", "Arial", 25);
+
+                //_renderer.DrawRectangle(stringBrush, new Rectangle(1, 1, this.Width - 2, this.Height - 2), 1);
+                //_renderer.DrawString(new Rectangle(50, 50, 100, 50), stringLayout, stringBrush);
                 
                 //for (int i = _overlayViewControls.Count - 1;
                 //    i >= 0;

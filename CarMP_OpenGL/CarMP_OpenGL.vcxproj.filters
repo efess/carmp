@@ -36,6 +36,9 @@
     <ClInclude Include="OGLTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="OGLTextLayout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CarMPInterface.cpp">
@@ -57,6 +60,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="OGLTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OGLTextLayout.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

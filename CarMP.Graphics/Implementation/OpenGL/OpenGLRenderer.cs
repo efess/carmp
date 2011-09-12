@@ -5,6 +5,7 @@ using System.Text;
 using CarMP.Graphics.Interfaces;
 using System.Runtime.InteropServices;
 using System.Security;
+using CarMP.Graphics.Geometry;
 
 namespace CarMP.Graphics.Implementation.OpenGL
 {
@@ -32,31 +33,35 @@ namespace CarMP.Graphics.Implementation.OpenGL
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "DeleteResource"), SuppressUnmanagedCodeSecurity]
-        internal static extern int DeleteResource(int pResourceId);
+        internal static extern int NativeDeleteResource(int pResourceId);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "RegisterMouseCallback"), SuppressUnmanagedCodeSecurity]
-        private static extern int RegisterMouseCallback(MouseEventHandler pHandler);
+        private static extern int NativeRegisterMouseCallback(MouseEventHandler pHandler);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "RegisterRenderCallback"), SuppressUnmanagedCodeSecurity]
-        private static extern int RegisterRenderCallback(RenderEventHandler pHandler);
+        private static extern int NativeRegisterRenderCallback(RenderEventHandler pHandler);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "RegisterKeyboardCallback"), SuppressUnmanagedCodeSecurity]
-        private static extern int RegisterKeyboardCallback(KeyboardEventHandler pHandler);
+        private static extern int NativeRegisterKeyboardCallback(KeyboardEventHandler pHandler);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "TestFuncion"), SuppressUnmanagedCodeSecurity]
         private static extern int TestFunction();
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
-            EntryPoint = "CreateWindow"), SuppressUnmanagedCodeSecurity]
-        private static extern int CreateWindow();
+            EntryPoint = "CreateOGLWindow"), SuppressUnmanagedCodeSecurity]
+        private static extern int NativeCreateWindow(Rectangle rect);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "DrawImage"), SuppressUnmanagedCodeSecurity]
-        private static extern int DrawImage(int pTextureId, float pAlpha);
+        private static extern int NativeDrawImage(Rectangle pRectangle, int pTextureId, float pAlpha);
+
+        [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "DrawRectangle"), SuppressUnmanagedCodeSecurity]
+        private static extern int NativeDrawRectangle(Color pColor, Rectangle pRect, float pLineWidth);
 
         private List<GCHandle> _unmanaged_references = new List<GCHandle>();
 
@@ -72,11 +77,12 @@ namespace CarMP.Graphics.Implementation.OpenGL
             _unmanaged_references.Add(GCHandle.Alloc(mouseDelegate));
             _unmanaged_references.Add(GCHandle.Alloc(keyboardEvent));
 
-            RegisterRenderCallback(renderDelegate);
-            RegisterMouseCallback(mouseDelegate);
-            RegisterKeyboardCallback(keyboardEvent);
+            NativeRegisterRenderCallback(renderDelegate);
+            NativeRegisterMouseCallback(mouseDelegate);
+            NativeRegisterKeyboardCallback(keyboardEvent);
 
-            CreateWindow();
+            NativeCreateWindow(new Rectangle(5, 7, 800, 600));
+
             return true;
         }
 
@@ -86,7 +92,7 @@ namespace CarMP.Graphics.Implementation.OpenGL
 
         public void OnMouse(MouseEvent pMouseEvent)
         {
-            Console.WriteLine("MouseEvent: (" + pMouseEvent.X + "," + pMouseEvent.Y + ")");    
+            Console.WriteLine("MouseEvent: (" + pMouseEvent.X + "," + pMouseEvent.Y + ")");
         }
 
         public void OnKeyboard(KeyboardEvent pKeyboardEvent)
@@ -143,7 +149,7 @@ namespace CarMP.Graphics.Implementation.OpenGL
 
         public void DrawRectangle(IBrush pBrush, Geometry.Rectangle pRectangle, float pLineWidth)
         {
-            throw new NotImplementedException();
+            NativeDrawRectangle(pBrush.Color, pRectangle, pLineWidth);
         }
 
         public void DrawLine(Geometry.Point pPoint1, Geometry.Point pPoint2, IBrush pBrush, float pLineWidth)
@@ -158,7 +164,7 @@ namespace CarMP.Graphics.Implementation.OpenGL
 
         public void DrawImage(Geometry.Rectangle pRectangle, IImage pImage, float pAlpha)
         {
-            DrawImage((pImage as OpenGLImage).TextureId, pAlpha);
+            NativeDrawImage(pRectangle, (pImage as OpenGLImage).TextureId, pAlpha);
         }
 
         public void DrawEllipse(Geometry.Ellipse pEllipse, IBrush pBrush, float pLineWidth)

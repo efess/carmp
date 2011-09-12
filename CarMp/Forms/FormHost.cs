@@ -94,6 +94,8 @@ namespace CarMP.Forms
 
             ApplySkin();
 
+            Action renderingLoop = new Action(() => RenderingLoop());
+            renderingLoop.BeginInvoke(null, null);
         }
 
         public void RouteKeyInputEvents(Key pKeyInput)

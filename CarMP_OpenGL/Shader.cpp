@@ -10,21 +10,21 @@ Shader::Shader(GLenum type, const char *filename)
     if (!source)
         return; //ERROR
 	
-	shader = glCreateShader(type);
-    glShaderSource(shader, 1, (const GLchar**)&source, &length);
-    free(source);
-    glCompileShader(shader);
+	//shader = glCreateShader(type);
+ //   glShaderSource(shader, 1, (const GLchar**)&source, &length);
+ //   free(source);
+ //   glCompileShader(shader);
 
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &shader_ok);
-    if (!shader_ok) {
-        fprintf(stderr, "Failed to compile %s:\n", filename);
-        
-		Utils::ShowInfoLog(shader, glGetShaderiv, glGetShaderInfoLog);
+	//glGetShaderiv(shader, GL_COMPILE_STATUS, &shader_ok);
+ //   if (!shader_ok) {
+ //       fprintf(stderr, "Failed to compile %s:\n", filename);
+ //       
+	//	Utils::ShowInfoLog(shader, glGetShaderiv, glGetShaderInfoLog);
 
-        glDeleteShader(shader);
+ //       glDeleteShader(shader);
 
-        return;// ERROR?
-    }
+ //       return;// ERROR?
+ //   }
     m_shaderId = shader;
 }
 

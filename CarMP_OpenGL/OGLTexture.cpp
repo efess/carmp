@@ -1,21 +1,13 @@
 #include "OGLTexture.h"
 
-const GLfloat OGLTexture::_default_vertex_array[] = { 
-    -1.0f, -1.0f,
-     1.0f, -1.0f,
-    -1.0f,  1.0f,
-     1.0f,  1.0f
-};
-
-const GLushort OGLTexture::_default_element_array[] = { 0, 1, 2, 3 };
-
-bool OGLTexture::_isIlInitialized = false;
+OGLTexture::OGLTexture(const char* pByteArray, int pStride)
+{
+	this->LoadImageFromByteArray(pByteArray, pStride);
+}
 
 OGLTexture::OGLTexture(const char* pPath)
-	: m_vertex_buffer(GL_ARRAY_BUFFER, _default_vertex_array, sizeof(*_default_vertex_array)),
-	m_element_buffer(GL_ELEMENT_ARRAY_BUFFER, _default_element_array, sizeof(*_default_element_array))
 {
-	this->LoadImage(pPath);
+	this->LoadImageFromPath(pPath);
 }
 
 OGLTexture::~OGLTexture()
@@ -31,16 +23,22 @@ void OGLTexture::SetDimensions(OGL_RECT pRect)
 		|| currentRect.height != pRect.height)
 	{
 		currentRect = pRect;
+		m_sprite.SetPosition(pRect.x, pRect.y);
+		m_sprite.Resize(pRect.width, pRect.height);
 	}
 }
 
-void OGLTexture::InternalDraw(void)
+void OGLTexture::InternalDraw(sf::RenderWindow* renderer)
 {
+	renderer->Draw(m_sprite);
+
+	return;
+
 	float x2 = currentRect.x + currentRect.width;
 	float y2 = currentRect.y + currentRect.height;
 
 	//glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_textureId);
+    
 	glEnable(GL_TEXTURE_2D);
     
 	//glUniform1i(m_textureId, 0);
@@ -71,21 +69,30 @@ void OGLTexture::InternalDraw(void)
 	 
 }
 
-bool OGLTexture::LoadImage(const char* filename)
+bool OGLTexture::LoadImageFromByteArray(const char* byteArray, int stride)
 {
-	OGLTexture::InitializeIL();
+	return true;
+}
 
+bool OGLTexture::LoadImageFromPath(const char* filename)
+{
 	char tempCopy[600];
 	
 	strcpy(tempCopy, filename);
 
+	if(!m_texture.LoadFromFile(filename))
+		return false;
+
+	m_sprite.SetTexture(m_texture);
+	
+	return true;
 	/*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
 	*/
 //	m_textureId = ilutOglLoadImage(filename);
-	m_textureId = ilutGLLoadImage(tempCopy);
+	//m_textureId = ilutGLLoadImage(tempCopy);
 	
 	
 	/* We want all images to be loaded in a consistent manner */
@@ -143,22 +150,4 @@ bool OGLTexture::LoadImage(const char* filename)
 	//ilDeleteImages(1, & handle);
 	//free(data); data = NULL;
 	return 0;
-}
-
-GLuint OGLTexture::GetTextureId(void)
-{
-	return m_textureId;
-}
-
-void OGLTexture::InitializeIL(void)
-{
-	if(_isIlInitialized)
-		return;
-	
-	ilInit();
-	iluInit();
-
-	ilutRenderer(ILUT_OPENGL);
-
-	_isIlInitialized = true;
 }

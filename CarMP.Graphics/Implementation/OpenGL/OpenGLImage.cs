@@ -11,30 +11,62 @@ namespace CarMP.Graphics.Implementation.OpenGL
 {
     public class OpenGLImage : IImage, IDisposable
     {
-
         [DllImport(OpenGLRenderer.InterfaceLibrary, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "CreateImage"), SuppressUnmanagedCodeSecurity]
-        private static extern int CreateImage(string pPath);
-        public int TextureId { get; private set;}
+        private static extern IntPtr NativeCreateImage(string pPath);
 
+        [DllImport(OpenGLRenderer.InterfaceLibrary, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "CreateImageFromByteArray"), SuppressUnmanagedCodeSecurity]
+        private static extern IntPtr NativeCreateImage(byte[] pByteArray, int pStride);
+
+        [DllImport(OpenGLRenderer.InterfaceLibrary, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "FreeImage"), SuppressUnmanagedCodeSecurity]
+        private static extern void NativeFreeImage(IntPtr pNativePointer);
+        
+        internal IntPtr NativeImagePointer { get; private set;}
 
         public Size Size { get; set; }
 
         public OpenGLImage(string pPath)
         {
-            
+            NativeImagePointer = IntPtr.Zero;
             //IntPtr ip = Marshal.StringToHGlobalAnsi(pPath);
             //Cast
             //const char* str = static_cast<const char*>(ip.ToPointer());
-            TextureId = CreateImage(pPath);
+            NativeImagePointer = NativeCreateImage(pPath);
             
             //Marshal.FreeHGlobal(ip);
         }
 
-        public void Dispose()
+        public OpenGLImage(byte[] pByteArray, int pStride)
         {
-            OpenGLRenderer.NativeDeleteResource(TextureId);
+            NativeImagePointer = IntPtr.Zero;
+            //IntPtr ip = Marshal.StringToHGlobalAnsi(pPath);
+            //Cast
+            //const char* str = static_cast<const char*>(ip.ToPointer());
+            NativeImagePointer = NativeCreateImage(pByteArray, pStride);
+
+            //Marshal.FreeHGlobal(ip);
         }
 
+        ~OpenGLImage()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (NativeImagePointer != IntPtr.Zero)
+            {
+                NativeFreeImage(NativeImagePointer);
+                NativeImagePointer = IntPtr.Zero;
+            }
+        }
     }
 }

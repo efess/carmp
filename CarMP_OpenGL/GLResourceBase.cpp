@@ -5,21 +5,17 @@ GLResourceBase::GLResourceBase(void)
 {
 }
 
-void GLResourceBase::Draw()
+void GLResourceBase::Draw(sf::RenderWindow* renderer)
 {
 	BeginDraw();
 
-	InternalDraw();
-
+	InternalDraw(renderer);
 
 	EndDraw();
 }
 
 void GLResourceBase::BeginDraw()
 {
-	glColor3f(1.0f, 1.0f, 1.0f);
-	
-	glEnable(GL_BLEND);
 }
 
 void GLResourceBase::EndDraw()
@@ -30,7 +26,7 @@ void GLResourceBase::EndDraw()
 	{
 		errorString = gluErrorString(errorCode);
 	}
-	glDisable(GL_BLEND);
+
 }
 
 GLResourceBase::~GLResourceBase(void)

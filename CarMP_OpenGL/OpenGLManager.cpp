@@ -3,7 +3,7 @@
 
 OpenGLManager* OpenGLManager::_instance = NULL;
 
-OpenGLManager::OpenGLManager(void)
+OpenGLManager::OpenGLManager(void) 
 {
 	m_mouseHandler = NULL;
 	m_keyboardHandler = NULL;
@@ -17,13 +17,39 @@ OpenGLManager::~OpenGLManager(void)
 }
 
 
-int OpenGLManager::CreateOGLWindow(OGL_RECT pRectangle)
+void OpenGLManager::CreateOGLWindow(OGL_RECT pRectangle)
 {
 	// "Main()" Arguments
 	int argc = 1;
 	char* argv[1] = {"nothing"};	
 
-    glutInit(&argc, argv);
+	sf::RenderWindow renderer_temp(sf::VideoMode(pRectangle.width, pRectangle.height, 8), "SFML Graphics");
+	renderer = &renderer_temp; 
+
+	//OGLTextLayout layout("Hello World", "arial", 12, 1);
+
+	while (renderer->IsOpened())
+    {
+        // Process events
+        sf::Event Event;
+        while (renderer->PollEvent(Event))
+        {
+            // Close window : exit
+            if (Event.Type == sf::Event::Closed)
+                renderer->Close();
+        }
+
+        // Clear the screen (fill it with black color)
+        renderer->Clear();
+
+		OpenGLManager::MainLoop();
+
+		//layout.Draw(renderer);
+
+        // Display window contents on screen
+        renderer->Display();
+    }
+    /*glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_ALPHA);
 	glutInitWindowPosition(pRectangle.x, pRectangle.y);
     glutInitWindowSize(pRectangle.width, pRectangle.height);
@@ -35,13 +61,13 @@ int OpenGLManager::CreateOGLWindow(OGL_RECT pRectangle)
 	glutKeyboardFunc(&OnKeyboardEvent);
 	glutPassiveMotionFunc(&OnMouseMotionEvent);
 	glutMotionFunc(&OnMouseMotionEvent);
-	glutIdleFunc(&OnIdle);
+	glutIdleFunc(&OnIdle);*/
 
-	glewInit();
-    if (!GLEW_VERSION_2_0) {
-        //fprintf(stderr, "OpenGL 2.0 not available\n");
-        return 1;
-    }
+	//glewInit();
+ //   if (!GLEW_VERSION_2_0) {
+ //       //fprintf(stderr, "OpenGL 2.0 not available\n");
+ //       return 1;
+ //   }
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -64,37 +90,36 @@ int OpenGLManager::CreateOGLWindow(OGL_RECT pRectangle)
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_LIGHTING);
 /*
-	if (!_instance->MakeShaders()) {
+	if (!_instance->MakeShaders()) {x
         fprintf(stderr, "Failed to load resources\n");
         return 1;
     }*/
 	   //GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	//glBlendFunc(GL_ONE_MINUS_DST_ALPHA,GL_DST_ALPHA);
-
-    glutMainLoop();
-	return 0;
-}
-
-void OpenGLManager::OnIdle(void)
-{
-	glutPostRedisplay();
-}
-
-void OpenGLManager::Render(void)
-{
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    //glClear(GL_COLOR_BUFFER_BIT);
 	
-	if(_instance->m_renderHandler != NULL)
+	renderer->Clear(sf::Color(0,0,0,1));
+
+    OpenGLManager::MainLoop();
+	
+}
+
+void OpenGLManager::MainLoop()
+{
+    /*while(renderer.IsOpened())
+    {*/
+		
+		glClearColor(0.f, 0.f, 0.f, 0.f);
+		
+        // Clear color and depth buffer
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		if(_instance->m_renderHandler != NULL)
 		_instance->m_renderHandler();
 
-
-	//TEMP
-    glutSwapBuffers();
-
-
+		//renderer.Display();
+		
+		sf::Sleep(.01);
+	//}
 }
 
 //void OpenGLManager::DrawImage(Rectangle pRectangle, int pTextureId, float pAlpha)
@@ -154,65 +179,102 @@ void OpenGLManager::RegisterRenderCallback(void (__stdcall *pHandler)(void))
 	m_renderHandler = pHandler;
 }
 
-int OpenGLManager::DrawRectangle(OGL_COLOR pBrush, OGL_RECT pRect, float pLineWidth)
+void OpenGLManager::Clear(OGL_COLOR pBrush)
 {
-	glEnable(GL_BLEND);
-	
-	float x2 = pRect.x + pRect.width;
-	float y2 = pRect.y + pRect.height;
-	float extend = pLineWidth / 2;
-	
-	glLineWidth(pLineWidth);
-	
-	glBegin(GL_LINES);   //We want to draw a quad, i.e. shape with four sides
-	glColor4f(pBrush.r, pBrush.g, pBrush.b, pBrush.a); //Set the colour to red 
-
-	glVertex2f(pRect.x - extend, pRect.y); 
-	glVertex2f(x2 + extend, pRect.y); 
-
-	glVertex2f(x2, pRect.y + extend); 
-	glVertex2f(x2, y2 - extend); 
-
-	glVertex2f(x2 + extend, y2); 
-	glVertex2f(pRect.x - extend, y2);
-	
-	glVertex2f(pRect.x, y2 - extend);
-	glVertex2f(pRect.x, pRect.y + extend); 
-
-	glEnd();
-	//glPopMatrix();
-	glDisable(GL_BLEND);
-	return 1;
+	renderer->Clear(sf::Color(pBrush.r,pBrush.g, pBrush.b, pBrush.a));
 }
 
-int OpenGLManager::DrawImage(OGL_RECT pRectangle, int pResourceId, float pAlpha)
+void OpenGLManager::DrawLine(OGL_POINT pPoint1, OGL_POINT pPoint2, OGL_COLOR pBrush, float pLineWidth)
 {
-	if(_resourceMap.count(pResourceId) > 0)
-	{
-		map<int, GLResourceBase*>::iterator item = _resourceMap.find(pResourceId);
-		
-		GLResourceBase * resource = item->second;
-		OGLTexture * texture = static_cast<OGLTexture *>(resource);
-		
-		texture->SetDimensions(pRectangle);
-		resource->Draw();
-	}
-	return 1;
+	sf::Color color = sf::Color((sf::Uint8)(pBrush.r * 255), (sf::Uint8)(pBrush.g * 255), (sf::Uint8)(pBrush.b * 255),(sf::Uint8)(pBrush.a * 255));
+	sf::Shape shape = sf::Shape::Line(pPoint1.x,pPoint1.y, pPoint2.x, pPoint2.y, pLineWidth, color);
+	
+	renderer->Draw(shape);
 }
 
-int OpenGLManager::CreateImage(const char* pPath)
+void OpenGLManager::DrawRectangle(OGL_COLOR pBrush, OGL_RECT pRect, float pLineWidth)
+{
+	sf::Color color = sf::Color((sf::Uint8)(pBrush.r * 255), (sf::Uint8)(pBrush.g * 255), (sf::Uint8)(pBrush.b * 255),(sf::Uint8)(pBrush.a * 255));
+	sf::Shape shape = sf::Shape::Rectangle(pRect.x,pRect.y, pRect.width, pRect.height, color, pLineWidth, color);
+	shape.EnableFill(false);
+	renderer->Draw(shape);
+}
+
+void OpenGLManager::FillRectangle(OGL_COLOR pBrush, OGL_RECT pRect)
+{
+	sf::Color color = sf::Color((sf::Uint8)(pBrush.r * 255), (sf::Uint8)(pBrush.g * 255), (sf::Uint8)(pBrush.b * 255),(sf::Uint8)(pBrush.a * 255));
+	sf::Shape shape = sf::Shape::Rectangle(pRect.x,pRect.y, pRect.width, pRect.height, color, 0, color);
+	shape.EnableFill(true);
+	renderer->Draw(shape);
+}
+
+void OpenGLManager::DrawEllipse(OGL_ELLIPSE pEllipse, OGL_COLOR pBrush, float pLineWidth)
+{
+	sf::Color color = sf::Color((sf::Uint8)(pBrush.r * 255), (sf::Uint8)(pBrush.g * 255), (sf::Uint8)(pBrush.b * 255),(sf::Uint8)(pBrush.a * 255));
+	sf::Shape shape = sf::Shape::Circle(pEllipse.x, pEllipse.y, pEllipse.radius_x, color, pLineWidth, color);
+	
+	float scale = pEllipse.radius_x / pEllipse.radius_y;
+
+	shape.SetScale(1, scale);
+	shape.EnableFill(false);
+
+	renderer->Draw(shape);
+}
+
+void OpenGLManager::FillEllipse(OGL_ELLIPSE pEllipse, OGL_COLOR pBrush)
+{
+	sf::Color color = sf::Color((sf::Uint8)(pBrush.r * 255), (sf::Uint8)(pBrush.g * 255), (sf::Uint8)(pBrush.b * 255),(sf::Uint8)(pBrush.a * 255));
+	sf::Shape shape = sf::Shape::Circle(pEllipse.x, pEllipse.y, pEllipse.radius_x, color);
+	
+	float scale = pEllipse.radius_x / pEllipse.radius_y;
+
+	shape.SetScale(1, scale);
+	shape.EnableFill(true);
+
+	renderer->Draw(shape);
+}
+
+void OpenGLManager::DrawImage(OGLTexture* pTexture, OGL_RECT pRectangle, float pAlpha)
+{
+	pTexture->SetDimensions(pRectangle);
+	pTexture->Draw(renderer);
+}
+
+void OpenGLManager::DrawText(OGLTextLayout* pTextLayout, OGL_RECT pRectangle, OGL_COLOR pColor)
+{
+	pTextLayout->SetDimensions(pRectangle);
+	pTextLayout->Draw(renderer);
+}
+
+
+OGLTexture* OpenGLManager::CreateImageFromByteArray(const char* pByteArray, int pStride)
+{
+	OGLTexture* resource = new OGLTexture(pByteArray, pStride);
+	
+	return resource;
+}
+
+OGLTexture* OpenGLManager::CreateImage(const char* pPath)
 {
 	OGLTexture* resource = new OGLTexture(pPath);
-	GLint textureId = resource->GetTextureId();
-
-	_resourceMap[textureId] = resource;
 	
-	return textureId;
+	return resource;
 }
 
-int OpenGLManager::DeleteResource(int pResourceId)
+OGLTextLayout* OpenGLManager::CreateTextLayout(const char* pString, const char* pFont, float pSize, int pAlignment)
 {
-	return 0;
+	OGLTextLayout* textLayout = new OGLTextLayout(pString, pFont, pSize, pAlignment);
+	return textLayout;
+}
+
+void OpenGLManager::FreeTextLayout(OGLTextLayout* pTextLayout)
+{
+	free(pTextLayout);
+}
+
+void OpenGLManager::FreeImage(OGLTexture* pTexture)
+{
+	free(pTexture);
 }
 
 OpenGLManager* OpenGLManager::GetInstance(void)

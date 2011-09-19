@@ -1,14 +1,9 @@
 #pragma once
-
+#include <SFML/OpenGL.hpp>
+#include <SFML/Graphics.hpp>
 // OpenGL Includes
 
 #include "Utils.h"
-#include <GL/glew.h>
-#ifdef __APPLE__
-#  include <GLUT/glut.h>
-#else
-#  include <GL/glut.h>
-#endif
 
 // Bounds are from 0 - 1
 typedef struct OGL_RECT {
@@ -25,14 +20,26 @@ typedef struct OGL_COLOR {
 	float a;
 };
 
+typedef struct OGL_ELLIPSE {
+	float x;
+	float y;
+	float radius_x;
+	float radius_y;
+};
+
+typedef struct OGL_POINT {
+	float x;
+	float y;
+};
+
 class GLResourceBase
 {
 public:
 	GLResourceBase(void);
 	~GLResourceBase(void);
-	void Draw(void);
+	void Draw(sf::RenderWindow* renderer);
 protected:
-	virtual void InternalDraw() = 0;
+	virtual void InternalDraw(sf::RenderWindow* renderer) = 0;
 private:
 	void BeginDraw(void);
 	void EndDraw(void);

@@ -79,7 +79,11 @@ namespace CarMP.Forms
                 ControlStyles.UserPaint, true);
 
             _renderer = new RendererFactory().GetRenderer("opengl", this.Handle);
-            
+            if (_renderer is CarMP.Graphics.Implementation.OpenGL.OpenGLRenderer)
+            {
+                var oGL = (_renderer as CarMP.Graphics.Implementation.OpenGL.OpenGLRenderer);
+                oGL.CreateWindow(new Graphics.Implementation.OpenGL.OpenGLRenderer.RenderEventHandler(DrawDirect2D));
+            }
             this.ClientSizeChanged += (o, e) => { _renderer.Resize(new SizeI(ClientSize.Width, ClientSize.Height)); };
             
             InitializeComponent();
@@ -94,8 +98,8 @@ namespace CarMP.Forms
 
             ApplySkin();
 
-            Action renderingLoop = new Action(() => RenderingLoop());
-            renderingLoop.BeginInvoke(null, null);
+            //Action renderingLoop = new Action(() => RenderingLoop());
+            //renderingLoop.BeginInvoke(null, null);
         }
 
         public void RouteKeyInputEvents(Key pKeyInput)
@@ -235,6 +239,7 @@ namespace CarMP.Forms
             {
                 //if (!_renderTarget.IsOccluded)
                 //{
+                    if (_currentView == null) return;
                     _renderer.BeginDraw();
                     
                     _renderer.Clear(Color.Black);

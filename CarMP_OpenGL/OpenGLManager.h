@@ -2,7 +2,8 @@
 
 #include "GLResourceBase.h"
 #include "Shader.h"
-#include "OGLTexture.h"
+#include "OGLTexture.h"	
+#include "OGLTextLayout.h"	
 
 #include <map>
 
@@ -36,26 +37,35 @@ private:
 //    void operator=(OpenGLManager const&); // Don't implement
 	~OpenGLManager(void);
 	
+	void MainLoop();
+	sf::RenderWindow* renderer;
 	// Functions for GL to call
 	static void Render(void);
 	static void OnMouseEvent(int, int, int, int);
 	static void OnKeyboardEvent(unsigned char, int, int);
 	static void OnMouseMotionEvent(int, int);
-	static void OnIdle(void);
 	
-	bool MakeShaders(void);
+	
 public:
-	int CreateOGLWindow(OGL_RECT pScreen);
+	void CreateOGLWindow(OGL_RECT pScreen);
 
 	// Drawing methods:
-	int DrawImage(OGL_RECT pRectangle, int pResourceId, float pAlpha);
-	int DrawRectangle(OGL_COLOR pBrush, OGL_RECT pRect, float pLineWidth);
+	void DrawImage(OGLTexture* pTexture, OGL_RECT pRectangle, float pAlpha);
+	void DrawRectangle(OGL_COLOR pBrush, OGL_RECT pRect, float pLineWidth);
+	void FillRectangle(OGL_COLOR, OGL_RECT);
+	void DrawEllipse(OGL_ELLIPSE, OGL_COLOR, float pLineWidth);
+	void DrawLine(OGL_POINT pPoint1, OGL_POINT pPoint2, OGL_COLOR pBrush, float pLineWidth);
+	void FillEllipse(OGL_ELLIPSE, OGL_COLOR);
+	void DrawText(OGLTextLayout* pTextLayout, OGL_RECT pRectangle, OGL_COLOR pColor);
+	void Clear(OGL_COLOR pBrush);
 
-	// Resource Creation Methods:
-	int CreateImage(const char* pPath);
-	int DeleteResource(int pResourceId);
-
-
+	// Resource Methods:
+	OGLTextLayout* OpenGLManager::CreateTextLayout(const char* pString, const char* pFont, float pSize, int pAlignment);
+	void OpenGLManager::FreeTextLayout(OGLTextLayout*);
+	OGLTexture* CreateImage(const char* pPath);
+	OGLTexture* CreateImageFromByteArray(const char* pByteArray, int pStride);
+	void FreeImage(OGLTexture* pTexture);
+	
 	//void DrawImage(Rectangle pRectangle, IImage pImage, float pAlpha);
 	
 	void RegisterMouseCallback(void (__stdcall *)(OGL_MOUSE_EVENT));

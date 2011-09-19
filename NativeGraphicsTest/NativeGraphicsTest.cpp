@@ -13,13 +13,13 @@ int _tmain(int argc, _TCHAR* argv[])
 	rect.y = 0;
 	rect.width = 640;
 	rect.height = 480;
-	RegisterRenderCallback(&render);
-	CreateOGLWindow(rect);
+	CI::RegisterRenderCallback(&render);
+	CI::CreateOGLWindow(rect);
 
 	return 0;
 }
 
-int texture[5];
+OGLTexture* texture[5];
 
 void __stdcall render(void)
 {
@@ -66,13 +66,21 @@ void __stdcall render(void)
 	textureRec.x = 5;
 	textureRec.y = 5;
 
-	if(texture[1] == 0)
-		texture[1] = CreateImage("..\\Images\\Skins\\BMW\\NavigationBar.png");
+	if(texture[1] == NULL)
+		texture[1] = CI::CreateImage("..\\Images\\Skins\\BMW\\NavigationBar.png");
 
 	
-	DrawRectangle(color1, rect1, 6);
-	DrawRectangle(color2, rect2, 6);
-	DrawRectangle(color3, rect3, 6);
+	OGL_ELLIPSE ellipse1;
+	ellipse1.radius_x = 100;
+	ellipse1.radius_y = 125;
+	ellipse1.x = 300;
+	ellipse1.y = 300;
 
-	DrawImage(textureRec, texture[1], 1);
+	CI::FillEllipse(ellipse1, color1);
+	CI::DrawEllipse(ellipse1, color2, 5);
+	CI::DrawRectangle(color1, rect1, 6);
+	CI::DrawRectangle(color2, rect2, 6);
+	CI::DrawRectangle(color3, rect3, 6);
+
+	CI::DrawImage(texture[1], textureRec, 1);
 }

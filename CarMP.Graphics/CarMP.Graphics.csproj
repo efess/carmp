@@ -41,12 +41,6 @@
     <Reference Include="OpenTK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <HintPath>..\Libraries\OpenTK.dll</HintPath>
     </Reference>
-    <Reference Include="sfmlnet-graphics">
-      <HintPath>..\Libraries\sfmlnet-graphics.dll</HintPath>
-    </Reference>
-    <Reference Include="sfmlnet-window">
-      <HintPath>..\Libraries\sfmlnet-window.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -62,6 +56,7 @@
     <Compile Include="Implementation\OpenGL\OpenGLBrush.cs" />
     <Compile Include="Implementation\OpenGL\OpenGLImage.cs" />
     <Compile Include="Implementation\OpenGL\OpenGLRenderer.cs" />
+    <Compile Include="Implementation\OpenGL\OpenGLTextLayout.cs" />
     <Compile Include="Implementation\OpenTk\OpenTkRenderer.cs" />
     <Compile Include="Implementation\OpenTk\OTKBrush.cs" />
     <Compile Include="Implementation\OpenTk\OTKDrawableObjectBase.cs" />
@@ -70,7 +65,6 @@
     <Compile Include="Implementation\OpenTk\TexCoord.cs" />
     <Compile Include="Implementation\OpenTk\Vbo.cs" />
     <Compile Include="Implementation\OpenTk\Vertex.cs" />
-    <Compile Include="Implementation\SFML\SFMLRenderer.cs" />
     <Compile Include="RendererFactory.cs" />
     <Compile Include="Implementation\Direct2D\D2DBrush.cs" />
     <Compile Include="Implementation\Direct2D\D2DImage.cs" />

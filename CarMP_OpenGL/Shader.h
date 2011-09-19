@@ -1,7 +1,5 @@
 #pragma once
 #include "Utils.h"
-#include <GL\glew.h>
-#include <GL\glut.h>
 
 class Shader
 {

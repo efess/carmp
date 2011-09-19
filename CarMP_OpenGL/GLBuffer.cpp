@@ -7,9 +7,10 @@ GLBuffer::GLBuffer(
     GLsizei buffer_size) 
 {
     GLuint buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(target, buffer);
-    glBufferData(target, buffer_size, buffer_data, GL_STATIC_DRAW);
+
+    //glGenBuffers(1, &buffer);
+    //glBindBuffer(target, buffer);
+    //glBufferData(target, buffer_size, buffer_data, GL_STATIC_DRAW);
     
 	m_bufferId = buffer;
 }

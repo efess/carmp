@@ -5,6 +5,7 @@ using System.Text;
 using CarMP.Graphics.Interfaces;
 using CarMP.Graphics.Implementation.Direct2D;
 using CarMP.Graphics.Implementation.OpenTk;
+using CarMP.Graphics.Implementation.OpenGL;
 
 namespace CarMP.Graphics
 {
@@ -19,8 +20,9 @@ namespace CarMP.Graphics
                 case "CLUTTER":
                     return null;
                 case "OPENTK":
-                case "OPENGL":
                     return new OpenTkRenderer(pWindowHandle);
+                case "OPENGL":
+                    return new OpenGLRenderer();
                 default:
                     return null;
             }

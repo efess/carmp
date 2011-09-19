@@ -57,11 +57,35 @@ namespace CarMP.Graphics.Implementation.OpenGL
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "DrawImage"), SuppressUnmanagedCodeSecurity]
-        private static extern int NativeDrawImage(Rectangle pRectangle, int pTextureId, float pAlpha);
+        private static extern int NativeDrawImage(IntPtr pObjectPointer, Rectangle pRectangle, float pAlpha);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "DrawRectangle"), SuppressUnmanagedCodeSecurity]
         private static extern int NativeDrawRectangle(Color pColor, Rectangle pRect, float pLineWidth);
+
+        [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "FillRectangle"), SuppressUnmanagedCodeSecurity]
+        private static extern int NativeFillRectangle(Color pColor, Rectangle pRect);
+
+        [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "DrawEllipse"), SuppressUnmanagedCodeSecurity]
+        private static extern int NativeDrawEllipse(Geometry.Ellipse pEllipse, Color pColor, float pLineWidth);
+
+        [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "FillEllipse"), SuppressUnmanagedCodeSecurity]
+        private static extern int NativeFillEllipse(Geometry.Ellipse pEllipse, Color pColor);
+
+        [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "DrawLine"), SuppressUnmanagedCodeSecurity]
+        private static extern int NativeDrawLine(Geometry.Point pPoint1, Geometry.Point pPoint2, Color pColor, float pWidth);
+
+        [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "DrawText"), SuppressUnmanagedCodeSecurity]
+        private static extern int NativeDrawText(IntPtr pObjectPointer, Rectangle pRectangle, Color pColor);
+
+        [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "Clear"), SuppressUnmanagedCodeSecurity]
+        private static extern int NativeClear(Color pColor);
 
         private List<GCHandle> _unmanaged_references = new List<GCHandle>();
 
@@ -86,6 +110,13 @@ namespace CarMP.Graphics.Implementation.OpenGL
             return true;
         }
 
+        public void CreateWindow(RenderEventHandler pRenderDelegate)
+        {
+            _unmanaged_references.Add(GCHandle.Alloc(pRenderDelegate));
+            NativeRegisterRenderCallback(pRenderDelegate);
+            new Action(() => NativeCreateWindow(new Rectangle(5, 7, 800, 600))).BeginInvoke(null, null) ;
+        }
+
         public void OnRender()
         {
         }
@@ -100,106 +131,100 @@ namespace CarMP.Graphics.Implementation.OpenGL
             Console.WriteLine("KeyboardEvent: (" + pKeyboardEvent.c + ")");
         }
 
-        public Geometry.Rectangle CurrentBounds
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public Geometry.Rectangle CurrentBounds { get; set; }
 
         public void Resize(Geometry.SizeI pSize)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void BeginDraw()
         {
-            throw new NotImplementedException();
+            
         }
 
         public void EndDraw()
         {
-            throw new NotImplementedException();
+           
         }
 
         public void Clear(Color pColor)
         {
-            throw new NotImplementedException();
+            NativeClear(pColor);
         }
 
         public void Flush()
         {
-            throw new NotImplementedException();
+            return;
         }
 
         public void PushClip(Geometry.Rectangle pRectangle)
         {
-            throw new NotImplementedException();
+            return;
         }
 
         public void PopClip()
         {
-            throw new NotImplementedException();
+            return;
         }
 
         public void DrawRectangle(IBrush pBrush, Geometry.Rectangle pRectangle, float pLineWidth)
         {
-            NativeDrawRectangle(pBrush.Color, pRectangle, pLineWidth);
+            NativeDrawRectangle(pBrush.Color, TransformRectangle(pRectangle), pLineWidth);
         }
 
         public void DrawLine(Geometry.Point pPoint1, Geometry.Point pPoint2, IBrush pBrush, float pLineWidth)
         {
-            throw new NotImplementedException();
+            NativeDrawLine(pPoint1, pPoint2, pBrush.Color, pLineWidth);
         }
 
         public void FillRectangle(IBrush pBrush, Geometry.Rectangle pRectangle)
         {
-            throw new NotImplementedException();
+            NativeFillRectangle(pBrush.Color, pRectangle);
         }
 
         public void DrawImage(Geometry.Rectangle pRectangle, IImage pImage, float pAlpha)
         {
-            NativeDrawImage(pRectangle, (pImage as OpenGLImage).TextureId, pAlpha);
+            NativeDrawImage((pImage as OpenGLImage).NativeImagePointer, TransformRectangle(pRectangle), pAlpha);
         }
 
         public void DrawEllipse(Geometry.Ellipse pEllipse, IBrush pBrush, float pLineWidth)
         {
-            throw new NotImplementedException();
+            NativeDrawEllipse(pEllipse, pBrush.Color, pLineWidth);
         }
 
         public void FillEllipse(Geometry.Ellipse pEllipse, IBrush pBrush)
         {
-            throw new NotImplementedException();
+            NativeFillEllipse(pEllipse, pBrush.Color);
         }
 
         public void DrawString(Geometry.Rectangle pRectangle, IStringLayout pStringLayout, IBrush pBrush)
         {
-            throw new NotImplementedException();
+            NativeDrawText((pStringLayout as OpenGLStringLayout).NativeTextLayoutPointer,
+                TransformRectangle(pRectangle),  pBrush.Color);
         }
 
         public IBrush CreateBrush(Color pColor)
         {
-            throw new NotImplementedException();
+            return new OpenGLBrush
+            {
+                Color = pColor
+            };
         }
 
         public IStringLayout CreateStringLayout(string pString, string pFont, float pSize, StringAlignment pAlignment)
         {
-            throw new NotImplementedException();
+            return new OpenGLStringLayout(pString, pFont, pSize, pAlignment);
         }
 
         public IStringLayout CreateStringLayout(string pString, string pFont, float pSize)
         {
-            throw new NotImplementedException();
+            return new OpenGLStringLayout(pString, pFont, pSize);
         }
 
         public IImage CreateImage(byte[] pData, int pStride)
         {
-            throw new NotImplementedException();
+            return new OpenGLImage(pData, pStride);
         }
 
         public IImage CreateImage(string pPath)
@@ -214,6 +239,23 @@ namespace CarMP.Graphics.Implementation.OpenGL
             foreach (GCHandle handle in _unmanaged_references)
                 handle.Free();
             //_unmanaged_references.
+        }
+
+        private Point TransformPoint(Point pPoint)
+        {
+            return new Point(pPoint.X + CurrentBounds.Left, pPoint.Y + CurrentBounds.Top);
+        }
+        private Rectangle TransformRectangle(Rectangle pRectangle)
+        {
+            return new Rectangle(pRectangle.Left + CurrentBounds.Left,
+                pRectangle.Top + CurrentBounds.Top,
+                pRectangle.Width,
+                pRectangle.Height);
+        }
+
+        private Ellipse TransformEllipse(Geometry.Ellipse pEllipse)
+        {
+            return new Ellipse(TransformPoint(pEllipse.Point), pEllipse.RadiusX, pEllipse.RadiusY);
         }
     }
 }

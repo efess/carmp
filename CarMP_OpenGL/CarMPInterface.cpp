@@ -18,28 +18,42 @@ namespace CI
 		
 		}
 		fclose (stderr);
-		
 	}
 
-	extern "C" _declspec(dllexport) int RegisterMouseCallback(void (__stdcall *pFunction)(OGL_MOUSE_EVENT))
+	extern "C" _declspec(dllexport) void DisplayBuffer()
 	{
 		OpenGLManager* manager = OpenGLManager::GetInstance();
-		manager->RegisterMouseCallback(pFunction);
-		return 1;
+		manager->DisplayBuffer();
 	}
 
-	extern "C" _declspec(dllexport) int RegisterKeyboardCallback(void (__stdcall *pFunction)(OGL_KEYBOARD_EVENT))
+	extern "C" _declspec(dllexport) void RegisterWindowCloseCallback(void (__stdcall *pFunction)())
+	{
+		OpenGLManager* manager = OpenGLManager::GetInstance();
+		manager->RegisterWindowCloseCallback(pFunction);
+	}
+
+	extern "C" _declspec(dllexport) void RegisterMouseMoveCallback(void (__stdcall *pFunction)(sf::Event::MouseMoveEvent))
+	{
+		OpenGLManager* manager = OpenGLManager::GetInstance();
+		manager->RegisterMouseMoveCallback(pFunction);
+	}
+
+	extern "C" _declspec(dllexport) void RegisterKeyboardCallback(void (__stdcall *pFunction)(sf::Event::KeyEvent))
 	{
 		OpenGLManager* manager = OpenGLManager::GetInstance();
 		manager->RegisterKeyboardCallback(pFunction);
-		return 1;
 	}
-
-	extern "C" _declspec(dllexport) int RegisterRenderCallback(void (__stdcall *pFunction)(void))
+	
+	extern "C" _declspec(dllexport) void RegisterMouseUpCallback(void (__stdcall *pFunction)(sf::Event::MouseButtonEvent))
 	{
 		OpenGLManager* manager = OpenGLManager::GetInstance();
-		manager->RegisterRenderCallback(pFunction);
-		return 1;
+		manager->RegisterMouseUpCallback(pFunction);
+	}
+
+	extern "C" _declspec(dllexport) void RegisterMouseDownCallback(void (__stdcall *pFunction)(sf::Event::MouseButtonEvent))
+	{
+		OpenGLManager* manager = OpenGLManager::GetInstance();
+		manager->RegisterMouseDownCallback(pFunction);
 	}
 
 	extern "C" _declspec(dllexport) void DrawImage(OGLTexture* pTexture, OGL_RECT pRectangle, float pAlpha)
@@ -49,7 +63,7 @@ namespace CI
 		manager->DrawImage(pTexture, pRectangle, pAlpha);
 	}
 
-	extern "C" _declspec(dllexport) void DrawText(OGLTextLayout* pTextLayout, OGL_RECT pRectangle, OGL_COLOR pColor)
+	extern "C" _declspec(dllexport) void DrawTextLayout(OGLTextLayout* pTextLayout, OGL_RECT pRectangle, OGL_COLOR pColor)
 	{
 		OpenGLManager* manager = OpenGLManager::GetInstance();
 	
@@ -118,5 +132,15 @@ namespace CI
 	{
 		OpenGLManager* manager = OpenGLManager::GetInstance();
 		manager->Clear(pBrush);
+	}
+	extern "C" _declspec(dllexport) void PushClip(OGL_RECT pBoundingRectangle)
+	{
+		OpenGLManager* manager = OpenGLManager::GetInstance();
+		manager->PushClip(pBoundingRectangle);
+	}
+	extern "C" _declspec(dllexport) void PopClip()
+	{
+		OpenGLManager* manager = OpenGLManager::GetInstance();
+		manager->PopClip();
 	}
 };

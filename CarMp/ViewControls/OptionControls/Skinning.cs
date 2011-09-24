@@ -32,7 +32,7 @@ namespace CarMP.ViewControls.OptionControls
 
                 AddViewControl(button);
                 button.StartRender();
-                button.Click += (sender, e) => { AppMain.AppFormHost.ApplySkin(); };
+                button.Click += (sender, e) => { AppMain.WindowManager.ApplySkin(); };
             }
 
 

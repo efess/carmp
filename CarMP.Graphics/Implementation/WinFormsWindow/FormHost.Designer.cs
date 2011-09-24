@@ -1,4 +1,4 @@
-﻿namespace CarMP.Forms
+﻿namespace CarMP.Implementation.WinFormsWindow
 {
     partial class FormHost
     {

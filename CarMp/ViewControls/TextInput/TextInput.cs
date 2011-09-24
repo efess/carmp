@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using CarMP.Graphics.Geometry;
-using System.Windows.Forms;
 using CarMP.Graphics.Interfaces;
 using CarMP.Graphics;
 
@@ -86,7 +85,7 @@ namespace CarMP.ViewControls
         protected override void OnKeyPressed(Reactive.KeyInput.Key pKey)
         {
             char newChar = pKey.Character;
-            switch (pKey.DotNetKeysValue)
+            switch (pKey.KeysValue)
             {
                 case Keys.Back:
                     if (!string.IsNullOrEmpty(TextString)

@@ -1,24 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Windows.Forms;
-using System.Xml;
-
-using CarMP.Callbacks;
-using CarMP.Reactive;
-using CarMP.Reactive.KeyInput;
-using CarMP.Reactive.Messaging;
-using CarMP.Reactive.Touch;
+using System.Linq;
+using System.Text;
+using CarMP.Graphics.Interfaces;
 using CarMP.ViewControls;
 using CarMP.Views;
-using CarMP.Win32;
-using CarMP.Graphics.Interfaces;
+using System.Threading;
+using CarMP.Reactive.Messaging;
 using CarMP.Graphics;
 using CarMP.Graphics.Geometry;
+using CarMP.Reactive.KeyInput;
+using CarMP.Reactive.Touch;
+using System.Xml;
+using CarMP.Reactive;
 
-namespace CarMP.Forms
+namespace CarMP
 {
-    public partial class FormHost : Form, IWin32MessageHookable, IMessageObserver
+    public class WindowManager : IMessageObserver
     {
         private ManualResetEvent _viewChanging;
 
@@ -29,77 +27,38 @@ namespace CarMP.Forms
         private D2DViewControl _mouseDownViewControl;
 
         private D2DView _overlayViewControls;
-        private W32MessageToReactive _mouseEventProcessor;
+        //private W32MessageToReactive _mouseEventProcessor;
         private Dictionary<string, D2DView> _loadedViews;
         private D2DView _currentView;
         private D2DViewFactory _viewFactory;
 
         //private Direct2D.RenderTargetWrapper _renderTarget;
-        private IRenderer _renderer;
+        private readonly IWindow _window;
+        private readonly InputProcessor _inputProcessor;
 
-
-        protected override void WndProc(ref System.Windows.Forms.Message m)
+        public WindowManager()
         {
-            if (MessagePump != null)
-                MessagePump(ref m);
-            
-            base.WndProc(ref m);
-        }
-        public Win32Messenger MessagePump { get; set; }
-
-        //RenderTargetProperties _renderProps = new RenderTargetProperties
-        //{
-        //    PixelFormat = new PixelFormat(
-        //        Microsoft.WindowsAPICodePack.DirectX.DXGI.Format.B8G8R8A8_UNORM,
-        //        AlphaMode.Ignore),
-        //    Usage = RenderTargetUsage.None,
-        //    Type = RenderTargetType.Default // Software type is required to allow resource 
-        //    // sharing between hardware (HwndRenderTarget) 
-        //    // and software (WIC Bitmap render Target).
-        //};
-        
-
-        public FormHost()
-        {
-            // Initialize & set Touch Observable
-            _mouseEventProcessor = new W32MessageToReactive(this);
-            _mouseEventProcessor.ObservableActions.ObsTouchGesture.Subscribe((tg) => RouteTouchEvents(tg));
-            _mouseEventProcessor.ObservableActions.ObsTouchMove.Subscribe((tm) => RouteTouchEvents(tm));
-            _mouseEventProcessor.ObservableActions.ObsKeyInput.Subscribe((ki) => RouteKeyInputEvents(ki));
-
-            //D2DViewControl.SetTouchObservables(_mouseEventProcessor.ObservablTouchActions);
-
             _viewChanging = new ManualResetEvent(false);
-            
+
             _fpsCalcFramesTotal = 0;
             _fpsCalcDate = DateTime.Now;
 
-            this.SetStyle(
-                ControlStyles.AllPaintingInWmPaint |
-                ControlStyles.UserPaint, true);
-
-            _renderer = new RendererFactory().GetRenderer("opengl", this.Handle);
-            if (_renderer is CarMP.Graphics.Implementation.OpenGL.OpenGLRenderer)
-            {
-                var oGL = (_renderer as CarMP.Graphics.Implementation.OpenGL.OpenGLRenderer);
-                oGL.CreateWindow(new Graphics.Implementation.OpenGL.OpenGLRenderer.RenderEventHandler(DrawDirect2D));
-            }
-            this.ClientSizeChanged += (o, e) => { _renderer.Resize(new SizeI(ClientSize.Width, ClientSize.Height)); };
+            _window = new WindowFactory().GetWindow("opengl");
             
-            InitializeComponent();
+            _inputProcessor = new InputProcessor(_window);
+            _inputProcessor.ObservableActions.ObsTouchGesture.Subscribe((tg) => RouteTouchEvents(tg));
+            _inputProcessor.ObservableActions.ObsTouchMove.Subscribe((tm) => RouteTouchEvents(tm));
+            _inputProcessor.ObservableActions.ObsKeyInput.Subscribe((ki) => RouteKeyInputEvents(ki));
 
-            this.Size = new System.Drawing.Size(Convert.ToInt32(AppMain.Settings.ScreenResolution.Width), Convert.ToInt32(AppMain.Settings.ScreenResolution.Height));
-            this.Location = new System.Drawing.Point(Convert.ToInt32(AppMain.Settings.WindowLocation.X), Convert.ToInt32(AppMain.Settings.WindowLocation.Y));
-
-            _viewFactory = new D2DViewFactory(new Size(ClientSize.Width, ClientSize.Height));
+            
+            _viewFactory = new D2DViewFactory(new Size(AppMain.Settings.ScreenResolution.Width, AppMain.Settings.ScreenResolution.Height));
             _loadedViews = new Dictionary<string, D2DView>();
 
             _overlayViewControls = _viewFactory.CreateView(D2DViewFactory.OVERLAY);
 
             ApplySkin();
 
-            //Action renderingLoop = new Action(() => RenderingLoop());
-            //renderingLoop.BeginInvoke(null, null);
+            new Action(RenderingLoop).BeginInvoke(null, null);
         }
 
         public void RouteKeyInputEvents(Key pKeyInput)
@@ -115,17 +74,17 @@ namespace CarMP.Forms
             //    i >= 0;
             //    i--)
             //{
-                currentlySelected = _overlayViewControls.GetViewControlContainingPoint(pTouchEvent.Location);
-                if (currentlySelected != null
-                    && currentlySelected != _overlayViewControls)
-                {
-                    currentlySelected.SendUpdate(pTouchEvent);
-                    return;
-                }
+            currentlySelected = _overlayViewControls.GetViewControlContainingPoint(pTouchEvent.Location);
+            if (currentlySelected != null
+                && currentlySelected != _overlayViewControls)
+            {
+                currentlySelected.SendUpdate(pTouchEvent);
+                return;
+            }
             //}
-            
+
             currentlySelected = _currentView.GetViewControlContainingPoint(pTouchEvent.Location);
-            if(currentlySelected != null)
+            if (currentlySelected != null)
                 currentlySelected.SendUpdate(pTouchEvent);
         }
 
@@ -174,7 +133,7 @@ namespace CarMP.Forms
                 _viewChanging.Set();
             }
 
-           
+
             return _currentView;
         }
 
@@ -206,23 +165,29 @@ namespace CarMP.Forms
                     node);
                 //if (viewControl is IMessageObserver)
                 //    AppMain.Messanger.AddMessageObserver(viewControl as IMessageObserver);
-                if(viewControl != null)
+                if (viewControl != null)
                     _overlayViewControls.AddViewControl(viewControl);
-            }    
+            }
         }
 
         private void RenderingLoop()
         {
             System.Threading.Thread.CurrentThread.Name = "Rendering Loop";
+
+            var size = new Size(Convert.ToInt32(AppMain.Settings.ScreenResolution.Width), Convert.ToInt32(AppMain.Settings.ScreenResolution.Height));
+            var location = new Point(Convert.ToInt32(AppMain.Settings.WindowLocation.X), Convert.ToInt32(AppMain.Settings.WindowLocation.Y));
+            
+            _window.CreateWindow(location, size);
+            
             while (true)
             {
                 _viewChanging.WaitOne();
 
-                if(_currentView != null)
-                    DrawDirect2D();
-                
+                if (_currentView != null)
+                    DrawFrame();
+
                 _fpsCalcFramesTotal++;
-                if ( DateTime.Now.AddSeconds(-1) > _fpsCalcDate)
+                if (DateTime.Now.AddSeconds(-1) > _fpsCalcDate)
                 {
                     //_fpsControl.TextString = (_fpsCalcFramesTotal - _fpsCalcFramesCurrent).ToString(); ;
                     _fpsCalcFramesCurrent = _fpsCalcFramesTotal;
@@ -233,51 +198,47 @@ namespace CarMP.Forms
             }
         }
 
-        private void DrawDirect2D()
+        private void DrawFrame()
         {
             try
             {
                 //if (!_renderTarget.IsOccluded)
                 //{
-                    if (_currentView == null) return;
-                    _renderer.BeginDraw();
-                    
-                    _renderer.Clear(Color.Black);
+                if (_currentView == null) return;
+                _window.Renderer.BeginDraw();
 
-                    _currentView.Render(_renderer);
-                    _overlayViewControls.Render(_renderer);
+                _window.Renderer.Clear(Color.Black);
 
-                    //for (int i = _overlayViewControls.Count - 1;
-                    //    i >= 0;
-                    //    i--)
-                    //{
-                    //    _overlayViewControls[i].Render(_renderTarget);
-                    //}
+                _currentView.Render(_window.Renderer);
+                _overlayViewControls.Render(_window.Renderer);
 
-                    _renderer.EndDraw();
+                //for (int i = _overlayViewControls.Count - 1;
+                //    i >= 0;
+                //    i--)
+                //{
+                //    _overlayViewControls[i].Render(_renderTarget);
+                //}
 
-                    //this.Invalidate();
+                _window.Renderer.EndDraw();
+
+                //this.Invalidate();
                 //}
             }
             catch (Exception ex)
             {
                 DebugHandler.HandleException(ex);
-                _renderer.Flush();
+                _window.Renderer.Flush();
             }
         }
 
-
-        protected override void OnPaintBackground(PaintEventArgs pevent)
-        {
-        }
-
-        protected override void OnSizeChanged(EventArgs e)
-        {
-            if (_currentView is D2DView)
-            {
-                (_currentView as D2DView).OnSizeChanged(this, e);
-            }
-        }
+        //TODO:
+        //protected override void OnSizeChanged(EventArgs e)
+        //{
+        //    if (_currentView is D2DView)
+        //    {
+        //        (_currentView as D2DView).OnSizeChanged(this, e);
+        //    }
+        //}
 
         #region IMessageObserver Members
 
@@ -290,6 +251,8 @@ namespace CarMP.Forms
                     break;
             }
         }
+
+        public string Name { get { return "WindowManager"; } }
 
         public IDisposable DisposeUnsubscriber { get; set; }
 

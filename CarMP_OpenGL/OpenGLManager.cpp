@@ -3,180 +3,103 @@
 
 OpenGLManager* OpenGLManager::_instance = NULL;
 
-OpenGLManager::OpenGLManager(void) 
+OpenGLManager::OpenGLManager(void)
 {
-	m_mouseHandler = NULL;
+	m_shutDownThread = false;
+
+	m_mouseDownHandler = NULL;
+	m_mouseUpHandler = NULL;
+	m_windowCloseHandler = NULL;
+	m_mouseMoveHandler = NULL;
 	m_keyboardHandler = NULL;
 }
 
 OpenGLManager::~OpenGLManager(void)
 {
-	// iterate and free resources
-	/*for(int i = 0; i < _resourceMap.count; i++)
-		_resourceMap.A*/
+	m_shutDownThread = true;
 }
-
 
 void OpenGLManager::CreateOGLWindow(OGL_RECT pRectangle)
 {
-	// "Main()" Arguments
-	int argc = 1;
-	char* argv[1] = {"nothing"};	
-
-	sf::RenderWindow renderer_temp(sf::VideoMode(pRectangle.width, pRectangle.height, 8), "SFML Graphics");
-	renderer = &renderer_temp; 
-
-	//OGLTextLayout layout("Hello World", "arial", 12, 1);
-
-	while (renderer->IsOpened())
-    {
-        // Process events
-        sf::Event Event;
-        while (renderer->PollEvent(Event))
-        {
-            // Close window : exit
-            if (Event.Type == sf::Event::Closed)
-                renderer->Close();
-        }
-
-        // Clear the screen (fill it with black color)
-        renderer->Clear();
-
-		OpenGLManager::MainLoop();
-
-		//layout.Draw(renderer);
-
-        // Display window contents on screen
-        renderer->Display();
-    }
-    /*glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_ALPHA);
-	glutInitWindowPosition(pRectangle.x, pRectangle.y);
-    glutInitWindowSize(pRectangle.width, pRectangle.height);
-
-    glutCreateWindow("OPENGL WINDOW");
- 
-	glutDisplayFunc(&Render);
-	glutMouseFunc(&OnMouseEvent);
-	glutKeyboardFunc(&OnKeyboardEvent);
-	glutPassiveMotionFunc(&OnMouseMotionEvent);
-	glutMotionFunc(&OnMouseMotionEvent);
-	glutIdleFunc(&OnIdle);*/
-
-	//glewInit();
- //   if (!GLEW_VERSION_2_0) {
- //       //fprintf(stderr, "OpenGL 2.0 not available\n");
- //       return 1;
- //   }
+	// Initialize SFML window and thread
+	//sf::RenderWindow renderer_temp(
 	
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
+	//renderer = &renderer_temp; */
+	renderer = new sf::RenderWindow(sf::VideoMode(pRectangle.width, pRectangle.height, 8), "CarMP OpenGL Window");
 	
-
-	GLint viewPort[4];
-	glGetIntegerv(GL_VIEWPORT, viewPort);
-	glOrtho(viewPort[0],viewPort[0]+viewPort[2],viewPort[1]+viewPort[3],viewPort[1],-1,1);
-		
-
-	//glOrtho(0, pRectangle.width, pRectangle.width, 0, -1, 1);
-
-	//Back to the modelview so we can draw stuff 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	//glTranslatef(0.375, 0.375, 0);
 	
-	glEnable(GL_BLEND);
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_LIGHTING);
-/*
-	if (!_instance->MakeShaders()) {x
-        fprintf(stderr, "Failed to load resources\n");
-        return 1;
-    }*/
-	   //GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//eventThread = new sf::Thread(&OpenGLManager::ProcessEventThread, _instance);
 	
-	renderer->Clear(sf::Color(0,0,0,1));
-
-    OpenGLManager::MainLoop();
-	
+	//eventThread->Launch();
 }
 
-void OpenGLManager::MainLoop()
+void OpenGLManager::DisplayBuffer()
 {
-    /*while(renderer.IsOpened())
-    {*/
-		
-		glClearColor(0.f, 0.f, 0.f, 0.f);
-		
-        // Clear color and depth buffer
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		if(_instance->m_renderHandler != NULL)
-		_instance->m_renderHandler();
-
-		//renderer.Display();
-		
-		sf::Sleep(.01);
-	//}
+	renderer->Display();
+	OpenGLManager::ProcessEventThread();
 }
 
-//void OpenGLManager::DrawImage(Rectangle pRectangle, int pTextureId, float pAlpha)
-//{
-//	
-//}
-
-void OpenGLManager::OnMouseEvent(int button, int state,
-                                int x, int y)
+void OpenGLManager::ProcessEventThread()
 {
-	if(_instance->m_mouseHandler == NULL)
-		return;
-
-	OGL_MOUSE_EVENT newEvent;
-	newEvent.x = x;
-	newEvent.y = y;
-
-	_instance->m_mouseHandler(newEvent);
+	//while(!m_shutDownThread && renderer->IsOpened())
+	{		
+		sf::Event newEvent;
+		while(renderer->PollEvent(newEvent))
+		{
+			switch(newEvent.Type)
+			{
+				case sf::Event::KeyPressed:
+					
+					if(m_keyboardHandler != NULL)
+						m_keyboardHandler(newEvent.Key);
+					break;
+				case sf::Event::Closed:
+					// Need to send a message up to c# land too...
+					if(m_windowCloseHandler != NULL)
+						m_windowCloseHandler();
+					renderer->Close();
+					break;
+				case sf::Event::MouseMoved:
+					if(m_mouseMoveHandler != NULL)
+						m_mouseMoveHandler(newEvent.MouseMove);
+					break;
+				case sf::Event::MouseButtonPressed:
+					if(m_mouseDownHandler != NULL)
+						m_mouseDownHandler(newEvent.MouseButton);
+					break;
+				case sf::Event::MouseButtonReleased:
+					if(m_mouseUpHandler != NULL)
+						m_mouseUpHandler(newEvent.MouseButton);
+					break;
+			}
+		}
+		//Sleep(10);
+	}
 }
 
-void OpenGLManager::OnMouseMotionEvent(int x, int y)
+void OpenGLManager::RegisterMouseMoveCallback(void (__stdcall *phandler)(sf::Event::MouseMoveEvent))
 {	
-	if(_instance->m_mouseHandler == NULL)
-		return;
-
-	OGL_MOUSE_EVENT newEvent;
-	newEvent.x = x;
-	newEvent.y = y;
-
-	_instance->m_mouseHandler(newEvent);
+	m_mouseMoveHandler = phandler;
 }
 
-void OpenGLManager::OnKeyboardEvent(unsigned char key,
-                                   int x, int y)
-{
-	if(_instance->m_keyboardHandler == NULL)
-		return;
-
-	OGL_KEYBOARD_EVENT newEvent;
-	newEvent.c = key;
-
-	_instance->m_keyboardHandler(newEvent);
-}
-
-void OpenGLManager::RegisterMouseCallback(void (__stdcall *phandler)(OGL_MOUSE_EVENT))
+void OpenGLManager::RegisterMouseUpCallback(void (__stdcall *phandler)(sf::Event::MouseButtonEvent))
 {	
-	m_mouseHandler = phandler;
+	m_mouseUpHandler = phandler;
 }
 
-void OpenGLManager::RegisterKeyboardCallback(void (__stdcall *phandler)(OGL_KEYBOARD_EVENT))
+void OpenGLManager::RegisterMouseDownCallback(void (__stdcall *phandler)(sf::Event::MouseButtonEvent))
+{	
+	m_mouseDownHandler = phandler;
+}
+
+void OpenGLManager::RegisterKeyboardCallback(void (__stdcall *phandler)(sf::Event::KeyEvent))
 {	
 	m_keyboardHandler = phandler;
 }
 
-void OpenGLManager::RegisterRenderCallback(void (__stdcall *pHandler)(void))
-{
-	m_renderHandler = pHandler;
+void OpenGLManager::RegisterWindowCloseCallback(void (__stdcall *phandler)())
+{	
+	m_windowCloseHandler = phandler;
 }
 
 void OpenGLManager::Clear(OGL_COLOR pBrush)
@@ -286,4 +209,11 @@ OpenGLManager* OpenGLManager::GetInstance(void)
 		//_instance = &self;
 	}
 	return _instance;
+}
+
+void OpenGLManager::PushClip(OGL_RECT pBoundingRectangle)
+{
+}
+void OpenGLManager::PopClip()
+{
 }

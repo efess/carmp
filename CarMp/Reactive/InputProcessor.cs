@@ -2,17 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Forms;
-using CarMP.Graphics.Geometry;
 using CarMP.Reactive.KeyInput;
-using CarMP.Win32;
-using System.Diagnostics;
+using CarMP.Graphics.Geometry;
 using CarMP.Reactive.Touch;
-using CarMP.Callbacks;
+using CarMP.Graphics;
+using CarMP.Graphics.Interfaces;
 
 namespace CarMP.Reactive
 {
-    public class W32MessageToReactive
+    public class InputProcessor
     {
         //**** Mouse State Vars
 
@@ -24,7 +22,7 @@ namespace CarMP.Reactive
         private Point _previousPoint = new Point();
         private Point _startHighVelocityPoint;
         private DateTime _previousPointTime;
-        private System.Threading.Timer _waitTimer;
+        private System.Threading.Timer _waitTimer = new System.Threading.Timer((o) => { });
 
         private VelocityAggregator _velocityAgg;
 
@@ -36,28 +34,10 @@ namespace CarMP.Reactive
         public int TouchSwipeVelocityThreshold { get; set; }
         public int TouchDownHoldThreshold { get; set; }
 
-        //****
-
-        private IWin32MessageHookable _hookedPump;
-        private Control _control;
         public readonly Observables ObservableActions;
 
-        private Keys[] supportedKeys = new Keys[] {
-            Keys.Left, Keys.Right, Keys.Up, Keys.Down,
-                            Keys.Back, Keys.Delete};
-
-        public W32MessageToReactive(Control pControl)
+        public InputProcessor(IWindow pEventProducingWindow)
         {
-            if (pControl == null)
-                throw new ArgumentNullException("pControl");
-
-            if (pControl is IWin32MessageHookable)
-            {
-                (pControl as IWin32MessageHookable).MessagePump +=
-                    new Win32Messenger(ProcessMessage); 
-            }
-            _control = pControl;
-
             // Defaults
             TouchDownHoldThreshold = 1000;
             TouchDownClickThreshold = 200;
@@ -65,79 +45,23 @@ namespace CarMP.Reactive
             TouchSwipeDistanceThreshold = 50;
             TouchSwipeVelocityThreshold = 1000;
 
-            _velocityAgg = new VelocityAggregator(3);
-
             ObservableActions = new Observables();
+
+            _velocityAgg = new VelocityAggregator(5);
+
+            // SetEvents
+            pEventProducingWindow.SetProcessKeyPress(ProcessKeyPress);
+            pEventProducingWindow.SetProcessMouseDown(ProcessMouseDown);
+            pEventProducingWindow.SetProcessMouseMove(ProcessMouseMove);
+            pEventProducingWindow.SetProcessMouseUp(ProcessMouseUp);
         }
 
-        public void ProcessMessage(ref Message pMessage)
-        {
-            switch (pMessage.Msg)
-            {
-                case WindowsMessages.WM_CHAR:
-                    {
-                        char iKey = (char)pMessage.WParam;
-                        Keys key = 0;//(Keys)pMessage.WParam;
-
-                        //Debug.WriteLine("key: " + key.ToString() + ", " + iKey.ToString() + ", " + ((int)((Keys)iKey & Keys.KeyCode)).ToString());
-                        
-                        ProcessKeyPress(iKey, key);
-                    }
-                    break;
-                case WindowsMessages.WM_KEYDOWN:
-                    {
-                        bool _upper = Win32Helpers.GetKeyState((int)Keys.CapsLock) != 0
-                            ^ Win32Helpers.GetKeyState((int)Keys.ShiftKey) < 0;
-                        
-                        bool _ctrl = Win32Helpers.GetKeyState((int)Keys.ControlKey) != 0;
-
-                        int iKey =(int) Win32Helpers.MapVirtualKey((uint)pMessage.WParam, 2);
-                        
-                        Keys key = (Keys)pMessage.WParam;
-                        if (supportedKeys.Contains(key))
-                        {
-                            //Debug.WriteLine("Shift: " + _upper + " KeyDown " + key.ToString() + ", " + iKey.ToString() + ", " + ((int)((Keys)iKey & Keys.KeyCode)).ToString());
-
-                            ProcessKeyPress((char)TranslateKey(iKey, _ctrl, _upper), key);
-                        }
-                    }
-                    break;
-                case WindowsMessages.WM_MOUSEMOVE:
-                    ProcessMouseMove(GetMouseCoordFromLParam((int)pMessage.LParam));
-                    break;
-                case WindowsMessages.WM_LBUTTONDOWN:
-                    ProcessMouseDown(GetMouseCoordFromLParam((int)pMessage.LParam));
-                    break;
-                case WindowsMessages.WM_LBUTTONUP:
-                    ProcessMouseUp(GetMouseCoordFromLParam((int)pMessage.LParam));
-                    break;
-                    
-            }
-        }
-
-        private int TranslateKey(int pChar, bool pControl, bool pShift)
-        {
-            if (pChar >= 65 && pChar <= 90)
-                if (!pShift)
-                    return pChar + 32;
-            if(pShift)
-                switch (pChar)
-                {
-                    case 59:
-                        return 58;
-
-                }
-
-
-            return pChar;
-        }
-        
-        private void ProcessKeyPress(char pChar, Keys pKeyChar)
+        protected void ProcessKeyPress(char pChar, Keys pKeyChar)
         {
             SendKeyInput(new Key(pChar, pKeyChar));
         }
 
-        private void ProcessMouseUp(Point pMouseCoordinate)
+        protected void ProcessMouseUp(Point pMouseCoordinate)
         {
             // Check for Click
             _isDown = false;
@@ -153,7 +77,7 @@ namespace CarMP.Reactive
             }
         }
 
-        private void ProcessMouseDown(Point pMouseCoordinate)
+        protected void ProcessMouseDown(Point pMouseCoordinate)
         {
             _isInSwipe = false;
             _isDown = true;
@@ -161,16 +85,16 @@ namespace CarMP.Reactive
             _downPoint = pMouseCoordinate;
             _downTime = DateTime.Now;
             _waitTimer = new System.Threading.Timer((o) =>
-                {
-                    SendTouchGesture(new TouchGesture(GestureType.Hold, pMouseCoordinate));
-                    _isDownHolding = false;
-                },
+            {
+                SendTouchGesture(new TouchGesture(GestureType.Hold, pMouseCoordinate));
+                _isDownHolding = false;
+            },
                 null,
-                TouchDownHoldThreshold, 
+                TouchDownHoldThreshold,
                 System.Threading.Timeout.Infinite);
         }
 
-        private void ProcessMouseMove(Point pMouseCoordinate)
+        protected void ProcessMouseMove(Point pMouseCoordinate)
         {
             DateTime dt = DateTime.Now;
             Point mousePoint = pMouseCoordinate;
@@ -180,12 +104,12 @@ namespace CarMP.Reactive
             bool mouseDown = _isDown;
             float seconds = (float)(dt - _previousPointTime).TotalSeconds;
 
-            float xVelocity =Math.Abs((mousePoint.X - _previousPoint.X)
+            float xVelocity = Math.Abs((mousePoint.X - _previousPoint.X)
                 / seconds);
-            
+
             float yVelocity = Math.Abs((mousePoint.Y - _previousPoint.Y)
                 / seconds);
-                        
+
             float directionalVelocity = LinearMath.DistanceBetweenTwoPoint(mousePoint, _previousPoint)
                 / seconds;
 
@@ -193,7 +117,7 @@ namespace CarMP.Reactive
             Velocity velocityNow = _velocityAgg.GetVelocity;
 
             //System.Diagnostics.Debug.WriteLine("MouseMove- velocity: " + velocityNow + "  now: " + e.X.ToString() + "," + e.Y.ToString() + " previous: " + _previousPoint.X.ToString() + "," + _previousPoint.Y.ToString() + " " + e.Button.ToString());
-            if (_isDownHolding 
+            if (_isDownHolding
                 && (Math.Abs(pMouseCoordinate.X - _downPoint.X) > 3
                 || Math.Abs(pMouseCoordinate.Y - _downPoint.Y) > 3))
             {
@@ -216,7 +140,7 @@ namespace CarMP.Reactive
                 else if (_isInSwipe)
                 {
 
-                    
+
                     // TODO: Chewck for angle. 
                     // HACK: the following code.
                     float x = _startHighVelocityPoint.X - mousePoint.X;
@@ -255,10 +179,6 @@ namespace CarMP.Reactive
             _previousPoint = mousePoint;
         }
 
-        private Point GetMouseCoordFromLParam(int pLParam)
-        {
-            return new Point((pLParam & 0xFFFF), pLParam >> 16);
-        }
 
         private void ProcessVelocity(object pStateObject)
         {
@@ -269,30 +189,27 @@ namespace CarMP.Reactive
 
         }
 
-        private void SendKeyInput(Key pKeyInput)
+        protected void SendKeyInput(Key pKeyInput)
         {
             ObservableActions.ObsKeyInput.PushKeyInput(pKeyInput);
         }
 
-        private void SendTouchGesture(TouchGesture pTouchGesture)
+        protected void SendTouchGesture(TouchGesture pTouchGesture)
         {
             ObservableActions.ObsTouchGesture.PushTouchGesture(pTouchGesture);
             //DebugHandler.DebugPrint("Gesture: " + pTouchGesture.Gesture.ToString() + " at " + pTouchGesture.X.ToString() + "," + pTouchGesture.Y.ToString());
         }
 
-        private void SendTouchMove(TouchMove pTouchMove)
+        protected void SendTouchMove(TouchMove pTouchMove)
         {
             ObservableActions.ObsTouchMove.PushTouchMove(pTouchMove);
             //DebugHandler.DebugPrint("Velocity: " + pTouchMove.Velocity.VelocityD.ToString() + ", down: " + pTouchMove.TouchDown.ToString() + " at " + pTouchMove.X.ToString() + "," + pTouchMove.Y.ToString());
         }
 
-        private void StopWaitTimer()
+        protected void StopWaitTimer()
         {
             _waitTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
         }
 
-    }
-    public enum AsciiChar
-    {
     }
 }

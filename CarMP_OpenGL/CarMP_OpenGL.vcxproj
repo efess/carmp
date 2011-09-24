@@ -69,6 +69,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CarMPInterface.h" />
+    <ClInclude Include="FontRepository.h" />
     <ClInclude Include="GLBuffer.h" />
     <ClInclude Include="GLResourceBase.h" />
     <ClInclude Include="OGLTextLayout.h" />
@@ -79,6 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CarMPInterface.cpp" />
+    <ClCompile Include="FontRepository.cpp" />
     <ClCompile Include="GLBuffer.cpp" />
     <ClCompile Include="GLResourceBase.cpp" />
     <ClCompile Include="OGLTextLayout.cpp" />

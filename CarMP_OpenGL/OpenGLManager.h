@@ -16,18 +16,14 @@ typedef struct OGL_MOUSE_EVENT {
 	float y;
 };
 
-typedef struct OGL_KEYBOARD_EVENT {
-	unsigned char c;
-};
-
-
 class OpenGLManager
 {
 private:
-	void (__stdcall *m_mouseHandler)(OGL_MOUSE_EVENT);
-	void (__stdcall *m_keyboardHandler)(OGL_KEYBOARD_EVENT);
-	void (__stdcall *m_renderHandler)(void);
-	map<int, GLResourceBase*> _resourceMap;
+	void (__stdcall *m_mouseMoveHandler)(sf::Event::MouseMoveEvent);
+	void (__stdcall *m_mouseUpHandler)(sf::Event::MouseButtonEvent);
+	void (__stdcall *m_mouseDownHandler)(sf::Event::MouseButtonEvent);
+	void (__stdcall *m_keyboardHandler)(sf::Event::KeyEvent);
+	void (__stdcall *m_windowCloseHandler)(void);
 
 	static OpenGLManager* _instance;
     const OpenGLManager& operator=(const OpenGLManager& a);
@@ -37,15 +33,11 @@ private:
 //    void operator=(OpenGLManager const&); // Don't implement
 	~OpenGLManager(void);
 	
-	void MainLoop();
 	sf::RenderWindow* renderer;
-	// Functions for GL to call
-	static void Render(void);
-	static void OnMouseEvent(int, int, int, int);
-	static void OnKeyboardEvent(unsigned char, int, int);
-	static void OnMouseMotionEvent(int, int);
-	
-	
+	sf::Thread* eventThread;
+
+	void ProcessEventThread(void);
+	bool m_shutDownThread;
 public:
 	void CreateOGLWindow(OGL_RECT pScreen);
 
@@ -59,6 +51,8 @@ public:
 	void DrawText(OGLTextLayout* pTextLayout, OGL_RECT pRectangle, OGL_COLOR pColor);
 	void Clear(OGL_COLOR pBrush);
 
+	void DisplayBuffer(void);
+
 	// Resource Methods:
 	OGLTextLayout* OpenGLManager::CreateTextLayout(const char* pString, const char* pFont, float pSize, int pAlignment);
 	void OpenGLManager::FreeTextLayout(OGLTextLayout*);
@@ -68,12 +62,17 @@ public:
 	
 	//void DrawImage(Rectangle pRectangle, IImage pImage, float pAlpha);
 	
-	void RegisterMouseCallback(void (__stdcall *)(OGL_MOUSE_EVENT));
-	void RegisterKeyboardCallback(void (__stdcall *)(OGL_KEYBOARD_EVENT));
-	void RegisterRenderCallback(void (__stdcall *)(void));
-	
+	void RegisterMouseMoveCallback(void (__stdcall *)(sf::Event::MouseMoveEvent));
+	void RegisterMouseDownCallback(void (__stdcall *)(sf::Event::MouseButtonEvent));
+	void RegisterMouseUpCallback(void (__stdcall *)(sf::Event::MouseButtonEvent));
+	void RegisterKeyboardCallback(void (__stdcall *)(sf::Event::KeyEvent));
+	void RegisterWindowCloseCallback(void (__stdcall *)(void));
+
 	static OpenGLManager* GetInstance(void);
 
 	void TestFunction(void);
+
+	void PushClip(OGL_RECT);
+	void PopClip();
 };
 

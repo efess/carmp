@@ -13,17 +13,26 @@ int _tmain(int argc, _TCHAR* argv[])
 	rect.y = 0;
 	rect.width = 640;
 	rect.height = 480;
-	CI::RegisterRenderCallback(&render);
+	
 	CI::CreateOGLWindow(rect);
+
+	while(true)
+	{
+		render();
+
+		CI::DisplayBuffer();
+
+		Sleep(10);
+	}
 
 	return 0;
 }
 
+OGLTextLayout* textObject;
 OGLTexture* texture[5];
 
 void __stdcall render(void)
 {
-	
 	OGL_COLOR color1;
 	color1.a = 1;
 	color1.b = 0;
@@ -83,4 +92,15 @@ void __stdcall render(void)
 	CI::DrawRectangle(color3, rect3, 6);
 
 	CI::DrawImage(texture[1], textureRec, 1);
+
+	if(textObject == NULL)
+		textObject = CI::CreateTextLayout("Testing", "Arial", 15, 0);
+	
+	OGL_RECT textRec;
+	textRec.height = 480;
+	textRec.width = 90;
+	textRec.x = 200;
+	textRec.y = 100;
+
+	CI::DrawTextLayout(textObject, textRec, color3);
 }

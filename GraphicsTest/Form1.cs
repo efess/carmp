@@ -30,10 +30,7 @@ namespace GraphicsTest
 
             _renderer = new OpenGLRenderer();
 
-            var renderDelegate = new CarMP.Graphics.Implementation.OpenGL.OpenGLRenderer.RenderEventHandler(RenderEvent);
-
-            new Action(() => ((OpenGLRenderer)_renderer).DoesItWork(renderDelegate)).BeginInvoke(null, null);
-            
+           
             //Action renderingLoop = new Action(() => RenderingLoop());
             //renderingLoop.BeginInvoke(null, null);
         }

@@ -9,6 +9,9 @@ namespace CarMP.Reactive.Messaging
     {
         public void AddMessageObserver(IMessageObserver pObserver)
         {
+            if (pObserver == null)
+                throw new ArgumentNullException("pObserver");
+
             pObserver.DisposeUnsubscriber =
                 base.Subscribe(new InternalMessageObserver(pObserver));
         }

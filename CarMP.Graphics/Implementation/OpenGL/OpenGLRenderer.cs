@@ -9,128 +9,144 @@ using CarMP.Graphics.Geometry;
 
 namespace CarMP.Graphics.Implementation.OpenGL
 {
-    public class OpenGLRenderer : IRenderer, IDisposable
+    public class OpenGLRenderer : IRenderer, IDisposable, IWindow
     {
-
         [StructLayout(LayoutKind.Sequential)]
-        public struct MouseEvent
+        public struct MouseButtonEvent
         {
-            public float X;
-            public float Y;
+            public int Button;
+            public int X;
+            public int Y;
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct KeyboardEvent
+        public struct MouseMoveEvent
         {
-            public byte c;
+            public int X;
+            public int Y;
         }
 
-        public delegate void RenderEventHandler();
-        public delegate void MouseEventHandler(MouseEvent testStructure);
-        public delegate void KeyboardEventHandler(KeyboardEvent testStructure);
 
+        [StructLayout(LayoutKind.Sequential)]
+        public struct KeyEvent
+        {
+            public int Code;
+            [MarshalAs(UnmanagedType.I1)]
+            public bool Alt;
+            [MarshalAs(UnmanagedType.I1)]
+            public bool Control;
+            [MarshalAs(UnmanagedType.I1)]
+            public bool Shift;
+            [MarshalAs(UnmanagedType.I1)]
+            public bool System;
+        }
+
+        public delegate void MouseButtonEventHandler(MouseButtonEvent mouseButtonEvent);
+        public delegate void MouseMoveEventHandler(MouseMoveEvent mouseButtonEvent);
+        public delegate void KeyboardEventHandler(KeyEvent testStructure);
+        public delegate void WindowCloseEventHandler();
+
+        //public delegate void ResizeEvent(
         internal const string InterfaceLibrary = @"CarMP_OpenGL.dll";
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
-            EntryPoint = "DeleteResource"), SuppressUnmanagedCodeSecurity]
-        internal static extern int NativeDeleteResource(int pResourceId);
+            EntryPoint = "RegisterMouseUpCallback"), SuppressUnmanagedCodeSecurity]
+        private static extern void NativeRegisterMouseUpCallback(MouseButtonEventHandler pHandler);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
-            EntryPoint = "RegisterMouseCallback"), SuppressUnmanagedCodeSecurity]
-        private static extern int NativeRegisterMouseCallback(MouseEventHandler pHandler);
+            EntryPoint = "RegisterMouseDownCallback"), SuppressUnmanagedCodeSecurity]
+        private static extern void NativeRegisterMouseDownCallback(MouseButtonEventHandler pHandler);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
-            EntryPoint = "RegisterRenderCallback"), SuppressUnmanagedCodeSecurity]
-        private static extern int NativeRegisterRenderCallback(RenderEventHandler pHandler);
+            EntryPoint = "RegisterMouseMoveCallback"), SuppressUnmanagedCodeSecurity]
+        private static extern void NativeRegisterMouseMoveCallback(MouseMoveEventHandler pHandler);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "RegisterKeyboardCallback"), SuppressUnmanagedCodeSecurity]
-        private static extern int NativeRegisterKeyboardCallback(KeyboardEventHandler pHandler);
+        private static extern void NativeRegisterKeyboardCallback(KeyboardEventHandler pHandler);
+        
+        [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "RegisterWindowCloseCallback"), SuppressUnmanagedCodeSecurity]
+        private static extern void NativeRegisterWindowCloseCallback(WindowCloseEventHandler pHandler);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "TestFuncion"), SuppressUnmanagedCodeSecurity]
-        private static extern int TestFunction();
+        private static extern void TestFunction();
+
+        [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "DisplayBuffer"), SuppressUnmanagedCodeSecurity]
+        private static extern void NativeDisplayBuffer();
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "CreateOGLWindow"), SuppressUnmanagedCodeSecurity]
-        private static extern int NativeCreateWindow(Rectangle rect);
+        private static extern void NativeCreateWindow(Rectangle rect);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "DrawImage"), SuppressUnmanagedCodeSecurity]
-        private static extern int NativeDrawImage(IntPtr pObjectPointer, Rectangle pRectangle, float pAlpha);
+        private static extern void NativeDrawImage(IntPtr pObjectPointer, Rectangle pRectangle, float pAlpha);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "DrawRectangle"), SuppressUnmanagedCodeSecurity]
-        private static extern int NativeDrawRectangle(Color pColor, Rectangle pRect, float pLineWidth);
+        private static extern void NativeDrawRectangle(Color pColor, Rectangle pRect, float pLineWidth);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "FillRectangle"), SuppressUnmanagedCodeSecurity]
-        private static extern int NativeFillRectangle(Color pColor, Rectangle pRect);
+        private static extern void NativeFillRectangle(Color pColor, Rectangle pRect);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "DrawEllipse"), SuppressUnmanagedCodeSecurity]
-        private static extern int NativeDrawEllipse(Geometry.Ellipse pEllipse, Color pColor, float pLineWidth);
+        private static extern void NativeDrawEllipse(Geometry.Ellipse pEllipse, Color pColor, float pLineWidth);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "FillEllipse"), SuppressUnmanagedCodeSecurity]
-        private static extern int NativeFillEllipse(Geometry.Ellipse pEllipse, Color pColor);
+        private static extern void NativeFillEllipse(Geometry.Ellipse pEllipse, Color pColor);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "DrawLine"), SuppressUnmanagedCodeSecurity]
-        private static extern int NativeDrawLine(Geometry.Point pPoint1, Geometry.Point pPoint2, Color pColor, float pWidth);
+        private static extern void NativeDrawLine(Geometry.Point pPoint1, Geometry.Point pPoint2, Color pColor, float pWidth);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
-            EntryPoint = "DrawText"), SuppressUnmanagedCodeSecurity]
-        private static extern int NativeDrawText(IntPtr pObjectPointer, Rectangle pRectangle, Color pColor);
+            EntryPoint = "DrawTextLayout"), SuppressUnmanagedCodeSecurity]
+        private static extern void NativeDrawText(IntPtr pObjectPointer, Rectangle pRectangle, Color pColor);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "Clear"), SuppressUnmanagedCodeSecurity]
-        private static extern int NativeClear(Color pColor);
+        private static extern void NativeClear(Color pColor);
+
+        [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "PushClip"), SuppressUnmanagedCodeSecurity]
+        private static extern void NativePushClip(Rectangle pRectangle);
+
+        [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "PopClip"), SuppressUnmanagedCodeSecurity]
+        private static extern void NativePopClip();
 
         private List<GCHandle> _unmanaged_references = new List<GCHandle>();
 
-        #region IRenderer Members
-
-        public bool DoesItWork(RenderEventHandler pRenderDelegate)
+        public OpenGLRenderer()
         {
-            var renderDelegate = pRenderDelegate;//new RenderEventHandler(OnRender);
-            var mouseDelegate = new MouseEventHandler(OnMouse);
-            var keyboardEvent = new KeyboardEventHandler(OnKeyboard);
+            var mouseDelegate = new MouseMoveEventHandler(ProcessMouseMoveEvent);
+            var keyboardEvent = new KeyboardEventHandler(ProcessKeyPressedEvent);
+            var mouseDownEvent = new MouseButtonEventHandler(ProcessMouseDownEvent);
+            var mouseUpEvent = new MouseButtonEventHandler(ProcessMouseUpEvent);
 
-            _unmanaged_references.Add(GCHandle.Alloc(renderDelegate));
             _unmanaged_references.Add(GCHandle.Alloc(mouseDelegate));
+            _unmanaged_references.Add(GCHandle.Alloc(mouseDownEvent));
+            _unmanaged_references.Add(GCHandle.Alloc(mouseUpEvent));
             _unmanaged_references.Add(GCHandle.Alloc(keyboardEvent));
 
-            NativeRegisterRenderCallback(renderDelegate);
-            NativeRegisterMouseCallback(mouseDelegate);
             NativeRegisterKeyboardCallback(keyboardEvent);
-
-            NativeCreateWindow(new Rectangle(5, 7, 800, 600));
-
-            return true;
+            NativeRegisterMouseDownCallback(mouseDownEvent);
+            NativeRegisterMouseMoveCallback(mouseDelegate);
+            NativeRegisterMouseUpCallback(mouseUpEvent);
         }
 
-        public void CreateWindow(RenderEventHandler pRenderDelegate)
-        {
-            _unmanaged_references.Add(GCHandle.Alloc(pRenderDelegate));
-            NativeRegisterRenderCallback(pRenderDelegate);
-            new Action(() => NativeCreateWindow(new Rectangle(5, 7, 800, 600))).BeginInvoke(null, null) ;
-        }
-
-        public void OnRender()
+        ~OpenGLRenderer()
         {
         }
 
-        public void OnMouse(MouseEvent pMouseEvent)
-        {
-            Console.WriteLine("MouseEvent: (" + pMouseEvent.X + "," + pMouseEvent.Y + ")");
-        }
-
-        public void OnKeyboard(KeyboardEvent pKeyboardEvent)
-        {
-            Console.WriteLine("KeyboardEvent: (" + pKeyboardEvent.c + ")");
-        }
-
+        #region IRenderer Members
+        
         public Geometry.Rectangle CurrentBounds { get; set; }
 
         public void Resize(Geometry.SizeI pSize)
@@ -145,7 +161,7 @@ namespace CarMP.Graphics.Implementation.OpenGL
 
         public void EndDraw()
         {
-           
+            NativeDisplayBuffer();
         }
 
         public void Clear(Color pColor)
@@ -257,5 +273,58 @@ namespace CarMP.Graphics.Implementation.OpenGL
         {
             return new Ellipse(TransformPoint(pEllipse.Point), pEllipse.RadiusX, pEllipse.RadiusY);
         }
+
+        private void ProcessKeyPressedEvent(KeyEvent pKeyEvent)
+        {
+            // TODO: Translate KeyEvent
+            if (_processKeyPress != null) _processKeyPress('l', Keys.A);
+        }
+
+        private void ProcessMouseMoveEvent(MouseMoveEvent pMouseMove)
+        {
+            if(_processMouseMove != null) _processMouseMove(new Point(pMouseMove.X, pMouseMove.Y));
+        }
+
+        private void ProcessMouseUpEvent(MouseButtonEvent pMouseUpEvent)
+        {
+            if (_processMouseUp != null) _processMouseUp(new Point(pMouseUpEvent.X, pMouseUpEvent.Y));
+        }
+
+        private void ProcessMouseDownEvent(MouseButtonEvent pMouseDownEvent)
+        {
+            if (_processMouseDown != null) _processMouseDown(new Point(pMouseDownEvent.X, pMouseDownEvent.Y));
+        }
+
+        private void ProcessWindowCloseEvent()
+        {
+        }
+
+        #region IWindow Members
+
+        public void SetProcessKeyPress(Action<char, CarMP.Graphics.Keys> pCallback) { _processKeyPress = pCallback; }
+        public void SetProcessMouseMove(Action<Point> pCallback) { _processMouseMove = pCallback; }
+        public void SetProcessMouseDown(Action<Point> pCallback) { _processMouseDown = pCallback; }
+        public void SetProcessMouseUp(Action<Point> pCallback) { _processMouseUp = pCallback; }
+
+        public void CreateWindow(Point pWindowLocation, Size pWindowSize)
+        {
+            NativeCreateWindow(new Rectangle(pWindowLocation, pWindowSize));
+        }
+
+        public IRenderer Renderer
+        {
+            get
+            {
+                return this;
+            }
+        }
+
+        #endregion
+
+        private Action<char, CarMP.Graphics.Keys> _processKeyPress;
+        private Action<Point> _processMouseMove;
+        private Action<Point> _processMouseDown;
+        private Action<Point> _processMouseUp;
+
     }
 }

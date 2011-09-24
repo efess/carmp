@@ -18,7 +18,7 @@ namespace CarMP
     {
         private const int TIMER_GRANULARITY = 10;
 
-        public static Forms.FormHost AppFormHost;
+        public static WindowManager WindowManager;
         public static BackgroundTasks BackgroundTasks { get; private set; }
         public static MediaManager MediaManager { get; private set; }
         public static SessionSettings Settings { get; private set; }
@@ -56,12 +56,11 @@ namespace CarMP
 
             InitializeApplication(pArgs);
 
-            AppFormHost = new Forms.FormHost();
-            Messanger.AddMessageObserver(AppFormHost);
+            WindowManager = new CarMP.WindowManager();
 
-            AppFormHost.ShowView(CarMP.Views.D2DViewFactory.HOME);
-            AppFormHost.StartPosition = FormStartPosition.Manual;
-            AppFormHost.Show();
+            Messanger.AddMessageObserver(WindowManager);
+
+            WindowManager.ShowView(CarMP.Views.D2DViewFactory.HOME);
 
             try
             {

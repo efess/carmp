@@ -121,6 +121,7 @@
     <Compile Include="MediaEntities\DigitalMediaItem.cs" />
     <Compile Include="Direct2D\Imaging.cs" />
     <Compile Include="IO\FileMediaInfo.cs" />
+    <Compile Include="Reactive\InputProcessor.cs" />
     <Compile Include="Skinning\Skin.cs" />
     <Compile Include="Skinning\SkinManager.cs" />
     <Compile Include="ViewControls\Interfaces\IViewList.cs" />
@@ -141,7 +142,6 @@
     <Compile Include="MediaController\IMediaController.cs" />
     <Compile Include="MediaEntities\MediaListItemFactory.cs" />
     <Compile Include="Reactive\DefaultObservable.cs" />
-    <Compile Include="Reactive\W32MessageToReactive.cs" />
     <Compile Include="Reactive\Touch\TouchGesture.cs" />
     <Compile Include="Reactive\Touch\Touch.cs" />
     <Compile Include="Reactive\Touch\TouchGestureObservable.cs" />
@@ -179,12 +179,6 @@
     <Compile Include="Enums.cs" />
     <Compile Include="IO\FileSystem.cs" />
     <Compile Include="MediaEntities\FileSystemItem.cs" />
-    <Compile Include="Forms\FormHost.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\FormHost.Designer.cs">
-      <DependentUpon>FormHost.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\FormSplash.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -218,10 +212,7 @@
     <Compile Include="ViewControls\Text\Text.cs" />
     <Compile Include="ViewControls\ThermometerProgressBar\ThermometerProgressBar.cs" />
     <Compile Include="Helpers\XmlHelper.cs" />
-    <EmbeddedResource Include="Forms\FormHost.resx">
-      <DependentUpon>FormHost.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
+    <Compile Include="WindowManager.cs" />
     <EmbeddedResource Include="Forms\FormSplash.resx">
       <DependentUpon>FormSplash.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -260,7 +251,6 @@
     <Compile Include="Views\NavigationView.cs" />
     <Compile Include="Views\OptionsView.cs" />
     <Compile Include="Views\OverlayView.cs" />
-    <Compile Include="Win32\WindowsMessages.cs" />
     <Compile Include="MediaController\WinampController.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -302,7 +292,12 @@
       <Name>CarMP.MediaInfo</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="..\Debug\CarMP_OpenGL.dll">
+      <Link>CarMP_OpenGL.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

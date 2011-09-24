@@ -2,18 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Forms;
+using CarMP.Graphics;
 
 namespace CarMP.Reactive.KeyInput
 {
     public class Key : ReactiveUpdate
     {
-        public Keys DotNetKeysValue { get; private set; }
+        public Keys KeysValue { get; private set; }
         public char Character { get; private set; }
         public Key(char pCharacter, Keys pKeyValue)
         {
-            DotNetKeysValue = pKeyValue;
+            KeysValue = pKeyValue;
             Character = pCharacter;
-        }
+        }   
     }
 }

@@ -136,6 +136,7 @@ namespace CarMP
 
         private void GetListHistory()
         {
+            return;
             IList<MediaHistory> lHistories = DatabaseInterface.DataSession.
                 CreateCriteria(typeof(MediaHistory))
                 .AddOrder(new Order("ListIndex", true))

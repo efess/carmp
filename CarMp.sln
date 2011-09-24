@@ -2,6 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarMP", "CarMp\CarMP.csproj", "{A0A6D51B-7760-4D91-9CCA-8CD491AFD56A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8DD2EEE4-A796-41B0-951E-0F075DA88F75} = {8DD2EEE4-A796-41B0-951E-0F075DA88F75}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarMP.MediaInfo", "CarMp.MediaInfo\CarMP.MediaInfo.csproj", "{328BCACA-4652-49CF-96A9-B64DC3EA23AB}"
 EndProject

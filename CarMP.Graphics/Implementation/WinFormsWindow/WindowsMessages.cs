@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CarMP.Win32
+namespace CarMP.Implementation.WinFormsWindow
 {
     // Message list here:
     // http://www.autohotkey.com/docs/misc/SendMessageList.htm

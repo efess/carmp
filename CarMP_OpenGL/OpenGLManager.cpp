@@ -4,6 +4,7 @@
 OpenGLManager* OpenGLManager::_instance = NULL;
 
 OpenGLManager::OpenGLManager(void)
+	: clippingStack()
 {
 	m_shutDownThread = false;
 
@@ -16,15 +17,19 @@ OpenGLManager::OpenGLManager(void)
 
 OpenGLManager::~OpenGLManager(void)
 {
+
 	m_shutDownThread = true;
+	if(renderer != NULL)
+		delete renderer;
 }
 
-void OpenGLManager::CreateOGLWindow(OGL_RECT pRectangle)
+void OpenGLManager::CreateOGLWindow(const OGL_RECT& pRectangle)
 {
 	// Initialize SFML window and thread
 	//sf::RenderWindow renderer_temp(
 	
 	//renderer = &renderer_temp; */
+	m_currentWindowBounds = pRectangle;
 	renderer = new sf::RenderWindow(sf::VideoMode(pRectangle.width, pRectangle.height, 8), "CarMP OpenGL Window");
 	
 	
@@ -102,12 +107,12 @@ void OpenGLManager::RegisterWindowCloseCallback(void (__stdcall *phandler)())
 	m_windowCloseHandler = phandler;
 }
 
-void OpenGLManager::Clear(OGL_COLOR pBrush)
+void OpenGLManager::Clear(const OGL_COLOR& pBrush)
 {
 	renderer->Clear(sf::Color(pBrush.r,pBrush.g, pBrush.b, pBrush.a));
 }
 
-void OpenGLManager::DrawLine(OGL_POINT pPoint1, OGL_POINT pPoint2, OGL_COLOR pBrush, float pLineWidth)
+void OpenGLManager::DrawLine(const OGL_POINT& pPoint1, const OGL_POINT& pPoint2, const OGL_COLOR& pBrush, float pLineWidth)
 {
 	sf::Color color = sf::Color((sf::Uint8)(pBrush.r * 255), (sf::Uint8)(pBrush.g * 255), (sf::Uint8)(pBrush.b * 255),(sf::Uint8)(pBrush.a * 255));
 	sf::Shape shape = sf::Shape::Line(pPoint1.x,pPoint1.y, pPoint2.x, pPoint2.y, pLineWidth, color);
@@ -115,7 +120,7 @@ void OpenGLManager::DrawLine(OGL_POINT pPoint1, OGL_POINT pPoint2, OGL_COLOR pBr
 	renderer->Draw(shape);
 }
 
-void OpenGLManager::DrawRectangle(OGL_COLOR pBrush, OGL_RECT pRect, float pLineWidth)
+void OpenGLManager::DrawRectangle(const OGL_COLOR& pBrush, const OGL_RECT& pRect, float pLineWidth)
 {
 	sf::Color color = sf::Color((sf::Uint8)(pBrush.r * 255), (sf::Uint8)(pBrush.g * 255), (sf::Uint8)(pBrush.b * 255),(sf::Uint8)(pBrush.a * 255));
 	sf::Shape shape = sf::Shape::Rectangle(pRect.x,pRect.y, pRect.width, pRect.height, color, pLineWidth, color);
@@ -123,7 +128,7 @@ void OpenGLManager::DrawRectangle(OGL_COLOR pBrush, OGL_RECT pRect, float pLineW
 	renderer->Draw(shape);
 }
 
-void OpenGLManager::FillRectangle(OGL_COLOR pBrush, OGL_RECT pRect)
+void OpenGLManager::FillRectangle(const OGL_COLOR& pBrush, const OGL_RECT& pRect)
 {
 	sf::Color color = sf::Color((sf::Uint8)(pBrush.r * 255), (sf::Uint8)(pBrush.g * 255), (sf::Uint8)(pBrush.b * 255),(sf::Uint8)(pBrush.a * 255));
 	sf::Shape shape = sf::Shape::Rectangle(pRect.x,pRect.y, pRect.width, pRect.height, color, 0, color);
@@ -131,7 +136,7 @@ void OpenGLManager::FillRectangle(OGL_COLOR pBrush, OGL_RECT pRect)
 	renderer->Draw(shape);
 }
 
-void OpenGLManager::DrawEllipse(OGL_ELLIPSE pEllipse, OGL_COLOR pBrush, float pLineWidth)
+void OpenGLManager::DrawEllipse(const OGL_ELLIPSE& pEllipse, const OGL_COLOR& pBrush, float pLineWidth)
 {
 	sf::Color color = sf::Color((sf::Uint8)(pBrush.r * 255), (sf::Uint8)(pBrush.g * 255), (sf::Uint8)(pBrush.b * 255),(sf::Uint8)(pBrush.a * 255));
 	sf::Shape shape = sf::Shape::Circle(pEllipse.x, pEllipse.y, pEllipse.radius_x, color, pLineWidth, color);
@@ -144,7 +149,7 @@ void OpenGLManager::DrawEllipse(OGL_ELLIPSE pEllipse, OGL_COLOR pBrush, float pL
 	renderer->Draw(shape);
 }
 
-void OpenGLManager::FillEllipse(OGL_ELLIPSE pEllipse, OGL_COLOR pBrush)
+void OpenGLManager::FillEllipse(const OGL_ELLIPSE& pEllipse, const OGL_COLOR& pBrush)
 {
 	sf::Color color = sf::Color((sf::Uint8)(pBrush.r * 255), (sf::Uint8)(pBrush.g * 255), (sf::Uint8)(pBrush.b * 255),(sf::Uint8)(pBrush.a * 255));
 	sf::Shape shape = sf::Shape::Circle(pEllipse.x, pEllipse.y, pEllipse.radius_x, color);
@@ -157,13 +162,13 @@ void OpenGLManager::FillEllipse(OGL_ELLIPSE pEllipse, OGL_COLOR pBrush)
 	renderer->Draw(shape);
 }
 
-void OpenGLManager::DrawImage(OGLTexture* pTexture, OGL_RECT pRectangle, float pAlpha)
+void OpenGLManager::DrawImage(OGLTexture* pTexture, const OGL_RECT& pRectangle, float pAlpha)
 {
 	pTexture->SetDimensions(pRectangle);
 	pTexture->Draw(renderer);
 }
 
-void OpenGLManager::DrawText(OGLTextLayout* pTextLayout, OGL_RECT pRectangle, OGL_COLOR pColor)
+void OpenGLManager::DrawText(OGLTextLayout* pTextLayout, const OGL_RECT& pRectangle, const OGL_COLOR& pColor)
 {
 	pTextLayout->SetDimensions(pRectangle);
 	pTextLayout->Draw(renderer);
@@ -192,12 +197,14 @@ OGLTextLayout* OpenGLManager::CreateTextLayout(const char* pString, const char* 
 
 void OpenGLManager::FreeTextLayout(OGLTextLayout* pTextLayout)
 {
-	free(pTextLayout);
+	delete pTextLayout;
+	//free(pTextLayout);
 }
 
 void OpenGLManager::FreeImage(OGLTexture* pTexture)
 {
-	free(pTexture);
+	delete pTexture;
+	//free(pTexture);
 }
 
 OpenGLManager* OpenGLManager::GetInstance(void)
@@ -213,7 +220,27 @@ OpenGLManager* OpenGLManager::GetInstance(void)
 
 void OpenGLManager::PushClip(OGL_RECT pBoundingRectangle)
 {
+	clippingStack.push(pBoundingRectangle);
+	glEnable(GL_SCISSOR_TEST);
+	
+	ApplyGlScissor(pBoundingRectangle);
 }
 void OpenGLManager::PopClip()
 {
+	clippingStack.pop();
+	if(clippingStack.empty())
+	{
+		glDisable(GL_SCISSOR_TEST);
+	}
+	else
+	{
+		OGL_RECT rect = clippingStack.top();
+		ApplyGlScissor(rect);
+	}
+}
+
+void OpenGLManager::ApplyGlScissor(OGL_RECT pClippingRect)
+{
+	//var x = pClippingRect.x -
+	glScissor(pClippingRect.x, abs(m_currentWindowBounds.height - pClippingRect.y - pClippingRect.height), pClippingRect.width, pClippingRect.height);
 }

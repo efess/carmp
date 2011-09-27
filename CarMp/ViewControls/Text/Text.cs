@@ -60,8 +60,11 @@ namespace CarMP.ViewControls
             get { return _textString; }
             set
             {
-                _textString = value;
-                _invalidateTextLayout = true;
+                if (string.Compare(_textString, value) != 0)
+                {
+                    _textString = value;
+                    _invalidateTextLayout = true;
+                }
             }
         }
 
@@ -99,7 +102,12 @@ namespace CarMP.ViewControls
 
 
             if (_stringLayout == null || _invalidateTextLayout)
-                _stringLayout = pRenderer.CreateStringLayout(_textString, _textStyle.Face, _textStyle.Size,_textStyle.Alignment);//D2DStatic.StringFactory.CreateTextLayout(_textString, _textStyle.Format, Bounds.Width, Bounds.Height);
+            {
+                _invalidateTextLayout = false;
+                if (_stringLayout != null)
+                    GraphicsHelper.DisposeIfImplementsIDisposable(_stringLayout);
+                _stringLayout = pRenderer.CreateStringLayout(_textString, _textStyle.Face, _textStyle.Size, _textStyle.Alignment);//D2DStatic.StringFactory.CreateTextLayout(_textString, _textStyle.Format, Bounds.Width, Bounds.Height);
+            }
 
             pRenderer.DrawString(new Rectangle(TextPosition, Bounds.Size), _stringLayout,  _stringBrush);
         }

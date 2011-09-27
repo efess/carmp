@@ -9,6 +9,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Platform;
 using System.Threading;
+using CarMP.Graphics.Implementation.WinFormsWindow;
 
 namespace CarMP.Graphics.Implementation.OpenTk
 {

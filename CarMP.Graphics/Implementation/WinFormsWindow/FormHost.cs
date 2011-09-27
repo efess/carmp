@@ -7,11 +7,14 @@ using System.Linq;
 using CarMP.Graphics.Interfaces;
 using CarMP.Graphics.Geometry;
 using System.Runtime.InteropServices;
+using CarMP.Graphics.Implementation.WinFormsWindow;
 
 namespace CarMP.Implementation.WinFormsWindow
 {
     public partial class FormHost : Form, IWindow
     {
+        private Type _rendererType;
+
         [DllImport("user32.dll")]
         public static extern short GetKeyState(int pKey);
 
@@ -29,10 +32,17 @@ namespace CarMP.Implementation.WinFormsWindow
 
         protected override void WndProc(ref System.Windows.Forms.Message m)
         {
+            ProcessMessage(ref m);
+
+            base.WndProc(ref m);
         }
 
-        public FormHost()
+        private IRenderer _renderer;
+
+        public FormHost(Type pRendererType)
         {
+            _rendererType = pRendererType;
+
             this.SetStyle(
                 ControlStyles.AllPaintingInWmPaint |
                 ControlStyles.UserPaint, true);
@@ -40,6 +50,11 @@ namespace CarMP.Implementation.WinFormsWindow
             InitializeComponent();
         }
 
+        public void ProcessEvents()
+        {
+            Application.DoEvents();
+        }
+        
         public void ProcessMessage(ref Message pMessage)
         {
             switch (pMessage.Msg)
@@ -119,21 +134,19 @@ namespace CarMP.Implementation.WinFormsWindow
         Action<Point> _processMouseDown;
         Action<Point> _processMouseUp;
 
-        public IRenderer Renderer
-        {
-            get
-            {
-                return null;
-            }
-        }
+        public IRenderer Renderer{ get;private set;}
 
         public void CreateWindow(Point pWindowLocation, Size pWindowSize)
         {
+            Renderer = Activator.CreateInstance(_rendererType, this.Handle)
+                as IRenderer;
+
             this.StartPosition = FormStartPosition.Manual;
             this.Location = new System.Drawing.Point((int)pWindowLocation.X, (int)pWindowLocation.Y);
             this.Size = new System.Drawing.Size((int)pWindowSize.Width, (int)pWindowSize.Height);
 
             this.Show();
+
         }
 
         private Point GetMouseCoordFromLParam(int pLParam)

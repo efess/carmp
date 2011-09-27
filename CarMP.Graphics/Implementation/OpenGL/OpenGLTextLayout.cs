@@ -69,8 +69,11 @@ namespace CarMP.Graphics.Implementation.OpenGL
 
         public void Dispose()
         {
-            if(NativeTextLayoutPointer != IntPtr.Zero)
+            if (NativeTextLayoutPointer != IntPtr.Zero)
+            {
                 NativeFreeTextLayout(NativeTextLayoutPointer);
+                NativeTextLayoutPointer = IntPtr.Zero;
+            }
         }
         
     }

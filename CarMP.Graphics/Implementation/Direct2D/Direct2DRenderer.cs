@@ -8,6 +8,7 @@ using CarMP.Graphics.Interfaces;
 using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.DirectX;
+using CarMP.Graphics.Implementation.WinFormsWindow;
 
 namespace CarMP.Graphics.Implementation.Direct2D
 {
@@ -40,7 +41,7 @@ namespace CarMP.Graphics.Implementation.Direct2D
         }
         public void EndDraw() 
         { 
-            _renderer.EndDraw(); 
+            _renderer.EndDraw();
         }
         public void BeginDraw() 
         {
@@ -60,7 +61,6 @@ namespace CarMP.Graphics.Implementation.Direct2D
         }
 
         public Matrix3x2F Transform { get { return _renderer.Transform; } set { _renderer.Transform = value; } }
-        
 
         public bool IsOccluded
         {
@@ -71,7 +71,6 @@ namespace CarMP.Graphics.Implementation.Direct2D
                     (_renderer as HwndRenderTarget).IsOccluded : true;
             }
         }
-
 
         public Direct2DRenderer(IntPtr pWindowHandle)
         {

@@ -1,12 +1,10 @@
 
 #include "CarMPInterface.h"
+
 namespace CI
 {
-	extern "C" _declspec(dllexport) void CreateOGLWindow(OGL_RECT pRectangle)
-	{
-	
-		freopen ("error.txt","w",stderr);
-  
+	extern "C" _declspec(dllexport) void CreateOGLWindow(const OGL_RECT& pRectangle)
+	{  
 		OpenGLManager* manager = OpenGLManager::GetInstance();
 
 		try
@@ -15,9 +13,8 @@ namespace CI
 		}
 		catch(char * err)
 		{
-		
+
 		}
-		fclose (stderr);
 	}
 
 	extern "C" _declspec(dllexport) void DisplayBuffer()
@@ -56,17 +53,15 @@ namespace CI
 		manager->RegisterMouseDownCallback(pFunction);
 	}
 
-	extern "C" _declspec(dllexport) void DrawImage(OGLTexture* pTexture, OGL_RECT pRectangle, float pAlpha)
+	extern "C" _declspec(dllexport) void DrawImage(OGLTexture* pTexture, const OGL_RECT& pRectangle, float pAlpha)
 	{
 		OpenGLManager* manager = OpenGLManager::GetInstance();
-	
 		manager->DrawImage(pTexture, pRectangle, pAlpha);
 	}
 
-	extern "C" _declspec(dllexport) void DrawTextLayout(OGLTextLayout* pTextLayout, OGL_RECT pRectangle, OGL_COLOR pColor)
+	extern "C" _declspec(dllexport) void DrawTextLayout(OGLTextLayout* pTextLayout, const OGL_RECT& pRectangle, const OGL_COLOR& pColor)
 	{
 		OpenGLManager* manager = OpenGLManager::GetInstance();
-	
 		manager->DrawText(pTextLayout, pRectangle, pColor);
 	}
 
@@ -98,42 +93,42 @@ namespace CI
 		manager->FreeTextLayout(pTextLayout);
 	}
 
-	extern "C" _declspec(dllexport) void DrawRectangle(OGL_COLOR pBrush, OGL_RECT pRect, float pLineWidth)
+	extern "C" _declspec(dllexport) void DrawRectangle(const OGL_COLOR& pBrush, const OGL_RECT& pRect, float pLineWidth)
 	{
 		OpenGLManager* manager = OpenGLManager::GetInstance();
 		manager->DrawRectangle(pBrush, pRect, pLineWidth);
 	}
 
-	extern "C" _declspec(dllexport) void FillRectangle(OGL_COLOR pBrush, OGL_RECT pRect)
+	extern "C" _declspec(dllexport) void FillRectangle(const OGL_COLOR& pBrush, const OGL_RECT& pRect)
 	{
 		OpenGLManager* manager = OpenGLManager::GetInstance();
 		manager->FillRectangle(pBrush, pRect);
 	}
 	
-	extern "C" _declspec(dllexport) void DrawEllipse(OGL_ELLIPSE pEllipse, OGL_COLOR pBrush, float pLineWidth)
+	extern "C" _declspec(dllexport) void DrawEllipse(const OGL_ELLIPSE& pEllipse, const OGL_COLOR& pBrush, float pLineWidth)
 	{
 		OpenGLManager* manager = OpenGLManager::GetInstance();
 		manager->DrawEllipse(pEllipse, pBrush, pLineWidth);
 	}
 	
-	extern "C" _declspec(dllexport) void FillEllipse(OGL_ELLIPSE pEllipse, OGL_COLOR pBrush)
+	extern "C" _declspec(dllexport) void FillEllipse(const OGL_ELLIPSE& pEllipse, const OGL_COLOR& pBrush)
 	{
 		OpenGLManager* manager = OpenGLManager::GetInstance();
 		manager->FillEllipse(pEllipse, pBrush);
 	}
 	
-	extern "C" _declspec(dllexport) void DrawLine(OGL_POINT pPoint1, OGL_POINT pPoint2, OGL_COLOR pBrush, float pWidth)
+	extern "C" _declspec(dllexport) void DrawLine(const OGL_POINT& pPoint1, const OGL_POINT& pPoint2, const OGL_COLOR& pBrush, float pWidth)
 	{
 		OpenGLManager* manager = OpenGLManager::GetInstance();
 		manager->DrawLine(pPoint1, pPoint2, pBrush, pWidth);
 	}
 
-	extern "C" _declspec(dllexport) void Clear(OGL_COLOR pBrush)
+	extern "C" _declspec(dllexport) void Clear(const OGL_COLOR& pBrush)
 	{
 		OpenGLManager* manager = OpenGLManager::GetInstance();
 		manager->Clear(pBrush);
 	}
-	extern "C" _declspec(dllexport) void PushClip(OGL_RECT pBoundingRectangle)
+	extern "C" _declspec(dllexport) void PushClip(const OGL_RECT& pBoundingRectangle)
 	{
 		OpenGLManager* manager = OpenGLManager::GetInstance();
 		manager->PushClip(pBoundingRectangle);
@@ -143,4 +138,14 @@ namespace CI
 		OpenGLManager* manager = OpenGLManager::GetInstance();
 		manager->PopClip();
 	}
+	extern "C" _declspec(dllexport) void DumpDebugInfo()
+	{
+		//_CrtDumpMemoryLeaks();
+		/*fflush(stdout);
+		fclose (stdout);
+		fclose (stderr);*/
+		exit(0);
+	}
+
+
 };

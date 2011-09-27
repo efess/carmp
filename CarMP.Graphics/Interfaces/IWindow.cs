@@ -15,5 +15,7 @@ namespace CarMP.Graphics.Interfaces
 
         void CreateWindow(Point pWindowLocation, Size pWindowSize);
         IRenderer Renderer { get; }
+
+        void ProcessEvents();
     }
 }

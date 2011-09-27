@@ -9,6 +9,7 @@ using NHibernate.Cfg;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using NHibernate.Tool.hbm2ddl;
 
 namespace CarMP.DataObjects
 {
@@ -78,6 +79,12 @@ namespace CarMP.DataObjects
 
             _SessionFactory = 
                 cfg.BuildSessionFactory();
+
+            new SchemaUpdate(cfg).Execute(false, true);
+        }
+
+        private static void CreateSchema()
+        { 
         }
 
         private static bool InitializedCheck()

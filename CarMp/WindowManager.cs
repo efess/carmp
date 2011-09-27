@@ -191,10 +191,13 @@ namespace CarMP
                 {
                     //_fpsControl.TextString = (_fpsCalcFramesTotal - _fpsCalcFramesCurrent).ToString(); ;
                     _fpsCalcFramesCurrent = _fpsCalcFramesTotal;
+                    _fpsCalcFramesTotal = 0;
                     _fpsCalcDate = DateTime.Now;
+                    
+                    Console.WriteLine(_fpsCalcFramesCurrent + " FPS");
                 }
 
-                System.Threading.Thread.Sleep(10);
+                System.Threading.Thread.Sleep(5);
             }
         }
 
@@ -221,6 +224,7 @@ namespace CarMP
 
                 _window.Renderer.EndDraw();
 
+                _window.ProcessEvents();
                 //this.Invalidate();
                 //}
             }

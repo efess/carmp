@@ -50,6 +50,14 @@ namespace CarMP.Graphics.Implementation.OpenGL
         internal const string InterfaceLibrary = @"CarMP_OpenGL.dll";
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "DumpDebugInfo"), SuppressUnmanagedCodeSecurity]
+        private static extern void NativeDumpDebugInfo();
+
+        [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "RegisterWindowCloseCallback"), SuppressUnmanagedCodeSecurity]
+        private static extern void NativeRegisterWindowCloseCallback(Action pHandler);
+
+        [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "RegisterMouseUpCallback"), SuppressUnmanagedCodeSecurity]
         private static extern void NativeRegisterMouseUpCallback(MouseButtonEventHandler pHandler);
 
@@ -79,43 +87,43 @@ namespace CarMP.Graphics.Implementation.OpenGL
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "CreateOGLWindow"), SuppressUnmanagedCodeSecurity]
-        private static extern void NativeCreateWindow(Rectangle rect);
+        private static extern void NativeCreateWindow(ref Rectangle rect);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "DrawImage"), SuppressUnmanagedCodeSecurity]
-        private static extern void NativeDrawImage(IntPtr pObjectPointer, Rectangle pRectangle, float pAlpha);
+        private static extern void NativeDrawImage(IntPtr pObjectPointer, ref Rectangle pRectangle, float pAlpha);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "DrawRectangle"), SuppressUnmanagedCodeSecurity]
-        private static extern void NativeDrawRectangle(Color pColor, Rectangle pRect, float pLineWidth);
+        private static extern void NativeDrawRectangle(ref Color pColor, ref Rectangle pRect, float pLineWidth);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "FillRectangle"), SuppressUnmanagedCodeSecurity]
-        private static extern void NativeFillRectangle(Color pColor, Rectangle pRect);
+        private static extern void NativeFillRectangle(ref Color pColor, ref Rectangle pRect);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "DrawEllipse"), SuppressUnmanagedCodeSecurity]
-        private static extern void NativeDrawEllipse(Geometry.Ellipse pEllipse, Color pColor, float pLineWidth);
+        private static extern void NativeDrawEllipse(ref Geometry.Ellipse pEllipse, ref Color pColor, float pLineWidth);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "FillEllipse"), SuppressUnmanagedCodeSecurity]
-        private static extern void NativeFillEllipse(Geometry.Ellipse pEllipse, Color pColor);
+        private static extern void NativeFillEllipse(ref Geometry.Ellipse pEllipse, ref Color pColor);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "DrawLine"), SuppressUnmanagedCodeSecurity]
-        private static extern void NativeDrawLine(Geometry.Point pPoint1, Geometry.Point pPoint2, Color pColor, float pWidth);
+        private static extern void NativeDrawLine(ref Geometry.Point pPoint1, ref Geometry.Point pPoint2, ref Color pColor, float pWidth);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "DrawTextLayout"), SuppressUnmanagedCodeSecurity]
-        private static extern void NativeDrawText(IntPtr pObjectPointer, Rectangle pRectangle, Color pColor);
+        private static extern void NativeDrawText(IntPtr pObjectPointer, ref Rectangle pRectangle, ref Color pColor);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "Clear"), SuppressUnmanagedCodeSecurity]
-        private static extern void NativeClear(Color pColor);
+        private static extern void NativeClear(ref Color pColor);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "PushClip"), SuppressUnmanagedCodeSecurity]
-        private static extern void NativePushClip(Rectangle pRectangle);
+        private static extern void NativePushClip(ref Rectangle pRectangle);
 
         [DllImport(InterfaceLibrary, CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "PopClip"), SuppressUnmanagedCodeSecurity]
@@ -125,20 +133,29 @@ namespace CarMP.Graphics.Implementation.OpenGL
 
         public OpenGLRenderer()
         {
+            var windowCloseDelegate = new Action(() =>
+                {
+                    NativeDumpDebugInfo();
+                    //Environment.Exit(0);
+                });
+
             var mouseDelegate = new MouseMoveEventHandler(ProcessMouseMoveEvent);
             var keyboardEvent = new KeyboardEventHandler(ProcessKeyPressedEvent);
             var mouseDownEvent = new MouseButtonEventHandler(ProcessMouseDownEvent);
             var mouseUpEvent = new MouseButtonEventHandler(ProcessMouseUpEvent);
 
+            _unmanaged_references.Add(GCHandle.Alloc(windowCloseDelegate));
             _unmanaged_references.Add(GCHandle.Alloc(mouseDelegate));
             _unmanaged_references.Add(GCHandle.Alloc(mouseDownEvent));
             _unmanaged_references.Add(GCHandle.Alloc(mouseUpEvent));
             _unmanaged_references.Add(GCHandle.Alloc(keyboardEvent));
 
+            NativeRegisterWindowCloseCallback(windowCloseDelegate);
             NativeRegisterKeyboardCallback(keyboardEvent);
             NativeRegisterMouseDownCallback(mouseDownEvent);
             NativeRegisterMouseMoveCallback(mouseDelegate);
             NativeRegisterMouseUpCallback(mouseUpEvent);
+
         }
 
         ~OpenGLRenderer()
@@ -166,7 +183,9 @@ namespace CarMP.Graphics.Implementation.OpenGL
 
         public void Clear(Color pColor)
         {
-            NativeClear(pColor);
+            var color = pColor;
+
+            NativeClear(ref color);
         }
 
         public void Flush()
@@ -176,48 +195,71 @@ namespace CarMP.Graphics.Implementation.OpenGL
 
         public void PushClip(Geometry.Rectangle pRectangle)
         {
-            return;
+            var rectangle = pRectangle;
+
+            NativePushClip(ref rectangle);
         }
 
         public void PopClip()
         {
-            return;
+            NativePopClip();
         }
 
         public void DrawRectangle(IBrush pBrush, Geometry.Rectangle pRectangle, float pLineWidth)
         {
-            NativeDrawRectangle(pBrush.Color, TransformRectangle(pRectangle), pLineWidth);
+            var color = pBrush.Color;
+            var rectangle = TransformRectangle(pRectangle);
+
+            NativeDrawRectangle(ref color, ref rectangle, pLineWidth);
         }
 
         public void DrawLine(Geometry.Point pPoint1, Geometry.Point pPoint2, IBrush pBrush, float pLineWidth)
         {
-            NativeDrawLine(pPoint1, pPoint2, pBrush.Color, pLineWidth);
+            var point1 = pPoint1;
+            var point2 = pPoint2;
+            var color = pBrush.Color;
+
+            NativeDrawLine(ref pPoint1, ref pPoint2, ref color, pLineWidth);
         }
 
         public void FillRectangle(IBrush pBrush, Geometry.Rectangle pRectangle)
         {
-            NativeFillRectangle(pBrush.Color, pRectangle);
+            var color = pBrush.Color;
+            var rectangle = TransformRectangle(pRectangle);
+
+            NativeFillRectangle(ref color, ref rectangle);
         }
 
         public void DrawImage(Geometry.Rectangle pRectangle, IImage pImage, float pAlpha)
         {
-            NativeDrawImage((pImage as OpenGLImage).NativeImagePointer, TransformRectangle(pRectangle), pAlpha);
+            var rectangle = TransformRectangle(pRectangle);
+
+            NativeDrawImage((pImage as OpenGLImage).NativeImagePointer, ref rectangle, pAlpha);
         }
 
         public void DrawEllipse(Geometry.Ellipse pEllipse, IBrush pBrush, float pLineWidth)
         {
-            NativeDrawEllipse(pEllipse, pBrush.Color, pLineWidth);
+            var ellipse = TransformEllipse(pEllipse);
+            var color = pBrush.Color;
+
+            NativeDrawEllipse(ref ellipse, ref color, pLineWidth);
         }
 
         public void FillEllipse(Geometry.Ellipse pEllipse, IBrush pBrush)
         {
-            NativeFillEllipse(pEllipse, pBrush.Color);
+            var ellipse = TransformEllipse(pEllipse);
+            var color = pBrush.Color;
+
+            NativeFillEllipse(ref ellipse, ref color);
         }
 
         public void DrawString(Geometry.Rectangle pRectangle, IStringLayout pStringLayout, IBrush pBrush)
         {
+            var rectangle = TransformRectangle(pRectangle);
+            var color = pBrush.Color;
+
             NativeDrawText((pStringLayout as OpenGLStringLayout).NativeTextLayoutPointer,
-                TransformRectangle(pRectangle),  pBrush.Color);
+                ref rectangle,  ref color);
         }
 
         public IBrush CreateBrush(Color pColor)
@@ -308,7 +350,9 @@ namespace CarMP.Graphics.Implementation.OpenGL
 
         public void CreateWindow(Point pWindowLocation, Size pWindowSize)
         {
-            NativeCreateWindow(new Rectangle(pWindowLocation, pWindowSize));
+            var rectangle = new Rectangle(pWindowLocation, pWindowSize);
+
+            NativeCreateWindow(ref rectangle);
         }
 
         public IRenderer Renderer
@@ -319,6 +363,9 @@ namespace CarMP.Graphics.Implementation.OpenGL
             }
         }
 
+        public void ProcessEvents()
+        {
+        }
         #endregion
 
         private Action<char, CarMP.Graphics.Keys> _processKeyPress;

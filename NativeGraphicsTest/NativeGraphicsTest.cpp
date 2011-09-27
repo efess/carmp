@@ -1,19 +1,28 @@
 // NativeGraphicsTest.cpp : Defines the entry point for the console application.
 //
+
+#define _CRTDBG_MAP_ALLOC
+
+#include <stdlib.h>
+#include <crtdbg.h>
+
 #include "stdafx.h"
 
 #include "..\CarMP_OpenGL\CarMPInterface.h"
 
+void __stdcall OnClose(void);
 void __stdcall render(void);
 
 int _tmain(int argc, _TCHAR* argv[])
 {
 	OGL_RECT rect;
+
 	rect.x = 0;
 	rect.y = 0;
 	rect.width = 640;
 	rect.height = 480;
 	
+	CI::RegisterWindowCloseCallback(&OnClose);
 	CI::CreateOGLWindow(rect);
 
 	while(true)
@@ -101,6 +110,11 @@ void __stdcall render(void)
 	textRec.width = 90;
 	textRec.x = 200;
 	textRec.y = 100;
-
+	
 	CI::DrawTextLayout(textObject, textRec, color3);
+}
+
+void __stdcall OnClose(void)
+{
+	_CrtDumpMemoryLeaks();
 }

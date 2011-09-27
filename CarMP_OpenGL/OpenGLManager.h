@@ -1,12 +1,12 @@
 #pragma once
 
+//#include "vld.h"
 #include "GLResourceBase.h"
 #include "Shader.h"
 #include "OGLTexture.h"	
 #include "OGLTextLayout.h"	
 
-#include <map>
-
+#include <stack>
 // End OpenGL Includes
 
 using namespace std;
@@ -33,23 +33,27 @@ private:
 //    void operator=(OpenGLManager const&); // Don't implement
 	~OpenGLManager(void);
 	
+	stack<OGL_RECT> clippingStack;
 	sf::RenderWindow* renderer;
 	sf::Thread* eventThread;
 
+	OGL_RECT m_currentWindowBounds;
+
+	void ApplyGlScissor(OGL_RECT);
 	void ProcessEventThread(void);
 	bool m_shutDownThread;
 public:
-	void CreateOGLWindow(OGL_RECT pScreen);
+	void CreateOGLWindow(const OGL_RECT& pScreen);
 
 	// Drawing methods:
-	void DrawImage(OGLTexture* pTexture, OGL_RECT pRectangle, float pAlpha);
-	void DrawRectangle(OGL_COLOR pBrush, OGL_RECT pRect, float pLineWidth);
-	void FillRectangle(OGL_COLOR, OGL_RECT);
-	void DrawEllipse(OGL_ELLIPSE, OGL_COLOR, float pLineWidth);
-	void DrawLine(OGL_POINT pPoint1, OGL_POINT pPoint2, OGL_COLOR pBrush, float pLineWidth);
-	void FillEllipse(OGL_ELLIPSE, OGL_COLOR);
-	void DrawText(OGLTextLayout* pTextLayout, OGL_RECT pRectangle, OGL_COLOR pColor);
-	void Clear(OGL_COLOR pBrush);
+	void DrawImage(OGLTexture* pTexture, const OGL_RECT& pRectangle, float pAlpha);
+	void DrawRectangle(const OGL_COLOR& pBrush, const OGL_RECT& pRect, float pLineWidth);
+	void FillRectangle(const OGL_COLOR&, const OGL_RECT&);
+	void DrawEllipse(const OGL_ELLIPSE&, const OGL_COLOR&, float pLineWidth);
+	void DrawLine(const OGL_POINT& pPoint1, const OGL_POINT& pPoint2, const OGL_COLOR& pBrush, float pLineWidth);
+	void FillEllipse(const OGL_ELLIPSE&, const OGL_COLOR&);
+	void DrawText(OGLTextLayout* pTextLayout, const OGL_RECT& pRectangle, const OGL_COLOR& pColor);
+	void Clear(const OGL_COLOR& pBrush);
 
 	void DisplayBuffer(void);
 

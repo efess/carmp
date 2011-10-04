@@ -30,7 +30,7 @@ namespace CarMP
         /// From a song or group selection
         /// </summary>
         /// <param name="pMediaHistory"></param>
-        public void AddHistoryItem(MediaListItem pMediaListItem, int pListIndex)
+        public void AddHistoryItem(IMediaSelection pMediaListItem, int pListIndex)
         {
             lock (_lockObject)
             {
@@ -40,7 +40,7 @@ namespace CarMP
                 MediaHistory newHistoryItem = new MediaHistory()
                 {
                     ObjectType = pMediaListItem.GetType().Name,
-                    MediaType = (int)pMediaListItem.MediaType,
+                    MediaType = pMediaListItem.MediaType,
                     ListIndex = pListIndex,
                     DisplayString = pMediaListItem.DisplayString,
                     Key = pMediaListItem.Key,

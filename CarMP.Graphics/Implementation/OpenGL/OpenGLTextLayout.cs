@@ -19,6 +19,10 @@ namespace CarMP.Graphics.Implementation.OpenGL
             EntryPoint = "FreeTextLayout"), SuppressUnmanagedCodeSecurity]
         private static extern void NativeFreeTextLayout(IntPtr pNativePointer);
 
+        [DllImport(OpenGLRenderer.InterfaceLibrary, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "GetCharacterPoint"), SuppressUnmanagedCodeSecurity]
+        private static extern Point NativeGetCharacterPoint(IntPtr pNativePointer, int pCharPosition);
+
         internal IntPtr NativeTextLayoutPointer { get; private set; }
 
         private string _string;

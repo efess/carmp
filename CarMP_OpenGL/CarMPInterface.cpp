@@ -92,6 +92,16 @@ namespace CI
 		OpenGLManager* manager = OpenGLManager::GetInstance();
 		manager->FreeTextLayout(pTextLayout);
 	}
+	
+	extern "C" _declspec(dllexport) OGL_POINT GetCharacterPoint(OGLTextLayout* pTextLayout, int pCharPosition)
+	{
+		return pTextLayout->GetCharacterPoint(pCharPosition);
+	}
+	
+	extern "C" _declspec(dllexport) int GetCharacterPosition(OGLTextLayout* pTextLayout, OGL_POINT pCharPoint)
+	{
+		return pTextLayout->GetCharacterPosition(pCharPoint);
+	}
 
 	extern "C" _declspec(dllexport) void DrawRectangle(const OGL_COLOR& pBrush, const OGL_RECT& pRect, float pLineWidth)
 	{

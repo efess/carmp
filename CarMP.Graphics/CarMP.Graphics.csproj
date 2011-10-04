@@ -71,7 +71,6 @@
     <Compile Include="Implementation\WinFormsWindow\FormHost.Designer.cs">
       <DependentUpon>FormHost.cs</DependentUpon>
     </Compile>
-    <Compile Include="Implementation\WinFormsWindow\IWinFormRenderer.cs" />
     <Compile Include="Implementation\WinFormsWindow\WindowsMessages.cs" />
     <Compile Include="Interfaces\IWindow.cs" />
     <Compile Include="Keys.cs" />

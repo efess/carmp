@@ -8,7 +8,6 @@ using CarMP.Graphics.Interfaces;
 using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.DirectX;
-using CarMP.Graphics.Implementation.WinFormsWindow;
 
 namespace CarMP.Graphics.Implementation.Direct2D
 {

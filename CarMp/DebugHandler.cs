@@ -14,7 +14,7 @@ namespace CarMP
         {
             if(Ds != null)
             {
-                //Ds.Invoke(debugString);
+                Ds.Invoke(debugString);
             }
         }
 

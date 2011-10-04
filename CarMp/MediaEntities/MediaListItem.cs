@@ -14,11 +14,12 @@ namespace CarMP.MediaEntities
         Song
     }
 
-    public abstract class MediaListItem : DragableListTextItem
+    public abstract class MediaListItem : DragableListTextItem, IMediaSelection
     {
+        public string ObjectType { get { return this.GetType().Name; } }
         public abstract int ItemSpecificType { get; }
         public abstract string Key { get; }
-        internal MediaListItemType MediaType { get; private set; }
+        public MediaListItemType MediaType { get; private set; }
         protected MediaListItem(string pDisplayString, MediaListItemType pListItemType)
             : base(pDisplayString)
         {

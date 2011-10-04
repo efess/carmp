@@ -80,7 +80,7 @@ namespace CarMP.DataObjects
             _SessionFactory = 
                 cfg.BuildSessionFactory();
 
-            new SchemaUpdate(cfg).Execute(false, true);
+            // new SchemaUpdate(cfg).Execute(false, true);
         }
 
         private static void CreateSchema()

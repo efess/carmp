@@ -32,6 +32,7 @@ namespace CarMP.Settings
         private const string XML_DATABASE_PATH_NODE = "databasepath";
         private const string XML_ROOT_NODE = "settings";
 
+        private const string XML_RENDERING_ENGINE = "renderer";
         private const string XML_SCREEN_SIZE_NODE = "resolution";
 
         private const string XML_WINDOW_LOCATION_NODE = "screenstart";
@@ -50,6 +51,10 @@ namespace CarMP.Settings
 
         private const string XML_SKIN_NAME = "CurrentSkin";
 
+        /// <summary>
+        /// Window and graphics rendering API to use
+        /// </summary>
+        public string RenderingEngine { get; set; }
         //  Option Properties
         /// <summary>
         /// Indicates if application should run debugging methods
@@ -109,18 +114,19 @@ namespace CarMP.Settings
 
         public void SetDefaults()
         {
+            RenderingEngine = "opengl";
             Debug = false;
-            DatabaseLocation = @".\database.db";
-            SettingsXmlLocation = @".\settings.xml";
+            DatabaseLocation = @"./database.db";
+            SettingsXmlLocation = @"./settings.xml";
             WindowLocation = new Point(0, 0);
             ScreenResolution = new Size(800, 480);
             DefaultFontColor = new Color(198 / 256, 198 / 256, 198 / 256,1);
             DefaultFontSpecialColor = new Color(205 / 256, 117 / 256, 2 / 256, 1);
             SkinName = "BMW";
-            SkinPath = @"..\..\..\Images\Skins";        
-            MusicPath = @"C:\Music";
-            PicturePath = @"C:\Pictures";
-            VideoPath = @"C:\Video";
+            SkinPath = @"../../../Images/Skins";        
+            MusicPath = @"C:/Music";
+            PicturePath = @"C:/Pictures";
+            VideoPath = @"C:/Video";
             SortMedia = MediaSort.FileName;
             SettingObjects.ForEach(so => so.SetDefaults());
         }
@@ -210,6 +216,7 @@ namespace CarMP.Settings
 
         public void PopulateSettings(XElement pXElement)
         {
+            SetOrCreateNode(pXElement, XML_RENDERING_ENGINE, RenderingEngine);
             SetOrCreateNode(pXElement, XML_DATABASE_PATH_NODE, DatabaseLocation);
             SetOrCreateNode(pXElement, XML_MUSIC_FOLDER, MusicPath);
             SetOrCreateNode(pXElement, XML_VIDEO_FOLDER, VideoPath);
@@ -278,6 +285,9 @@ namespace CarMP.Settings
                     case XML_PICTURES_FOLDER:
                         PicturePath = node.Value;
                         break;
+                    case XML_RENDERING_ENGINE:
+                        RenderingEngine = node.Value;
+                        break; 
                     case XML_MEDIA_SORT:
                         try { SortMedia = (MediaSort)Enum.Parse(typeof(MediaSort), node.Value); }
                         catch { }; // Ignore.

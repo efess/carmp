@@ -89,7 +89,6 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -122,6 +121,7 @@
     <Compile Include="MediaEntities\DigitalMediaItem.cs" />
     <Compile Include="Direct2D\Imaging.cs" />
     <Compile Include="IO\FileMediaInfo.cs" />
+    <Compile Include="MediaEntities\IMediaSelection.cs" />
     <Compile Include="Reactive\InputProcessor.cs" />
     <Compile Include="Skinning\Skin.cs" />
     <Compile Include="Skinning\SkinManager.cs" />

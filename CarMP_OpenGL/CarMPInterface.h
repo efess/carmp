@@ -36,6 +36,9 @@ namespace CI
 	extern "C" _declspec(dllexport) OGLTexture* CreateImageFromByteArray(const char*, int pStride);
 	extern "C" _declspec(dllexport) void FreeImage(OGLTexture*);
 
+
 	extern "C" _declspec(dllexport) OGLTextLayout* CreateTextLayout(const char* pString, const char* pFont, float pSize, int pAlignment);
 	extern "C" _declspec(dllexport) void FreeTextLayout(OGLTextLayout* pTextLayout);
+	extern "C" _declspec(dllexport) OGL_POINT GetCharacterPoint(OGLTextLayout* pTextLayout, int pCharPosition);
+	extern "C" _declspec(dllexport) int GetCharacterPosition(OGLTextLayout* pTextLayout, OGL_POINT pCharPoint);
 };

@@ -25,7 +25,11 @@ namespace CarMP.Views
         {
             MediaList = new SwapableDragableList();
             MediaList.Bounds = new Rectangle(20, 40, this.Width - 60, this.Height - 80);
-            MediaList.SelectedItemChanged += new DragableList.SelectedItemChangedEventHandler(MediaList_SelectedItemChanged);
+            MediaList.SelectedItemChanged += (sender, e) =>
+                {
+                    MediaList_SelectedItemChanged(sender, e);
+                    AppMain.MediaManager.SetMediaHistory(MediaList.CurrentListIndex, e.SelectedItem);
+                };
 
             AppMain.MediaManager.ListChangeRequest += (sender, e) => MediaList.ChangeList(e.ListIndex);
             MediaList.AfterListChanged += (sender, e) => AppMain.MediaManager.ExecuteListChanged(e.NewIndex);
@@ -64,8 +68,9 @@ namespace CarMP.Views
             MediaList.InsertNext(new RootItem("File System", RootItemType.FileSystem));
 
             int listIndex = 1;
-            foreach (MediaHistory item in AppMain.MediaManager.MediaListHistory)
+            foreach (MediaHistory item in AppMain.MediaManager.MediaListHistory.OrderBy(item => item.ListIndex))
             {
+                DoItemChangeEvent(item);
                 listIndex++;
             }
         }
@@ -77,28 +82,31 @@ namespace CarMP.Views
 
         private void MediaList_SelectedItemChanged(object sender, SelectedItemChangedEventArgs e)
         {
-            MediaListItem selectedItem = e.SelectedItem as MediaListItem;
+            DoItemChangeEvent(e.SelectedItem as IMediaSelection);
+        }
 
-            if (selectedItem == null)
+        private void DoItemChangeEvent(IMediaSelection pItem)
+        {
+            if (pItem == null)
                 throw new Exception("Selected item is null or wrong type");
 
-            switch (selectedItem.MediaType)
+            switch (pItem.MediaType)
             {
                 case MediaListItemType.Group:
-                    new Action<int>(selectedIndex => 
-                            {
-                                AppMain.MediaManager.SetMediaHistory(selectedIndex, selectedItem);
-                            }
-                        ).BeginInvoke(
-                        MediaList.CurrentListIndex,
-                        null,
-                        null);
+                    //new Action<int>(selectedIndex =>
+                    //{
+                    //    AppMain.MediaManager.SetMediaHistory(selectedIndex, pItem);
+                    //}
+                    //    ).BeginInvoke(
+                    //    MediaList.CurrentListIndex,
+                    //    null,
+                    //    null);
 
-                    MediaList.ClearAndFillNextList(AppMain.MediaManager.GetNewList(selectedItem).ToArray());
+                    MediaList.ClearAndFillNextList(AppMain.MediaManager.GetNewList(pItem).ToArray());
                     MediaList.ChangeListForward();
                     break;
                 case MediaListItemType.Song:
-                    AppMain.MediaManager.PlayMediaListItem(selectedItem);
+                    AppMain.MediaManager.PlayMediaListItem(pItem);
                     break;
             }
         }

@@ -43,6 +43,27 @@ OGLTextLayout::OGLTextLayout(const char* pString, const char* pFont, float pSize
 	}
 }
 
+OGL_POINT OGLTextLayout::GetCharacterPoint(int pCharPosition)
+{
+	sf::Vector2f vect = m_text->GetCharacterPos(pCharPosition);
+
+	OGL_POINT point;
+	point.x = vect.x;
+	point.y = vect.y;
+
+	return point;
+}
+
+int OGLTextLayout::GetCharacterPosition(OGL_POINT pCharPoint)
+{
+	sf::Vector2f vect = m_text->GetCharacterPos(pCharPosition);
+
+	OGL_POINT point;
+	point.x = vect.x;
+	point.y = vect.y;
+
+	return point;
+}
 
 OGLTextLayout::~OGLTextLayout(void)
 {

@@ -15,8 +15,8 @@ namespace CarMP.ViewControls
         private const string XPATH_MAX_ENTRY_WIDTH = "MaxEntryWidth";
         private const string XPATH_SEPARATOR_IMAGE = "SeparatorImg";
 
-        //private readonly List<HistoryText> currentHistory =
-        //    new List<HistoryText>();
+        private readonly List<HistoryText> currentHistory =
+            new List<HistoryText>();
 
         private TextStyle textStyle;
         public TextStyle TextStyle
@@ -49,14 +49,15 @@ namespace CarMP.ViewControls
                 return;
 
             float left = 0.0f;
-            //foreach (HistoryText text in currentHistory)
-            //{
-            //    left += text.Width + _separatorImage.Size.Width;
-            //}
-            //var historyItem = new HistoryText(pListIndex, MaxItemPixelLength, pDisplayString, TextStyle, left);
-            //currentHistory.Add(historyItem);
-            //AddViewControl(historyItem);
-            //historyItem.Click = OnHistoryClick;
+            
+            foreach (HistoryText text in currentHistory)
+            {
+                left += text.Width + _separatorImage.Size.Width;
+            }
+            var historyItem = new HistoryText(pListIndex, MaxItemPixelLength, pDisplayString, TextStyle, left);
+            currentHistory.Add(historyItem);
+            AddViewControl(historyItem);
+            historyItem.Click = OnHistoryClick;
         }
 
         protected override void ClearHistory()
@@ -87,61 +88,61 @@ namespace CarMP.ViewControls
             if (_separatorImage == null)
                 return;
 
-            //for(int i = 1; i < currentHistory.Count; i++)
-            //{
-            //    pRenderer.DrawImage(
-            //        new Rectangle(currentHistory[i - 1].Bounds.Right,
-            //            (currentHistory[i - 1].TextHeight - _separatorImage.Size.Height) / 2,
-            //            _separatorImage.Size.Width,
-            //            _separatorImage.Size.Height),
-            //            _separatorImage,
-            //            1f);
-            //}
+            for (int i = 1; i < currentHistory.Count; i++)
+            {
+                pRenderer.DrawImage(
+                    new Rectangle(currentHistory[i - 1].Bounds.Right,
+                        (currentHistory[i - 1].TextHeight - _separatorImage.Size.Height) / 2,
+                        _separatorImage.Size.Width,
+                        _separatorImage.Size.Height),
+                        _separatorImage,
+                        1f);
+            }
         }
 
-        //private class HistoryText : Text
-        //{
-        //    protected override void OnTouchGesture(Reactive.Touch.TouchGesture pTouchGesture)
-        //    {
-        //        if (pTouchGesture.Gesture == Reactive.Touch.GestureType.Click)
-        //            OnClick();
-        //    }
-        //    public Action<int> Click { get; set; }
-        //    private void OnClick()
-        //    {
-        //        if (Click != null)
-        //        {
-        //            Click(ListIndex);
-        //        }
-        //    }
+        private class HistoryText : Text
+        {
+            protected override void OnTouchGesture(Reactive.Touch.TouchGesture pTouchGesture)
+            {
+                if (pTouchGesture.Gesture == Reactive.Touch.GestureType.Click)
+                    OnClick();
+            }
+            public Action<int> Click { get; set; }
+            private void OnClick()
+            {
+                if (Click != null)
+                {
+                    Click(ListIndex);
+                }
+            }
 
-        //    public int ListIndex { get; private set; }
-        //    public float MaxPixelLength { get; private set; }
-        //    public float TextWidth { get; private set; }
-        //    public float TextHeight { get; private set; }
+            public int ListIndex { get; private set; }
+            public float MaxPixelLength { get; private set; }
+            public float TextWidth { get; private set; }
+            public float TextHeight { get; private set; }
 
-        //    public HistoryText(int pListIndex, int pMaxPixelLength, string pText, TextStyle pTextStyle, float pLeftBounds)
-        //    {
-        //        ListIndex = pListIndex;
-        //        MaxPixelLength = pMaxPixelLength;
+            public HistoryText(int pListIndex, int pMaxPixelLength, string pText, TextStyle pTextStyle, float pLeftBounds)
+            {
+                ListIndex = pListIndex;
+                MaxPixelLength = pMaxPixelLength;
 
-        //        var textSize = D2DStatic.GetTextPixelSize(pText, pTextStyle);
-        //        TextWidth =  Math.Min(textSize.Width, pMaxPixelLength);
-        //        TextHeight = textSize.Height;
-        //        TextStyle = pTextStyle;
-        //        if (false && textSize.Width > pMaxPixelLength)
-        //        {
-        //            // TODO: Trim  
-        //            TextString = pText;
-        //        }
-        //        else
-        //            TextString = pText;
+                var textSize = new Size(30, 19); ;// D2DStatic.GetTextPixelSize(pText, pTextStyle);
+                TextWidth = Math.Min(textSize.Width, pMaxPixelLength);
+                TextHeight = textSize.Height;
+                TextStyle = pTextStyle;
+                if (false && textSize.Width > pMaxPixelLength)
+                {
+                    // TODO: Trim  
+                    TextString = pText;
+                }
+                else
+                    TextString = pText;
 
-        //        Bounds = new RectF(pLeftBounds, 
-        //            0,
-        //            pLeftBounds + TextWidth, 
-        //            textSize.Height);
-        //    }
-        //}
+                Bounds = new Rectangle(pLeftBounds,
+                    0,
+                    pLeftBounds + TextWidth,
+                    textSize.Height);
+            }
+        }
     }
 }

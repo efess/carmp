@@ -43,7 +43,7 @@ namespace CarMP
             _fpsCalcFramesTotal = 0;
             _fpsCalcDate = DateTime.Now;
 
-            _window = new WindowFactory().GetWindow("opengl");
+            _window = new WindowFactory().GetWindow(AppMain.Settings.RenderingEngine);
             
             _inputProcessor = new InputProcessor(_window);
             _inputProcessor.ObservableActions.ObsTouchGesture.Subscribe((tg) => RouteTouchEvents(tg));

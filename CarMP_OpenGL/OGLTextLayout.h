@@ -13,6 +13,8 @@ public:
 	OGLTextLayout(void);
 	~OGLTextLayout(void);
 	void SetDimensions(OGL_RECT pRectangle);
+	OGL_POINT GetCharacterPoint(int pCharPosition);
+	int GetCharacterPosition(OGL_POINT pCharPoint);
 private:
 	
 	static FontRepository* Fonts;

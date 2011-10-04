@@ -288,7 +288,7 @@ namespace CarMP.ViewControls
                 {
                     SelectedItemChanged.BeginInvoke(this, 
                         new SelectedItemChangedEventArgs(
-                            this._listItemCollection.SelectedItem, 
+                            this._listItemCollection.SelectedItem as IMediaSelection,  
                             this._listItemCollection.SelectedIndex),
                         null, 
                         null);
@@ -446,14 +446,14 @@ namespace CarMP.ViewControls
     
     public class SelectedItemChangedEventArgs : EventArgs
     {
-        public SelectedItemChangedEventArgs(DragableListItem pDragableListItem,
+        public SelectedItemChangedEventArgs(IMediaSelection pDragableListItem,
                                             int pSelectedIndex)
         {
             SelectedItem = pDragableListItem;
             SelectedIndex = pSelectedIndex;
         }
         public int SelectedIndex { get; private set; }
-        public DragableListItem SelectedItem { get; private set; }
+        public IMediaSelection SelectedItem { get; private set; }
         
     }
 }

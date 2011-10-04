@@ -7,7 +7,6 @@ using System.Linq;
 using CarMP.Graphics.Interfaces;
 using CarMP.Graphics.Geometry;
 using System.Runtime.InteropServices;
-using CarMP.Graphics.Implementation.WinFormsWindow;
 
 namespace CarMP.Implementation.WinFormsWindow
 {
@@ -138,12 +137,17 @@ namespace CarMP.Implementation.WinFormsWindow
 
         public void CreateWindow(Point pWindowLocation, Size pWindowSize)
         {
-            Renderer = Activator.CreateInstance(_rendererType, this.Handle)
-                as IRenderer;
-
             this.StartPosition = FormStartPosition.Manual;
             this.Location = new System.Drawing.Point((int)pWindowLocation.X, (int)pWindowLocation.Y);
             this.Size = new System.Drawing.Size((int)pWindowSize.Width, (int)pWindowSize.Height);
+
+            Renderer = Activator.CreateInstance(_rendererType, this.Handle)
+                as IRenderer;
+
+            this.SetStyle(
+                ControlStyles.AllPaintingInWmPaint |
+                ControlStyles.UserPaint, true);
+
 
             this.Show();
 

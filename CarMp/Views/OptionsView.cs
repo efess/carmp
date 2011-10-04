@@ -28,7 +28,7 @@ namespace CarMP.Views
             _dragableList = new DragableList();
             _dragableList.SelectedItemChanged += (sender, e) =>
                 {
-                    SetOptionsControl(_optionsViewList[e.SelectedItem.Index]);
+                    SetOptionsControl(_optionsViewList[e.SelectedIndex]);
                 };
 
             PopulateOptions();

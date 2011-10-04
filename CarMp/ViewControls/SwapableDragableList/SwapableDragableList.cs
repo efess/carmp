@@ -77,13 +77,14 @@ namespace CarMP.ViewControls
             }
         }
 
-        // Base clears controls. Need to re-add dragable list
+        // Base clears controls. Need to re-add dragable lists
         public virtual void ApplySkin(XmlNode pXmlNode, string pSkinPath)
         {
             base.ApplySkin(pXmlNode, pSkinPath);
 
             if(_listCollection.Count > _currentListIndex)
-                AddViewControl(_listCollection[_currentListIndex]);
+                foreach(var control in _listCollection)
+                    AddViewControl(control);
 
             var node = pXmlNode.SelectSingleNode(XPATH_ITEM_SIZE);
             if (node != null)

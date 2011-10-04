@@ -136,7 +136,6 @@ namespace CarMP
 
         private void GetListHistory()
         {
-            return;
             IList<MediaHistory> lHistories = DatabaseInterface.DataSession.
                 CreateCriteria(typeof(MediaHistory))
                 .AddOrder(new Order("ListIndex", true))
@@ -170,7 +169,7 @@ namespace CarMP
             return items;
         }
 
-        public void SetMediaHistory(int pListIndex, MediaListItem pMediaListItem)
+        public void SetMediaHistory(int pListIndex, IMediaSelection pMediaListItem)
         {
             lock(MediaListHistory)
                 MediaListHistory.AddHistoryItem(pMediaListItem, pListIndex);
@@ -268,13 +267,13 @@ namespace CarMP
             _audioController.PausePlayback();
         }
 
-        public void PlayMediaListItem(MediaListItem pMediaListItem)
+        public void PlayMediaListItem(IMediaSelection pMediaListItem)
         {
             SetPlayList();
             PlayMediaListItemInternal(pMediaListItem);
         }
 
-        private void PlayMediaListItemInternal(MediaListItem pMediaListItem)
+        private void PlayMediaListItemInternal(IMediaSelection pMediaListItem)
         {
             MediaItem? mediaItem = _currentPlayList.FirstOrDefault(item => item.InternalKey == pMediaListItem.Key);
             if (mediaItem != null)
@@ -493,7 +492,6 @@ namespace CarMP
             }
         }
 
-
         public void MediaPrevious()
         {
             if (CurrentMediaItem == null) return;
@@ -509,31 +507,39 @@ namespace CarMP
                 PlayCurrentMediaItem();
             }
         }
-        
-        public List<MediaListItem> GetNewList(MediaListItem pGroupItem)
+
+        public List<MediaListItem> GetNewList(IMediaSelection pGroupItem)
         {
             List<MediaListItem> returnList = new List<MediaListItem>();
-            if (pGroupItem is FileSystemItem)
+            switch (pGroupItem.ObjectType)
             {
-                var fileSystemItem = pGroupItem as FileSystemItem;
-                returnList.AddRange(GetNewFSMediaList(fileSystemItem.FullPath));
-            }
-            else if (pGroupItem is DigitalMediaItem)
-            {
-                var mediaItem = pGroupItem as DigitalMediaItem;
-                returnList.AddRange(GetNewMediaList(mediaItem.TargetId));
-            }
-            else if (pGroupItem is RootItem)
-            {
-                var rootItem = pGroupItem as RootItem;
-                if (rootItem.ItemType == RootItemType.DigitalMediaLibrary)
-                {
-                    returnList.AddRange(GetMLRootLevelItems());
-                }
-                else if (rootItem.ItemType == RootItemType.FileSystem)
-                {
-                    returnList.AddRange(GetFSRootLevelItems());
-                }
+
+                case "FileSystemItem":
+                    {
+                        returnList.AddRange(GetNewFSMediaList(pGroupItem.Key));
+                    }
+                    break;
+                case "DigitalMediaItem":
+                    {
+                        int targetId = 0;
+                        try { int.TryParse(pGroupItem.Key, out targetId); }
+                        catch { }
+
+                        returnList.AddRange(GetNewMediaList(targetId));
+                    }
+                    break;
+                case "RootItem":
+                    {
+                        if (pGroupItem.Key == RootItemType.DigitalMediaLibrary.ToString())
+                        {
+                            returnList.AddRange(GetMLRootLevelItems());
+                        }
+                        else if (pGroupItem.Key == RootItemType.FileSystem.ToString())
+                        {
+                            returnList.AddRange(GetFSRootLevelItems());
+                        }
+                    }
+                    break;
             }
 
             List<MediaListItem> songList = new List<MediaListItem>();
@@ -551,6 +557,7 @@ namespace CarMP
         {
             if (ListChanged != null)
                 ListChanged(this, new ChangeMediaListArgs(pListIndex));
+            
         }
 
         private void OnMediaChanged(MediaItem pMediaItem)

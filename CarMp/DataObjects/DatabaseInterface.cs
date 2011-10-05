@@ -50,16 +50,25 @@ namespace CarMP.DataObjects
             
             Configuration cfg = null;
             IFormatter serializer = new BinaryFormatter();
-            
+
+            bool deSerialized = false;
             if(File.Exists(configurationFile))
             {
                 //other times
-                using (Stream stream = File.OpenRead(configurationFile))
+                try
                 {
-                    cfg = serializer.Deserialize(stream) as Configuration;
+                    using (Stream stream = File.OpenRead(configurationFile))
+                    {
+                        cfg = serializer.Deserialize(stream) as Configuration;
+                    }
+                    deSerialized = true;
+                }
+                catch
+                {
                 }
             }
-            else
+
+            if(!deSerialized)
             {
                 cfg = Fluently.Configure()
                       .Database(
@@ -69,11 +78,15 @@ namespace CarMP.DataObjects
                     .Mappings(m =>
                         m.FluentMappings.AddFromAssemblyOf<AppMain>())
                         .BuildConfiguration();
-                
-                using (Stream stream = File.OpenWrite(configurationFile))
+
+                try
                 {
-                    serializer.Serialize(stream, cfg);
+                    using (Stream stream = File.OpenWrite(configurationFile))
+                    {
+                        serializer.Serialize(stream, cfg);
+                    }
                 }
+                catch { }// Forgeddabout it.
             }
              
 

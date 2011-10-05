@@ -13,7 +13,7 @@ namespace CarMP
             Id(x => x.HistoryId);
             Map(x => x.ListIndex);
             Map(x => x.DisplayString);
-            Map(x => x.MediaType);
+            Map(x => x.MediaTypeInt).Column("MediaType");
             Map(x => x.Key).Column("ObjectKey");
             Map(x => x.ItemSpecificType).Column("ObjectSpecificType");
             Map(x => x.ObjectType);

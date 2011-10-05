@@ -8,6 +8,7 @@ using CarMP.ViewControls;
 
 namespace CarMP.MediaEntities
 {
+    [Serializable]
     public enum MediaListItemType
     {
         Group,

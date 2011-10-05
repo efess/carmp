@@ -228,6 +228,10 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="..\Database\database.db">
+      <Link>database.db</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -294,9 +298,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Debug\CarMP_OpenGL.dll">
+    <Content Include="..\Libraries\CarMP_OpenGL.dll">
       <Link>CarMP_OpenGL.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -309,6 +313,9 @@
   -->
   <PropertyGroup>
     <PostBuildEvent>copy $(SolutionDir)Libraries\SQLite.Interop.Dll $(TargetDir) /Y
+copy $(SolutionDir)Libraries\sfml-system-d-2.dll $(TargetDir) /Y
+copy $(SolutionDir)Libraries\sfml-graphics-d-2.dll $(TargetDir) /Y
+copy $(SolutionDir)Libraries\sfml-window-d-2.dll $(TargetDir) /Y
 copy $(SolutionDir)Libraries\NHibernate_NonReferenced\*.dll $(TargetDir) /Y
 copy $(SolutionDir)Libraries\NHibernate_NonReferenced\*.DLL $(TargetDir) /Y
 </PostBuildEvent>
